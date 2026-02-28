@@ -1,0 +1,331 @@
+empresa:
+  nombre: "heru"
+  nombre_display: "heru"  # Siempre en minúsculas, nunca "Heru" ni "HERU"
+  website: "https://heru.app"
+  pais: "México"
+  industria: "Fintech / Fiscal Tech"
+  fundacion: 2019
+  proposito: >
+    Empoderar a las personas que generan ingresos por su cuenta para que tengan
+    control total sobre su situación fiscal.
+  frase_posicionamiento: >
+    "No hablamos de 'declarar'. Hablamos de control, claridad y autonomía."
+  territorio_de_marca: >
+    heru vive en el momento en que una persona que trabaja por su cuenta
+    necesita orden para seguir creciendo.
+    No targeteamos personas → targeteamos situaciones de fricción activa.
+    El espacio que toma heru: el ingreso implica responsabilidades /
+    la declaración genera incertidumbre / la independencia requiere estructura.
+
+producto:
+  descripcion: >
+    heru es una plataforma fiscal y financiera con conexión directa al SAT,
+    dirigida a personas que generan ingresos por su cuenta: freelancers,
+    trabajadores independientes, personas con actividad empresarial.
+    Automatiza lo complejo, ejecuta lo importante y mantiene al usuario
+    al día todo el año.
+  caracteristicas_principales:
+    - "Conexión segura al SAT — automatización de cálculos y detección de riesgos en tiempo real"
+    - "Declaraciones de impuestos automatizadas (ISR, IVA)"
+    - "Facturación electrónica (CFDI)"
+    - "Cálculo automático de impuestos en tiempo real"
+    - "Registro ante el SAT asistido"
+    - "Recordatorios y alertas de fechas límite fiscales"
+    - "Historial fiscal y contable con visibilidad total"
+    - "Asesoría con criterio: guía estratégica, no solo soporte reactivo"
+    - "App móvil para iOS y Android"
+  precios:
+    plan_basico: "Desde $99 MXN/mes"
+    plan_profesional: "Desde $249 MXN/mes"
+    plan_premium: "Desde $499 MXN/mes"
+
+diferencial:
+  pilares_de_valor:
+    - nombre: "Sistema práctico"
+      claim: "heru me facilita el proceso sin esfuerzo"
+      descripcion: >
+        Automatiza lo complejo, ejecuta lo importante y te mantiene al día todo
+        el año. No simplificamos la tarea, eliminamos la fricción.
+
+    - nombre: "Acompañante con criterio"
+      claim: "heru sabe qué es lo mejor para mí"
+      descripcion: >
+        No solo respondemos dudas. Ayudamos a entender, decidir y anticiparse
+        según el régimen y actividad del usuario. Es guía estratégica, no soporte reactivo.
+
+    - nombre: "Claridad y visibilidad"
+      claim: "Confío porque lo veo todo"
+      descripcion: >
+        Damos visibilidad total del proceso fiscal. Traducimos lo técnico en
+        decisiones accionables. No pedimos confianza, damos un motivo para confiar.
+
+    - nombre: "Tecnológico"
+      claim: "heru tiene la tecnología que facilita"
+      descripcion: >
+        Conexión segura al SAT, automatización de cálculos y detección de riesgos
+        en tiempo real. Exactitud y cumplimiento garantizado.
+
+storybrand:
+  heroe: "Persona que trabaja por su cuenta (freelancer, independiente, emprendedor)"
+  problema_externo: "No saber cómo declarar o estar al día con el SAT"
+  problema_interno: >
+    Sentir que el sistema fiscal es complicado y que yo no soy capaz
+    de manejarlo solo
+  problema_filosofico: >
+    Quien trabaja de forma independiente merece las mismas herramientas
+    que tienen las grandes empresas
+  villano: "La burocracia fiscal, la incertidumbre, el miedo a equivocarse con el SAT"
+  guia: "heru — con empatía (te entendemos) + autoridad (somos expertos en tu régimen)"
+  plan: "Conecta tu RFC → heru automatiza → tú tienes control"
+  exito: "Tranquilidad fiscal todo el año, sin sorpresas, sin multas, con claridad total"
+  nota_critica: >
+    heru NUNCA es el héroe. El héroe siempre es el trabajador independiente.
+    heru es el guía que le da las herramientas para lograrlo.
+
+audiencia_objetivo:
+  definicion: >
+    Personas que generan ingresos por su cuenta. No targeteamos personas,
+    targeteamos situaciones de fricción activa (el momento en que alguien
+    necesita orden fiscal para seguir creciendo).
+  segmentos_principales:
+    - nombre: "Freelancers digitales"
+      descripcion: "Diseñadores, programadores, marketers, fotógrafos, consultores"
+      friction_moment: "Cliente pide factura / primer año de ingresos considerables"
+      pain_point: "No saben darse de alta en SAT o no saben qué régimen les aplica"
+
+    - nombre: "Profesionistas independientes"
+      descripcion: "Médicos, abogados, arquitectos, psicólogos, contadores"
+      friction_moment: "Ingresos crecen y el caos fiscal también"
+      pain_point: "Llevan contabilidad manual, temen multas, no deducen bien"
+
+    - nombre: "Conductores de plataformas"
+      descripcion: "Uber, DiDi, inDriver, Cabify"
+      friction_moment: "Primera retención de impuestos / notificación del SAT"
+      pain_point: "No entienden cómo declarar ingresos de plataformas"
+
+    - nombre: "Delivery y repartidores"
+      descripcion: "Rappi, DiDi Food, Uber Eats, Amazon Flex"
+      friction_moment: "La plataforma le avisa que reportó sus ingresos al SAT"
+      pain_point: "Ingresos variables, facturas de plataformas confusas"
+
+    - nombre: "Comerciantes y vendedores online"
+      descripcion: "Mercado Libre, Shopify, tienda propia, Amazon"
+      friction_moment: "Mercado Libre/SAT les notifica obligaciones fiscales"
+      pain_point: "Venden bien pero no saben cómo ordenar lo fiscal"
+
+  perfil_demografico:
+    edad: "22-45 años"
+    nivel_socioeconomico: "C, C+, D+"
+    ubicacion: "México (CDMX, GDL, MTY y todo el país)"
+    tech_savvy: "Medio-alto, usa smartphone como herramienta principal de trabajo"
+
+voz_de_marca:
+  pilares:
+    - nombre: "Cercana y sin exceso"
+      descripcion: >
+        La comunicación debe sentirse como una conversación entre amigos,
+        accesible y cálida. Sin exceso de formalidad.
+
+    - nombre: "Profesional sin ser distante"
+      descripcion: >
+        Asegurar que están en manos de expertos en impuestos,
+        ofreciendo confianza y seguridad sin sonar a institución.
+
+    - nombre: "Simple y al punto"
+      descripcion: >
+        Lenguaje claro y sencillo. Evitar tecnicismos. Frases cortas.
+        Verbos en presente. El diseño y el copy reducen fricción mental.
+
+    - nombre: "Empática sin dramatizar"
+      descripcion: >
+        Mostrar comprensión y apoyo sin generar miedo ni urgencia falsa.
+        Validar el dolor sin amplificarlo.
+
+  emociones_a_activar:
+    - "Control y autonomía fiscal"
+    - "Claridad — entender lo que está pasando con mis impuestos"
+    - "Tranquilidad — sin sorpresas, sin multas"
+    - "Orgullo — soy un profesional con todo en regla"
+    - "Empoderamiento — puedo manejar esto"
+
+  restricciones_de_tono:
+    - "Nunca hablar de 'declarar' de forma aislada → conectarlo a control y autonomía"
+    - "No usar tecnicismos fiscales sin explicar su implicación práctica"
+    - "No generar miedo ni urgencia falsa"
+    - "No sonar como institución gubernamental ni banco tradicional"
+    - "Nunca posicionar a heru como el héroe → el héroe siempre es el trabajador independiente"
+    - "No saturar con emojis"
+    - "Evitar exclamaciones múltiples"
+    - "Máximo 1-2 emojis en WhatsApp, ninguno en comunicaciones transaccionales"
+    - "Evitar mayúsculas innecesarias"
+
+identidad_visual:
+  logo: "heru en minúsculas. NUNCA en mayúsculas."
+  colores:
+    azul_institucional: "#1790EC"
+    azul_oscuro: "#0C3961"
+    azul_claro: "#A5D2FA"
+    blanco: "#F4F9FE"
+    uso_rojo: "Solo para comunicaciones promocionales, NUNCA para generar miedo"
+    uso_verde: "Solo para confirmación exitosa"
+    principio: "Los colores deben transmitir estabilidad, no urgencia"
+  tipografia:
+    cuerpo: "Helvetica — 14px"
+    arte: "Lexend — encabezados 18-22px"
+    regla: "Nunca tipografías decorativas"
+  iconografia: "Phosphor Icons (https://phosphoricons.com/)"
+  elementos_graficos:
+    - "Formas diagonales tipo brush stroke en azul"
+    - "La 'h' de heru como elemento gráfico"
+    - "Signo '+' como elemento de apoyo"
+    - "Destello de 4 puntas como elemento de apoyo"
+  principio_diseno: "Simple y moderno. El diseño debe reducir fricción mental."
+
+reglas_de_diseno_y_copy:
+  jerarquia_visual:
+    - "Un solo mensaje principal por pieza"
+    - "Espacios en blanco generosos"
+    - "Párrafos cortos"
+    - "No más de 2 colores principales por pieza"
+    - "Iconografía mínima y funcional"
+
+  copy:
+    - "Frases cortas"
+    - "Verbos en presente"
+    - "Evitar tecnicismos"
+    - "Evitar mayúsculas innecesarias"
+
+  elementos_a_evitar:
+    - "GIFs innecesarios"
+    - "Emojis en comunicaciones transaccionales"
+    - "Textos largos tipo blog"
+    - "Más de un botón/CTA principal"
+    - "Mensajes ambiguos"
+
+  checklist_previo:
+    - "¿Es claro qué pasó?"
+    - "¿Es claro qué debe hacer el usuario?"
+    - "¿El tono transmite control?"
+    - "¿El diseño respira?"
+    - "¿El CTA es único y visible?"
+
+tipos_de_comunicacion:
+  transaccional:
+    objetivo: "Confirmación y seguridad"
+    incluye:
+      - "Confirmaciones de acciones (factura enviada, declaración presentada)"
+      - "Estados de proceso"
+      - "Validaciones técnicas"
+      - "Comprobantes"
+    tono: "Preciso, tranquilizador, sin emojis"
+
+  promocional:
+    objetivo: "Activar o monetizar"
+    incluye:
+      - "Ofertas de suscripción"
+      - "Upgrade de plan"
+      - "Regularización de periodos anteriores"
+      - "Incentivos limitados"
+    tono: "Directo, claro en el valor, sin presión excesiva"
+
+  informativa:
+    objetivo: "Contexto y sensibilización"
+    incluye:
+      - "Cambios fiscales"
+      - "Recordatorios relevantes"
+      - "Explicaciones de régimen"
+      - "Actualizaciones normativas"
+    tono: "Autoridad accesible, educativo, sin alarmar"
+
+  lifecycle:
+    objetivo: "Relación activa"
+    incluye:
+      - "Onboarding progresivo"
+      - "Reactivación"
+      - "Seguimiento mensual"
+      - "Alertas personalizadas según actividad"
+    tono: "Cercano, personalizado, orientado a acción"
+
+  in_app:
+    objetivo: "Guía y comportamiento"
+    incluye:
+      - "Tooltips y nudges"
+      - "Alertas preventivas"
+      - "Recomendaciones de plan"
+      - "Checkpoints de avance"
+    tono: "Conciso, útil, sin interrumpir el flujo"
+
+  partners:
+    objetivo: "Expansión"
+    incluye:
+      - "Integraciones estratégicas"
+      - "Programas B2B2C"
+      - "Comunicaciones co-brandeadas"
+      - "Beneficios para comunidades específicas"
+    tono: "Profesional, orientado a valor mutuo"
+
+canales_activos:
+  - "Email"
+  - "Instagram"
+  - "LinkedIn"
+  - "TikTok"
+  - "YouTube"
+  - "WhatsApp"
+  - "In-app (producto)"
+
+competidores:
+  directos:
+    - "Contalink"
+    - "Alegra"
+    - "Aspel"
+    - "Contpaqi"
+    - "Bind ERP"
+  diferenciacion: >
+    heru se enfoca exclusivamente en trabajadores independientes (no empresas),
+    con onboarding en minutos, precio accesible, UX móvil-first y conexión
+    directa al SAT. No es software de contabilidad genérico: es un acompañante
+    fiscal especializado en el régimen de personas físicas con actividad empresarial.
+
+metricas_clave:
+  negocio:
+    - "CAC (Costo de Adquisición de Cliente) — objetivo <$350 MXN"
+    - "LTV (Lifetime Value)"
+    - "Churn Rate mensual"
+    - "NPS (Net Promoter Score)"
+    - "Declaraciones completadas"
+    - "Tasa de activación (registro → primera acción fiscal)"
+  marketing:
+    - "CPL (Costo por Lead) — objetivo <$150 MXN"
+    - "ROAS (Return on Ad Spend) — objetivo >4x"
+    - "CTR (Click-Through Rate)"
+    - "Conversion Rate (lead → registro → pago)"
+    - "Engagement Rate en redes sociales"
+
+temporadas_fiscales_importantes:
+  - mes: "Enero"
+    evento: "Inicio de año fiscal, nueva resolución miscelánea SAT"
+  - mes: "Febrero"
+    evento: "Inicio de declaraciones anuales personas físicas"
+  - mes: "Marzo-Abril"
+    evento: "Declaración anual ISR personas físicas — alta fricción, alta oportunidad"
+  - mes: "Julio"
+    evento: "Declaración informativa de plataformas tecnológicas"
+  - mes: "Mensual"
+    evento: "Declaraciones mensuales de ISR e IVA — recordatorios recurrentes"
+  - mes: "Diciembre"
+    evento: "Cierre fiscal, últimas declaraciones del año"
+
+summary: >
+  heru es una plataforma fiscal y financiera mexicana (heru, siempre en minúsculas)
+  que empodera a personas que generan ingresos por su cuenta — freelancers,
+  trabajadores independientes y personas con actividad empresarial — para tener
+  control total sobre su situación fiscal ante el SAT.
+  Su propósito no es "declarar impuestos": es dar control, claridad y autonomía.
+  La marca vive en situaciones de fricción activa: cuando los ingresos crecen y
+  el caos fiscal también. heru no es el héroe — el héroe siempre es el trabajador
+  independiente; heru es el guía con empatía y autoridad.
+  Voz de marca: cercana, profesional sin ser distante, simple y empática sin dramatizar.
+  Identidad visual: azul institucional #1790EC, tipografía Helvetica/Lexend, diseño
+  simple y moderno que reduce fricción mental. Nunca usar rojo para generar miedo,
+  nunca múltiples emojis, nunca el nombre en mayúsculas.
+  Canales activos: Email, Instagram, LinkedIn, TikTok, YouTube, WhatsApp, in-app.
