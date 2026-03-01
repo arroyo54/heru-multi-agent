@@ -24,7 +24,11 @@ from api.schemas import ErrorResponse, LeadInput, QualificationResponse
 
 # ─── Bootstrap ───────────────────────────────────────────────────────────────
 
-load_dotenv()
+# Carga .env solo si existe (desarrollo local). En Railway las variables
+# se inyectan directamente en os.environ — load_dotenv no es necesario.
+_env_file = Path(__file__).parent.parent / ".env"
+if _env_file.exists():
+    load_dotenv(dotenv_path=_env_file, override=False)
 
 # Estado global del servidor (inicializado en lifespan)
 _state: dict = {}
@@ -33,11 +37,15 @@ _state: dict = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Inicializa los agentes una sola vez al arrancar el servidor."""
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY no encontrada en .env")
+        raise RuntimeError(
+            "ANTHROPIC_API_KEY no encontrada en las variables de entorno. "
+            "En Railway: agrégala en el dashboard → Variables. "
+            "En local: crea un archivo .env con ANTHROPIC_API_KEY=sk-ant-..."
+        )
 
-    model = os.getenv("MODEL", "claude-opus-4-6")
+    model = os.environ.get("MODEL", "claude-opus-4-6")
     client = anthropic.Anthropic(api_key=api_key)
 
     config_path = Path(__file__).parent.parent / "agents" / "lead_qualifier" / "config.yaml"
