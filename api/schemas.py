@@ -61,6 +61,35 @@ class QualificationResponse(BaseModel):
         None,
         description="Clasificación del lead: HOT / WARM / COLD",
     )
+    plan_recomendado: Optional[str] = Field(
+        None,
+        description=(
+            "Plan heru según el régimen fiscal del lead: "
+            "'Plan Plataformas', 'Plan Freelancer', 'Plan Empresarial' "
+            "o 'Régimen por confirmar' si no fue posible determinarlo."
+        ),
+    )
+    incluye_regularizacion: bool = Field(
+        default=False,
+        description="True si el lead muestra señales de rezago fiscal y aplica Regularización.",
+    )
+    nota_declaracion_anual: Optional[str] = Field(
+        None,
+        description=(
+            "Presente solo si el lead mencionó la declaración anual explícitamente. "
+            "Indica que debe verificarse elegibilidad, no es una recomendación directa."
+        ),
+    )
+    regimen_fiscal: Optional[str] = Field(
+        None,
+        description="Régimen fiscal identificado o inferido del lead.",
+    )
+    summary: str = Field(
+        description=(
+            "Resumen ejecutivo en texto plano (4 líneas), listo para pegar en Google Chat. "
+            "Incluye: score, clasificación, pain point y plan recomendado."
+        )
+    )
     timestamp: str = Field(description="ISO 8601 timestamp de la calificación")
 
 

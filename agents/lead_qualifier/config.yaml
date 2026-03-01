@@ -60,31 +60,81 @@ lead_scoring:
   warm: "Score 40-69: Lead interesado, nutrir con contenido y demo"
   cold: "Score 0-39: Lead temprano, agregar a secuencia de nurturing"
 
-segmentos_y_triggers:
-  conductor_plataforma:
-    platforms: ["Uber", "DiDi", "inDriver", "Cabify", "Beat"]
-    trigger_message: "Uber/DiDi te retiene impuestos pero puede que necesites declarar más"
-    recommended_plan: "Plan Básico o Profesional según nivel de ingresos"
+planes_heru:
+  descripcion: >
+    Los planes de heru se asignan según el RÉGIMEN FISCAL del lead, no por su
+    nivel de ingresos ni por la plataforma que usa. El régimen es el criterio
+    determinante. Si el lead no sabe su régimen, infiere el más probable según
+    su actividad y señálalo como "por confirmar".
 
-  repartidor_delivery:
-    platforms: ["Rappi", "DiDi Food", "Uber Eats", "Amazon Flex"]
-    trigger_message: "Tus plataformas reportan tus ingresos al SAT, necesitas estar al corriente"
-    recommended_plan: "Plan Básico"
+  plan_plataformas:
+    regimen: "Régimen de Plataformas Tecnológicas"
+    señales:
+      - "Conductor de Uber, DiDi, inDriver, Cabify, Beat"
+      - "Repartidor de Rappi, DiDi Food, Uber Eats, Amazon Flex"
+      - "Menciona retención de impuestos por plataforma"
+      - "Cobra a través de una app de gig economy"
+    cuando_recomendar: >
+      Cuando la actividad principal del lead es prestar servicios a través de
+      plataformas digitales de transporte o delivery.
 
-  freelancer_digital:
-    roles: ["diseñador", "programador", "marketer", "fotógrafo", "editor"]
-    trigger_message: "Tus clientes necesitan CFDI para deducir; con heru lo tienes en minutos"
-    recommended_plan: "Plan Profesional o Premium según volumen"
+  plan_freelancer:
+    regimen: "RESICO (Régimen Simplificado de Confianza)"
+    señales:
+      - "Freelancer, independiente, trabaja por proyecto"
+      - "Diseñador, programador, fotógrafo, editor, community manager, marketer"
+      - "Menciona RESICO o régimen simplificado"
+      - "Factura directamente a clientes sin intermediario de plataforma"
+      - "Ingresos variables por proyecto o por cliente"
+    cuando_recomendar: >
+      Cuando el lead trabaja de forma independiente prestando servicios
+      y su régimen probable es RESICO. No aplica si tiene honorarios
+      o actividad empresarial formal.
 
-  profesionista:
-    roles: ["médico", "abogado", "arquitecto", "psicólogo", "contador"]
-    trigger_message: "Deduce gastos médicos y de oficina correctamente con heru"
-    recommended_plan: "Plan Premium"
+  plan_empresarial:
+    regimen: "Actividad Empresarial / Servicios Profesionales / Honorarios"
+    señales:
+      - "Médico, abogado, arquitecto, psicólogo, dentista, terapeuta"
+      - "Menciona honorarios o recibos de honorarios"
+      - "Actividad empresarial, negocio propio con operaciones"
+      - "Servicios profesionales formales"
+      - "Contador, notario, ingeniero en ejercicio libre"
+    cuando_recomendar: >
+      Cuando el lead tiene ingresos por actividad empresarial, servicios
+      profesionales o honorarios. Puede coincidir con quien emite CFDI
+      de honorarios a empresas.
 
-  comerciante_online:
-    platforms: ["Mercado Libre", "Amazon", "Shopify", "tienda propia"]
-    trigger_message: "Mercado Libre reporta tus ventas al SAT; mejor estar preparado"
-    recommended_plan: "Plan Profesional o Premium"
+  regularizacion:
+    tipo: "Add-on — aplica sobre cualquier plan"
+    señales:
+      - "Lleva meses o años sin declarar"
+      - "Nunca ha declarado desde que se dio de alta"
+      - "Recibió notificación, carta o requerimiento del SAT"
+      - "Tiene multas o recargos pendientes"
+      - "Quiere 'ponerse al corriente'"
+      - "No sabe si está al corriente"
+    cuando_recomendar: >
+      Cuando hay indicios claros de rezago fiscal. Se suma al plan principal,
+      no lo reemplaza. Un conductor de Uber con 2 años sin declarar necesita
+      Plan Plataformas + Regularización.
+
+  declaracion_anual:
+    tipo: "Servicio adicional — no recomendarlo de forma directa"
+    señales:
+      - "Pregunta explícitamente por la declaración anual"
+      - "Menciona el mes de abril o el cierre de año fiscal"
+      - "Quiere saber si tiene que presentar declaración anual"
+    cuando_mencionar: >
+      Solo si el lead lo trae en conversación. No asumir que todos la necesitan.
+      Señalarlo como posibilidad a verificar, no como recomendación directa.
+      Muchos contribuyentes no están obligados a presentarla.
+
+  regimen_no_identificado:
+    cuando_usar: >
+      Si con la información disponible no es posible inferir el régimen fiscal
+      del lead, indicar "Régimen por confirmar" y señalar qué información falta
+      para determinarlo (¿está dado de alta en SAT?, ¿en qué régimen?).
+    plan_tentativo: "Solicitar régimen fiscal antes de recomendar plan"
 
 objeciones_comunes:
   - objecion: "Es muy caro"
@@ -113,12 +163,37 @@ objeciones_comunes:
 behavior_instructions: >
   Al calificar un lead:
   1. Saluda con calidez y empatía, valida su situación sin juzgar
-  2. Haz máximo 3-4 preguntas de calificación (no interrogues)
-  3. Identifica su segmento y pain point principal
-  4. Calcula el Lead Score con los criterios definidos
-  5. Determina el plan recomendado
-  6. Define el siguiente paso (CTA claro)
-  7. Entrega un resumen estructurado: [PERFIL] [SCORE] [PAIN POINT] [RECOMENDACIÓN] [NEXT STEP]
-  8. Usa español mexicano coloquial pero profesional
-  9. Nunca uses términos como "CURP", "RIF", "REPECO" sin explicarlos primero
-  10. Si el lead es caliente (70+), marca como URGENTE para el equipo de ventas
+  2. Identifica el RÉGIMEN FISCAL que el lead mencione — ese es el criterio único para el plan
+  3. Si el lead NO menciona su régimen, infiere el más probable desde su actividad y márcalo como "por confirmar"
+  4. No uses la profesión para asumir el régimen: un médico puede estar en RESICO o en Honorarios; un diseñador puede estar en Empresarial. El régimen manda.
+  5. Calcula el Lead Score con los criterios definidos
+  6. Determina si aplica Regularización (add-on sobre el plan principal)
+  7. Menciona Declaración Anual SOLO si el lead la trae en conversación, y como posibilidad a verificar
+  8. Entrega la calificación en este formato exacto:
+
+  **PERFIL DEL LEAD**
+  [datos del lead]
+
+  **LEAD SCORE: [número]/100**
+  [desglose por criterio]
+
+  **CLASIFICACIÓN**
+  [HOT / WARM / COLD]
+
+  **PAIN POINT PRINCIPAL**
+  [el problema más urgente en una sola oración]
+
+  **RÉGIMEN FISCAL**
+  [el que mencionó el lead, o el inferido + "por confirmar"]
+
+  **PLAN RECOMENDADO**
+  [uno de: Plan Plataformas / Plan Freelancer / Plan Empresarial / Régimen por confirmar]
+
+  **REGULARIZACIÓN**
+  [Sí aplica / No aplica — con razón breve]
+
+  **DECLARACIÓN ANUAL**
+  [Solo incluir esta sección si el lead la mencionó explícitamente]
+
+  9. Usa español mexicano coloquial pero profesional
+  10. Si el lead es caliente (70+), marca como URGENTE al inicio de la respuesta

@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import anthropic
 from dotenv import load_dotenv
@@ -123,6 +123,183 @@ def _parse_score(analysis: str) -> Tuple[Optional[int], Optional[str]]:
     return score, classification
 
 
+def _extract_section(analysis: str, header: str) -> str:
+    """Extrae el contenido de texto plano que sigue a un encabezado del análisis."""
+    pattern = rf"\*{{0,2}}{re.escape(header)}\*{{0,2}}\s*\n+(.*?)(?=\n\s*(?:\*{{1,2}}|\#{1,3}|\Z))"
+    match = re.search(pattern, analysis, re.IGNORECASE | re.DOTALL)
+    if not match:
+        return ""
+    content = match.group(1).strip()
+    content = re.sub(r"\*+", "", content)        # quitar negritas/cursivas
+    content = re.sub(r"#+\s*", "", content)       # quitar encabezados markdown
+    content = re.sub(r"-\s+", "", content)        # quitar viñetas
+    content = re.sub(r"\s+", " ", content)        # colapsar espacios y saltos
+    return content.strip()[:220]
+
+
+def _build_plan_recommendation(
+    analysis: str,
+    lead: LeadInput,
+) -> Tuple[Optional[str], Optional[str], bool, Optional[str]]:
+    """
+    Extrae o infiere el plan recomendado, régimen y flags adicionales.
+
+    Prioridad:
+    1. Lo que el agente escribió en su análisis (fuente de verdad)
+    2. Inferencia por palabras clave como fallback
+
+    Returns:
+        (plan_recomendado, regimen_fiscal, incluye_regularizacion, nota_declaracion_anual)
+    """
+    # ── 1. Extraer lo que dijo el agente ────────────────────────────────────
+    plan_del_agente = _extract_section(analysis, "PLAN RECOMENDADO")
+    regimen_del_agente = _extract_section(analysis, "RÉGIMEN FISCAL")
+    regularizacion_texto = _extract_section(analysis, "REGULARIZACIÓN")
+    declaracion_texto = _extract_section(analysis, "DECLARACIÓN ANUAL")
+
+    # ── 2. Normalizar plan ────────────────────────────────────────────────────
+    plan: Optional[str] = None
+    plan_lower = plan_del_agente.lower()
+
+    if "plataforma" in plan_lower:
+        plan = "Plan Plataformas"
+    elif "freelancer" in plan_lower or "resico" in plan_lower:
+        plan = "Plan Freelancer"
+    elif "empresarial" in plan_lower:
+        plan = "Plan Empresarial"
+    elif plan_del_agente:
+        plan = plan_del_agente  # texto literal del agente si no matcheó ninguno
+
+    # ── 3. Fallback por keywords si el agente no fue explícito ───────────────
+    if not plan:
+        corpus = f"{lead.economic_activity} {lead.sat_reaction} {lead.tax_need}".lower()
+
+        plataformas = ["uber", "didi", "rappi", "indrive", "cabify", "beat",
+                       "uber eats", "didi food", "amazon flex", "conductor",
+                       "repartidor", "delivery", "plataforma tecnologica"]
+        resico = ["resico", "régimen simplificado", "regimen simplificado"]
+        empresarial = ["actividad empresarial", "servicios profesionales",
+                       "honorarios", "persona moral"]
+
+        if any(s in corpus for s in plataformas):
+            plan = "Plan Plataformas"
+        elif any(s in corpus for s in resico):
+            plan = "Plan Freelancer"
+        elif any(s in corpus for s in empresarial):
+            plan = "Plan Empresarial"
+        else:
+            plan = "Régimen por confirmar"
+
+    # ── 4. Regularización ─────────────────────────────────────────────────────
+    regularizacion_positiva = any(
+        w in regularizacion_texto.lower()
+        for w in ["sí", "si aplica", "aplica", "necesita", "requiere"]
+    )
+    # Fallback: señales en el input del lead
+    if not regularizacion_positiva:
+        corpus_reg = f"{lead.sat_reaction} {lead.tax_need} {analysis}".lower()
+        señales_reg = ["atrasado", "sin declarar", "nunca he declarado",
+                       "nunca declaré", "varios años", "rezago", "multa",
+                       "notificaci", "carta del sat", "requerimiento",
+                       "no he declarado", "ponerse al corriente", "al corriente",
+                       "periodos anteriores", "años sin"]
+        regularizacion_positiva = any(s in corpus_reg for s in señales_reg)
+
+    # ── 5. Declaración anual ──────────────────────────────────────────────────
+    nota_declaracion: Optional[str] = None
+    if declaracion_texto:
+        nota_declaracion = "El lead preguntó por declaración anual — verificar elegibilidad antes de ofrecer"
+
+    return plan, regimen_del_agente or None, regularizacion_positiva, nota_declaracion
+
+
+_EMOJI_RE = re.compile(
+    "["
+    "\U0001F300-\U0001F9FF"  # símbolos, pictogramas, emojis generales
+    "\U00002700-\U000027BF"  # dingbats
+    "\U0001FA00-\U0001FA9F"  # símbolos adicionales
+    "\u2600-\u26FF"          # misceláneos
+    "\u2700-\u27BF"
+    "]+",
+    flags=re.UNICODE,
+)
+
+
+def _clean(text: str) -> str:
+    """Elimina emojis, markdown y caracteres de control. Devuelve texto plano limpio."""
+    text = _EMOJI_RE.sub("", text)
+    text = re.sub(r"\*+|#+|`+|>+", "", text)   # negrita, headers, code, citas
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)  # links markdown
+    text = re.sub(r"[-•]\s+", "", text)          # viñetas
+    text = re.sub(r"\s+", " ", text)             # espacios múltiples y saltos
+    return text.strip()
+
+
+def _first_sentence(text: str, max_chars: int = 180) -> str:
+    """Toma la primera oración significativa de un bloque de texto."""
+    sentence = re.split(r"(?<=[.!?])\s+", text.strip())[0]
+    return sentence[:max_chars]
+
+
+def _build_summary(
+    analysis: str,
+    lead: LeadInput,
+    score: Optional[int],
+    classification: Optional[str],
+    plan: Optional[str],
+    incluye_regularizacion: bool,
+    nota_declaracion: Optional[str],
+) -> str:
+    """
+    Resumen ejecutivo de 6 líneas en texto plano, listo para pegar en Google Chat.
+    Sin markdown, sin tablas, sin emojis.
+    Líneas: Score | Clasificación | Segmento | Pain point | Plan | Next step
+    """
+    score_str   = f"{score}/100" if score is not None else "N/D"
+    class_str   = classification or "N/D"
+
+    # Segmento — buscar en el perfil del lead que generó el agente
+    segmento_raw = (
+        _extract_section(analysis, "Segmento")
+        or _extract_section(analysis, "SEGMENTO")
+        or lead.economic_activity
+    )
+    segmento = _clean(segmento_raw)
+
+    # Pain point — primera oración del bloque correspondiente
+    pain_raw = (
+        _extract_section(analysis, "PAIN POINT PRINCIPAL")
+        or _extract_section(analysis, "PAIN POINT")
+        or lead.sat_reaction
+    )
+    pain_point = _first_sentence(_clean(pain_raw))
+
+    # Plan
+    plan_str = plan or "Regimen por confirmar"
+    if incluye_regularizacion:
+        plan_str += " + Regularizacion"
+    if nota_declaracion:
+        plan_str += " | Declaracion anual: verificar"
+
+    # Next step — primera oración del bloque correspondiente
+    next_raw = (
+        _extract_section(analysis, "NEXT STEP RECOMENDADO")
+        or _extract_section(analysis, "NEXT STEP")
+        or ""
+    )
+    next_step = _first_sentence(_clean(next_raw)) if next_raw else "Revisar analisis completo"
+
+    lines = [
+        f"Score: {score_str}",
+        f"Clasificacion: {class_str}",
+        f"Segmento: {segmento}",
+        f"Pain point: {pain_point}",
+        f"Plan: {plan_str}",
+        f"Next step: {next_step}",
+    ]
+    return "\n".join(lines)
+
+
 # ─── Endpoints ───────────────────────────────────────────────────────────────
 
 @app.get("/", tags=["health"])
@@ -161,11 +338,18 @@ async def qualify_lead(lead: LeadInput) -> QualificationResponse:
         raise HTTPException(status_code=500, detail=f"Error al procesar el lead: {exc}")
 
     score, classification = _parse_score(analysis)
+    plan, regimen, incluye_regularizacion, nota_declaracion = _build_plan_recommendation(analysis, lead)
+    summary = _build_summary(analysis, lead, score, classification, plan, incluye_regularizacion, nota_declaracion)
 
     return QualificationResponse(
         lead_id=str(uuid.uuid4()),
         analysis=analysis,
         lead_score=score,
         classification=classification,
+        plan_recomendado=plan,
+        regimen_fiscal=regimen,
+        incluye_regularizacion=incluye_regularizacion,
+        nota_declaracion_anual=nota_declaracion,
+        summary=summary,
         timestamp=datetime.utcnow().isoformat(),
     )
