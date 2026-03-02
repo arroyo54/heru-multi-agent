@@ -6,13 +6,15 @@ Sistema de agentes de IA especializados para automatizar y potenciar las operaci
 
 ## ¿Qué hace este sistema?
 
-Orquesta **6 agentes especializados** impulsados por Claude (Anthropic) que trabajan de forma coordinada para:
+Orquesta **8 agentes especializados** impulsados por Claude (Anthropic) que trabajan de forma coordinada para:
 
 - Calificar leads de ventas automáticamente
 - Crear contenido para redes sociales listo para publicar
 - Generar conceptos visuales y prompts para diseño con IA
-- Monitorear menciones y sentimiento en redes sociales
+- Monitorear menciones y tendencias del ecosistema fiscal en redes sociales
 - Gestionar y reportar campañas de Google Ads y Meta Ads
+- Analizar datos de negocio y cruzar insights entre fuentes
+- Monitorear cambios del SAT y generar alertas fiscales para el equipo
 
 ---
 
@@ -21,48 +23,57 @@ Orquesta **6 agentes especializados** impulsados por Claude (Anthropic) que trab
 ```
 heru-multi-agent/
 │
-├── main.py                      # Punto de entrada principal
+├── main.py                          # Punto de entrada principal
 ├── requirements.txt
-├── .env.example                 # Variables de entorno (copiar a .env)
+├── .env                             # Variables de entorno
 │
 ├── config/
-│   └── heru_context.yaml        # 📋 Contexto compartido de heru.app
-│                                #    (empresa, producto, audiencia, tono)
+│   └── heru_context.yaml            # 📋 Contexto compartido de heru.app
 │
-├── core/                        # Motor del sistema
-│   ├── base_agent.py            # Clase base que todos los agentes heredan
-│   ├── models.py                # Modelos de datos (Pydantic)
-│   └── orchestration.py        # Orquestador + AgentRegistry + TaskQueue
+├── core/                            # Motor del sistema
+│   ├── base_agent.py                # Clase base que todos los agentes heredan
+│   ├── models.py                    # Modelos de datos (Pydantic)
+│   ├── orchestration.py             # Orquestador + AgentRegistry + TaskQueue
+│   ├── google_chat.py               # Envío de mensajes a Google Chat
+│   ├── google_sheets.py             # Subida de reportes a Google Sheets
+│   ├── image_generator.py           # Generación de imágenes con IA
+│   ├── scheduler.py                 # Tareas programadas (APScheduler)
+│   └── connectors/
+│       ├── apify.py                 # Social media scraping (Apify + Reddit API + YouTube API)
+│       └── google_ads.py            # Google Ads API (demo + real)
 │
-└── agents/                      # Agentes especializados
-    ├── orchestrator/
-    │   ├── config.yaml          # Personalidad y lógica de routing
-    │   └── agent.py             # OrchestratorAgent
-    ├── lead_qualifier/
-    │   ├── config.yaml
-    │   └── agent.py             # LeadQualifierAgent
-    ├── copywriter/
-    │   ├── config.yaml
-    │   └── agent.py             # CopywriterAgent
-    ├── graphic_designer/
-    │   ├── config.yaml
-    │   └── agent.py             # GraphicDesignerAgent
-    ├── social_listener/
-    │   ├── config.yaml
-    │   └── agent.py             # SocialListenerAgent
-    └── performance_ads/
-        ├── config.yaml
-        └── agent.py             # PerformanceAdsAgent
+├── agents/                          # Agentes especializados
+│   ├── orchestrator/
+│   ├── lead_qualifier/
+│   ├── copywriter/
+│   ├── graphic_designer/
+│   ├── social_listener/
+│   ├── performance_ads/
+│   ├── business_analyst/
+│   └── sat_intelligence/
+│
+├── scripts/
+│   ├── weekly_report.py             # Reporte semanal Social Listener (automatizado)
+│   └── performance_report.py        # Reporte semanal Performance Ads
+│
+├── api/
+│   └── server.py                    # FastAPI server con scheduler integrado
+│
+├── credentials/
+│   └── google_sheets.json           # Service account Google (no commitear)
+│
+└── output/
+    └── reports/                     # Reportes generados localmente
 ```
 
 ---
 
-## 🤖 Los 6 Agentes
+## 🤖 Los 8 Agentes
 
 ### 1. 🧠 Orquestador Principal
 **Archivo:** `agents/orchestrator/`
 
-El cerebro del sistema. Recibe cualquier solicitud, la analiza, decide qué agente(s) deben intervenir y coordina el flujo de trabajo. Puede ejecutar agentes en secuencia (el output de uno alimenta al siguiente) o en paralelo.
+El cerebro del sistema. Recibe cualquier solicitud, la analiza, decide qué agente(s) deben intervenir y coordina el flujo de trabajo. Puede ejecutar agentes en secuencia o en paralelo.
 
 **Capacidades:**
 - Análisis de solicitudes y creación de planes de ejecución
@@ -75,7 +86,7 @@ El cerebro del sistema. Recibe cualquier solicitud, la analiza, decide qué agen
 ### 2. 🎯 Qualifier de Leads
 **Archivo:** `agents/lead_qualifier/`
 
-Evalúa el potencial de conversión de prospectos de heru usando un framework de calificación basado en necesidad fiscal, fit con el producto, urgencia y capacidad de pago.
+Evalúa el potencial de conversión de prospectos usando un framework de calificación basado en necesidad fiscal, fit con el producto, urgencia y capacidad de pago.
 
 **Capacidades:**
 - Lead scoring 0-100 con desglose por criterio
@@ -99,7 +110,7 @@ Evalúa el potencial de conversión de prospectos de heru usando un framework de
 ### 3. ✍️ Copywriter de Contenido
 **Archivo:** `agents/copywriter/`
 
-Crea contenido para todas las plataformas digitales de heru, adaptando el tono y formato a cada canal. Domina el arte de convertir el miedo al SAT en contenido que detiene el scroll.
+Crea contenido para todas las plataformas digitales de heru, adaptando el tono y formato a cada canal. Convierte el miedo al SAT en contenido que detiene el scroll.
 
 **Capacidades:**
 - Posts para Instagram, Facebook, TikTok y LinkedIn
@@ -111,7 +122,7 @@ Crea contenido para todas las plataformas digitales de heru, adaptando el tono y
 
 **Tipos de contenido:**
 - 📚 **Educativo:** Explica conceptos fiscales en lenguaje simple
-- 😰 **Pain point:** Activa el dolor/urgencia sin asustar
+- 😰 **Pain point:** Activa la urgencia sin asustar
 - 🌟 **Social proof:** Testimoniales y casos de éxito
 - 📱 **Producto:** Features y beneficios de heru
 - 📅 **Temporada:** Declaración anual, fechas SAT
@@ -121,7 +132,7 @@ Crea contenido para todas las plataformas digitales de heru, adaptando el tono y
 ### 4. 🎨 Diseñador Gráfico
 **Archivo:** `agents/graphic_designer/`
 
-Conceptualiza y describe assets visuales para campañas digitales. Genera prompts listos para usar en DALL-E, Midjourney y Stable Diffusion, además de briefs completos para el equipo de diseño humano.
+Conceptualiza assets visuales para campañas digitales. Genera prompts listos para usar en herramientas de IA generativa y briefs completos para el equipo de diseño.
 
 **Capacidades:**
 - Conceptos visuales con brief + prompt de IA
@@ -140,38 +151,58 @@ Conceptualiza y describe assets visuales para campañas digitales. Genera prompt
 
 ### 5. 👂 Social Listener
 **Archivo:** `agents/social_listener/`
+**Script:** `scripts/weekly_report.py`
 
-Monitorea el ecosistema digital en busca de menciones de heru, conversaciones relevantes sobre impuestos en México, actividad de la competencia y oportunidades de engagement.
+Monitorea el ecosistema digital en **dos tracks simultáneos**:
+- **Track A — Brand:** qué dice la gente DE heru (menciones directas, sentimiento, crisis)
+- **Track B — Ecosystem:** qué habla la gente sobre impuestos, SAT, RESICO, freelancers y conductores — miedos, dolores, oportunidades de mercado
 
-**Capacidades:**
-- Análisis de menciones con clasificación de sentimiento
-- Alertas tempranas de crisis de reputación
-- Análisis competitivo vs Contalink, Alegra, CONTPAQi
-- Detección de tendencias fiscales y oportunidades de newsjacking
-- Identificación de leads en conversaciones públicas
-- Reportes diarios, semanales y mensuales
+Genera un reporte semanal automático todos los lunes que envía un resumen ejecutivo a Google Chat y sube el análisis completo a Google Sheets.
 
-**Clasificación de alertas:**
-| Prioridad | Tipo | Tiempo de respuesta |
-|-----------|------|---------------------|
-| 🔴 ALTA | Bugs críticos, acusaciones, problemas de seguridad | < 30 min |
-| 🟡 MEDIA | Quejas de UX, precio, funcionalidades | < 4 horas |
-| 🟢 BAJA | Comentarios vagos, confusión de marca | < 24 horas |
+**Fuentes de datos:**
+| Plataforma | Método | Costo |
+|------------|--------|-------|
+| Reddit | JSON API pública | Gratis |
+| YouTube | YouTube Data API v3 | Gratis |
+| Twitter/X | Apify | Créditos |
+| TikTok | Apify | Créditos |
+| Instagram | Apify | Créditos |
+| Facebook Grupos | Apify | Créditos |
+
+**Subreddits monitoreados:**
+`r/mexico`, `r/MexicoFinanciero`, `r/FinanzasPersonales`, `r/freelance`, `r/digitalnomad`, `r/mexicoexpats`, `r/MexicoCity`, `r/sidehustle`, `r/SATMexico`
+
+**Capacidades de análisis:**
+- Miedos y ansiedades del ecosistema fiscal
+- Dolores y frustraciones de freelancers y conductores
+- Preguntas frecuentes (oportunidades de contenido)
+- Trending topics de la semana
+- Insights accionables para producto y marketing
+- Alertas de crisis de reputación de heru
+
+**Uso:**
+```bash
+python scripts/weekly_report.py --preview   # corre sin mandar a Chat
+python scripts/weekly_report.py --send      # manda a Google Chat
+python scripts/weekly_report.py --quora     # reporte quincenal de Quora
+```
 
 ---
 
 ### 6. 📈 Experto en Performance y Ads
 **Archivo:** `agents/performance_ads/`
+**Script:** `scripts/performance_report.py`
+**Conector:** `core/connectors/google_ads.py`
 
-Gestiona la estrategia, optimización y reporte de todas las campañas de publicidad pagada: Google Ads (Search, Display, Performance Max, YouTube), Meta Ads (Facebook e Instagram) y TikTok Ads.
+Gestiona la estrategia, optimización y reporte de campañas de publicidad pagada. Se conecta a Google Ads API para leer métricas reales; incluye modo demo con datos de ejemplo realistas para presentaciones.
 
 **Capacidades:**
-- Reportes diarios, semanales y mensuales con semáforo de KPIs
-- Planes de optimización con cambios específicos y paso a paso
+- Reportes semanales/mensuales con semáforo de KPIs (✅ ⚠️ 🔴)
+- Planes de optimización con cambios específicos paso a paso
 - Estrategias completas de campaña con distribución de presupuesto
 - Análisis de funnel con identificación de puntos de fuga
 - Keyword research estratégico para Google Search
-- Recomendaciones de A/B testing
+- Recomendaciones de A/B testing con reglas de validación
 
 **KPIs monitoreados:**
 | Métrica | Objetivo | Alerta Roja |
@@ -182,81 +213,130 @@ Gestiona la estrategia, optimización y reporte de todas las campañas de public
 | CTR Search | > 4% | < 2% |
 | Quality Score | > 7 | < 5 |
 
+**Uso:**
+```bash
+python scripts/performance_report.py          # modo demo
+python scripts/performance_report.py --real   # datos reales (requiere credenciales)
+python scripts/performance_report.py --days 30 # período de 30 días
+```
+
 ---
 
-## ⚙️ Cómo funciona la arquitectura
+### 7. 📊 Business Analyst
+**Archivo:** `agents/business_analyst/`
+
+Analiza datos de negocio, cruza información entre fuentes y genera insights estratégicos para la toma de decisiones. Especializado en el contexto de heru: métricas de adquisición, retención, comportamiento fiscal y estacionalidad.
+
+**Capacidades:**
+- Análisis de reportes con contexto de negocio heru
+- Correlaciones cruzadas entre fuentes (ads + social + SAT + ventas)
+- Presentaciones ejecutivas con narrativa de datos
+- Insights de campañas de marketing con recomendaciones de presupuesto
+- Resúmenes ejecutivos semanales multi-fuente
+- Validación o refutación de hipótesis de negocio
+
+**Ejemplo de uso:**
+```python
+analyst = BusinessAnalystAgent(client=client)
+
+# Cruzar social listening + performance ads
+insight = analyst.cross_analyze(
+    sources={"social": social_report, "ads": ads_report},
+    hypothesis="Los usuarios de RESICO convierten mejor por urgencia fiscal"
+)
+```
+
+---
+
+### 8. 🏛 SAT Intelligence
+**Archivo:** `agents/sat_intelligence/`
+
+Monitorea cambios del SAT, analiza su impacto en los usuarios de heru y genera alertas, contenido y planes de acción para el equipo. Es el experto fiscal del sistema.
+
+**Capacidades:**
+- Análisis de actualizaciones del SAT con impacto segmentado por tipo de usuario
+- Evaluación de riesgo para conductores, freelancers y profesionistas
+- Briefs de contenido urgente ante cambios regulatorios
+- Alertas fiscales con tono empático (nunca alarmista)
+- Calendario fiscal proactivo con recordatorios
+- Respuestas a preguntas fiscales complejas de usuarios
+
+**Tipos de alertas:**
+| Urgencia | Ejemplo | Acción |
+|----------|---------|--------|
+| 🔴 INMEDIATA | Cambio en fecha de declaración | Push notification + post mismo día |
+| 🟡 ESTA SEMANA | Nueva obligación RESICO | Email + contenido educativo |
+| 🟢 ESTE MES | Recordatorio declaración anual | Campaña de nurturing |
+
+---
+
+## ⚙️ Arquitectura del Sistema
 
 ```
-Usuario / Sistema Externo
-         │
-         ▼
-   ┌─────────────────┐
-   │   Orchestrator   │  ← Analiza la solicitud y crea el plan
-   └────────┬────────┘
-            │ Delega
-     ┌──────┼──────────────────────┐
-     ▼      ▼          ▼          ▼
-  Lead   Copywriter  Graphic  Social     Performance
-Qualifier           Designer  Listener   Ads
-     │      │          │          │          │
-     └──────┴──────────┴──────────┴──────────┘
-                       │
-                       ▼
-             Orchestrator sintetiza
-                       │
-                       ▼
-              Respuesta final
+Usuario / Sistema Externo / Scheduler
+              │
+              ▼
+    ┌─────────────────┐
+    │   Orchestrator   │  ← Analiza y crea el plan de ejecución
+    └────────┬────────┘
+             │ Delega
+    ┌─────────────────────────────────────────┐
+    │         │         │         │           │
+    ▼         ▼         ▼         ▼           ▼
+  Lead    Copywriter  Graphic  Social     Performance
+Qualifier           Designer  Listener      Ads
+                                │              │
+                         Business Analyst ◄────┘
+                                │
+                         SAT Intelligence
+    │         │         │         │           │
+    └─────────┴─────────┴─────────┴───────────┘
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+        Google Chat           Google Sheets
+     (resumen ejecutivo)    (reporte completo)
 ```
 
-### Flujo de trabajo
+### Integraciones activas
 
-1. **Recepción**: El sistema recibe una solicitud (texto libre)
-2. **Análisis**: El Orquestador analiza qué agente(s) son necesarios
-3. **Planificación**: Se crea un plan con pasos ordenados
-4. **Delegación**: Cada agente recibe su tarea con contexto completo
-5. **Ejecución**: Los agentes trabajan con su `system_prompt` especializado
-6. **Síntesis**: El Orquestador integra los resultados en una respuesta cohesiva
-
-### Contexto compartido
-
-Todos los agentes tienen acceso al archivo `config/heru_context.yaml` que contiene:
-- Descripción de la empresa y producto
-- Audiencias objetivo y sus pain points
-- Tono de comunicación de la marca
-- Métricas clave del negocio
-- Calendario fiscal mexicano
+| Integración | Para qué | Estado |
+|------------|----------|--------|
+| Google Chat Webhook | Envío de reportes y alertas | ✅ Activo |
+| Google Sheets | Reportes completos con histórico | ✅ Activo |
+| Reddit JSON API | Social listening ecosistema | ✅ Activo |
+| YouTube Data API v3 | Social listening videos | ✅ Activo |
+| Apify | TikTok, Instagram, Facebook, Twitter | ⏳ Créditos |
+| Google Ads API | Métricas de campañas reales | 🔧 Pendiente credenciales |
+| APScheduler | Reporte automático lunes 8am CDMX | ✅ Activo |
 
 ---
 
 ## 🚀 Instalación y Uso
 
-### 1. Clonar y configurar
+### 1. Instalar dependencias
 
 ```bash
-# Instalar dependencias
 cd heru-multi-agent
 pip install -r requirements.txt
-
-# Configurar variables de entorno
-cp .env.example .env
-# Editar .env y agregar tu ANTHROPIC_API_KEY
 ```
 
-### 2. Obtener API Key de Anthropic
+### 2. Configurar variables de entorno
 
-1. Ve a [console.anthropic.com](https://console.anthropic.com)
-2. Crea una cuenta o inicia sesión
-3. En "API Keys", crea una nueva key
-4. Cópiala en tu archivo `.env`
+```bash
+# Variables requeridas en .env:
+ANTHROPIC_API_KEY=...          # console.anthropic.com
+APIFY_API_TOKEN=...            # apify.com
+GOOGLE_API_KEY=...             # console.cloud.google.com
+GOOGLE_CHAT_WEBHOOK_URL=...    # Google Chat → Espacios → Webhooks
+GOOGLE_SHEETS_ID=...           # ID de tu Google Sheet
+```
 
 ### 3. Ejecutar
 
 ```bash
-# Modo interactivo (recomendado para empezar)
+# Modo interactivo
 python main.py
-
-# Ejecutar todos los demos
-python main.py --demo
 
 # Hablar directamente con un agente
 python main.py --agent leads
@@ -264,40 +344,40 @@ python main.py --agent copy
 python main.py --agent diseno
 python main.py --agent social
 python main.py --agent ads
+python main.py --agent analyst
+python main.py --agent sat
 
-# Modo silencioso (menos output)
-python main.py --quiet
+# Reportes automáticos
+python scripts/weekly_report.py --preview
+python scripts/performance_report.py
 ```
 
 ### 4. Uso desde código
 
 ```python
 import anthropic
-from core.orchestration import Orchestrator
-from core.models import AgentRole
 from agents.copywriter.agent import CopywriterAgent
 from agents.lead_qualifier.agent import LeadQualifierAgent
+from agents.business_analyst.agent import BusinessAnalystAgent
+from agents.sat_intelligence.agent import SATIntelligenceAgent
 
 client = anthropic.Anthropic(api_key="tu-api-key")
 
-# Opción A: Usar el orquestador (recomendado)
-orchestrator = Orchestrator(client=client)
-# ... registrar agentes ...
-resultado = orchestrator.process("Crea un post de Instagram sobre la declaración anual")
-
-# Opción B: Usar agente directamente
+# Copywriter
 copywriter = CopywriterAgent(client=client)
-post = copywriter.create_post(
-    platform="instagram",
-    topic="Declaración anual SAT",
-    content_type="pain_point",
-    objective="conversión",
-    target_segment="freelancers digitales",
-)
+post = copywriter.create_post(platform="instagram", topic="Declaración anual SAT")
 
-# Opción C: Chat conversacional con un agente
+# Lead qualifier
 qualifier = LeadQualifierAgent(client=client)
-respuesta = qualifier.chat("Tengo un lead que es conductor de Uber, ¿cómo lo califico?")
+score = qualifier.qualify_lead("Conductor de Uber, tiene RFC, nunca ha declarado")
+
+# Business analyst
+analyst = BusinessAnalystAgent(client=client)
+insight = analyst.cross_analyze(sources={"social": data1, "ads": data2})
+
+# SAT intelligence
+sat = SATIntelligenceAgent(client=client)
+alerta = sat.analyze_sat_update("Nueva regla RESICO — baja automática a 2 meses")
 ```
 
 ---
@@ -305,104 +385,46 @@ respuesta = qualifier.chat("Tengo un lead que es conductor de Uber, ¿cómo lo c
 ## 💬 Ejemplos de solicitudes al Orquestador
 
 ```
-# El orquestador detecta automáticamente qué agentes usar:
-
-"Necesito un post de Instagram + concepto visual para promocionar que
- la declaración anual vence en abril"
+"Necesito un post de Instagram + concepto visual para la declaración anual"
 → Activa: Copywriter + Graphic Designer
 
-"Cómo van nuestras campañas de Meta Ads esta semana?"
+"¿Cómo van nuestras campañas de Meta Ads esta semana?"
 → Activa: Performance Ads
 
 "Llegó un lead por DM: es diseñadora freelance, tiene RFC pero nunca ha declarado"
 → Activa: Lead Qualifier
 
-"Qué dicen de heru en Twitter hoy?"
-→ Activa: Social Listener
+"El SAT cambió las reglas de RESICO, ¿qué hacemos?"
+→ Activa: SAT Intelligence → Copywriter + Performance Ads
 
-"Crea una campaña completa para el mes de declaración anual"
-→ Activa: Orchestrator → Copywriter + Graphic Designer + Performance Ads
-```
-
----
-
-## 🔧 Personalización
-
-### Modificar la personalidad de un agente
-
-Edita el archivo `config.yaml` de cada agente. Ejemplo para el Copywriter:
-
-```yaml
-# agents/copywriter/config.yaml
-personality: >
-  Tu nueva descripción de personalidad...
-
-objectives:
-  - "Nuevo objetivo 1"
-  - "Nuevo objetivo 2"
-```
-
-### Agregar un nuevo agente
-
-1. Crea el directorio: `agents/nuevo_agente/`
-2. Crea `config.yaml` con la estructura estándar
-3. Crea `agent.py` heredando de `BaseAgent`
-4. Registra en `main.py` con `orchestrator.register_agent(role, agent)`
-5. Agrega el rol en `core/models.py` → `AgentRole` enum
-
-### Cambiar el modelo de Claude
-
-En `.env`:
-```bash
-# Para producción (máxima calidad)
-MODEL=claude-opus-4-6
-
-# Para desarrollo/testing (más rápido y económico)
-MODEL=claude-haiku-4-5-20251001
+"Dame un resumen cruzado del social listening y el performance de esta semana"
+→ Activa: Business Analyst
 ```
 
 ---
 
 ## 📊 Casos de uso por área
 
-| Área | Agente(s) | Ejemplo |
-|------|-----------|---------|
-| **Ventas** | Lead Qualifier | Calificar leads de WhatsApp, DMs, formularios web |
-| **Content** | Copywriter | Calendario semanal de posts, guiones de TikTok |
-| **Diseño** | Graphic Designer | Briefs para el equipo, prompts de DALL-E |
-| **Community** | Social Listener | Reporte diario de menciones, alertas de crisis |
-| **Marketing** | Performance Ads | Reporte semanal de campañas, planes de optimización |
-| **Campañas** | Todos | Campaña completa de declaración anual |
+| Área | Agente(s) | Frecuencia |
+|------|-----------|------------|
+| **Ventas** | Lead Qualifier | Continuo |
+| **Content** | Copywriter + Graphic Designer | Diario |
+| **Community** | Social Listener | Automático lunes |
+| **Marketing** | Performance Ads | Automático lunes |
+| **Estrategia** | Business Analyst | Semanal / demanda |
+| **Fiscal** | SAT Intelligence | On-demand + alertas |
+| **Campañas** | Todos | Temporadas SAT |
 
 ---
 
 ## 🏗 Próximas integraciones
 
-- [ ] **CRM** (HubSpot / Salesforce): Crear contactos automáticamente desde leads calificados
-- [ ] **Meta Ads API**: Leer métricas reales de campañas
-- [ ] **Google Ads API**: Keywords, métricas y optimizaciones automatizadas
-- [ ] **DALL-E 3 / Stability AI**: Generar imágenes directamente desde el Graphic Designer
-- [ ] **Notion / Airtable**: Exportar calendarios de contenido
-- [ ] **Slack / Teams**: Notificaciones y alertas del Social Listener
-- [ ] **WhatsApp Business API**: Qualificación de leads en tiempo real
-
----
-
-## 📁 Archivos de Configuración YAML
-
-Cada agente tiene su `config.yaml` con:
-
-| Campo | Descripción |
-|-------|-------------|
-| `name` | Nombre del agente |
-| `role` | Identificador del rol |
-| `role_description` | Descripción detallada del rol |
-| `personality` | Cómo debe "comportarse" el agente |
-| `objectives` | Lista de objetivos específicos |
-| `behavior_instructions` | Reglas de comportamiento y formato de respuesta |
-| Campos adicionales | Frameworks, métricas, plantillas específicas del rol |
-
-El archivo `config/heru_context.yaml` es el cerebro compartido: todos los agentes lo leen al inicializarse para tener contexto de empresa, producto, audiencias y tono.
+- [ ] **Meta Ads API** — leer métricas reales de Facebook e Instagram Ads
+- [ ] **Google Ads API** — conectar con credenciales reales (estructura lista)
+- [ ] **YouTube API key** — habilitar en Google Cloud (estructura lista)
+- [ ] **CRM (HubSpot)** — crear contactos desde leads calificados
+- [ ] **WhatsApp Business API** — calificación de leads en tiempo real
+- [ ] **Pipeline Social → Copy** — insights de Reddit alimentan ideas de contenido automáticamente
 
 ---
 
@@ -410,12 +432,17 @@ El archivo `config/heru_context.yaml` es el cerebro compartido: todos los agente
 
 | Componente | Tecnología |
 |------------|-----------|
-| Modelo de IA | Claude (Anthropic) — claude-opus-4-6 |
+| Modelo de IA | Claude Opus 4.6 (Anthropic) |
 | SDK | `anthropic` Python SDK |
-| Configuración de agentes | YAML |
+| Config de agentes | YAML |
 | Modelos de datos | Pydantic v2 |
 | CLI / TUI | Rich |
+| API Server | FastAPI + Uvicorn |
+| Tareas programadas | APScheduler |
+| Social scraping | Apify + Reddit JSON API + YouTube Data API |
+| Reportes | Google Sheets (gspread) + Google Chat Webhook |
 | Variables de entorno | python-dotenv |
+| Deploy | Railway |
 
 ---
 

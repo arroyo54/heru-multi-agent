@@ -16,11 +16,20 @@ from typing import List, Optional, Tuple
 
 import anthropic
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from agents.lead_qualifier.agent import LeadQualifierAgent
+from agents.copywriter.agent import CopywriterAgent
+from agents.graphic_designer.agent import GraphicDesignerAgent
+from agents.social_listener.agent import SocialListenerAgent
+from agents.performance_ads.agent import PerformanceAdsAgent
+from agents.business_analyst.agent import BusinessAnalystAgent
+from agents.sat_intelligence.agent import SATIntelligenceAgent
 from api.schemas import ErrorResponse, LeadInput, QualificationResponse
+from api.chat_bot import detect_agent, clean_mention, format_response, help_message
+from core.connectors.apify import ApifyConnector
+from core.scheduler import start_scheduler
 
 # ─── Bootstrap ───────────────────────────────────────────────────────────────
 
@@ -48,16 +57,34 @@ async def lifespan(app: FastAPI):
     model = os.environ.get("MODEL", "claude-opus-4-6")
     client = anthropic.Anthropic(api_key=api_key)
 
-    config_path = Path(__file__).parent.parent / "agents" / "lead_qualifier" / "config.yaml"
-    _state["qualifier"] = LeadQualifierAgent(
-        client=client,
-        model=model,
-        verbose=False,
-    )
+    # Inicializar todos los agentes
+    _state["client"] = client
+    _state["model"]  = model
+    _state["qualifier"]   = LeadQualifierAgent(client=client,   model=model, verbose=False)
+    _state["copywriter"]  = CopywriterAgent(client=client,      model=model, verbose=False)
+    _state["designer"]    = GraphicDesignerAgent(client=client,  model=model, verbose=False)
+    _state["social"]      = SocialListenerAgent(client=client,   model=model, verbose=False)
+    _state["performance"] = PerformanceAdsAgent(client=client,   model=model, verbose=False)
+    _state["analyst"]     = BusinessAnalystAgent(client=client,  model=model, verbose=False)
+    _state["sat"]         = SATIntelligenceAgent(client=client,  model=model, verbose=False)
 
-    print(f"✅ LeadQualifierAgent inicializado (modelo: {model})")
+    print(f"✅ 7 agentes inicializados (modelo: {model})")
+
+    # Scheduler del Social Listener — solo si Apify está configurado
+    if ApifyConnector.is_available():
+        from scripts.weekly_report import run_weekly_report, run_quora_report
+        _state["scheduler"] = start_scheduler(
+            weekly_report_fn=run_weekly_report,
+            quora_report_fn=run_quora_report,
+        )
+    else:
+        print("ℹ️  APIFY_API_TOKEN no configurada — scheduler de Social Listener inactivo")
+
     yield
+
     # Cleanup al detener el servidor
+    if "scheduler" in _state:
+        _state["scheduler"].shutdown(wait=False)
     _state.clear()
 
 
@@ -353,3 +380,154 @@ async def qualify_lead(lead: LeadInput) -> QualificationResponse:
         summary=summary,
         timestamp=datetime.utcnow().isoformat(),
     )
+
+
+# ─── Google Chat Bot ──────────────────────────────────────────────────────────
+
+@app.post(
+    "/chat/webhook",
+    tags=["chat-bot"],
+    summary="Webhook para el bot de Google Chat",
+    description="Google Chat envía aquí los mensajes del equipo. El bot los rutea al agente correcto y responde en el mismo hilo.",
+)
+async def chat_webhook(request: Request):
+    """
+    Recibe eventos de Google Chat y responde con el agente correcto.
+
+    Tipos de evento que maneja:
+    - MESSAGE: mensaje directo o @mention al bot
+    - ADDED_TO_SPACE: el bot fue agregado al espacio
+    - REMOVED_FROM_SPACE: el bot fue eliminado (no requiere respuesta)
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"text": "Error al leer el mensaje."}, status_code=400)
+
+    event_type = body.get("type", "")
+
+    # Bot agregado al espacio — mensaje de bienvenida
+    if event_type == "ADDED_TO_SPACE":
+        space_name = body.get("space", {}).get("displayName", "este espacio")
+        return JSONResponse({
+            "text": (
+                f"*¡Hola! Soy heru-bot* 🤖\n"
+                f"Estoy listo para ayudar al equipo en *{space_name}*.\n\n"
+                f"Escribe `@heru-bot ayuda` para ver qué puedo hacer."
+            )
+        })
+
+    # Bot eliminado — nada que responder
+    if event_type == "REMOVED_FROM_SPACE":
+        return JSONResponse({})
+
+    # Mensaje normal
+    message  = body.get("message", {})
+    raw_text = message.get("text", "").strip()
+    sender   = message.get("sender", {}).get("displayName", "equipo")
+
+    if not raw_text:
+        return JSONResponse({"text": "No recibí ningún mensaje."})
+
+    text = clean_mention(raw_text)
+
+    # Comando de ayuda
+    if text.lower() in ("ayuda", "help", "?", ""):
+        return JSONResponse({"text": help_message()})
+
+    # Detectar agente
+    agent_key, hint = detect_agent(text)
+
+    # Indicador de "escribiendo..." — no soportado nativamente, pero avisamos
+    thinking_note = f"_Procesando con {agent_key}..._\n\n" if False else ""
+
+    # Ejecutar el agente correcto
+    try:
+        response = _run_agent(agent_key, text)
+    except Exception as e:
+        return JSONResponse({
+            "text": f"⚠️ Error al procesar tu solicitud: {str(e)[:200]}"
+        })
+
+    reply = format_response(agent_key, response, sender)
+    if hint:
+        reply += f"\n\n_{hint}_"
+
+    return JSONResponse({"text": reply})
+
+
+def _run_agent(agent_key: str, text: str) -> str:
+    """Despacha el texto al agente correcto y retorna la respuesta."""
+    agents = _state
+
+    if agent_key == "qualifier":
+        return agents["qualifier"].qualify_lead(text)
+
+    if agent_key == "sat":
+        return agents["sat"].analyze_sat_update(text)
+
+    if agent_key == "copywriter":
+        return agents["copywriter"].run(
+            f"El equipo de heru te pide lo siguiente:\n\n{text}"
+        )
+
+    if agent_key == "designer":
+        return agents["designer"].create_visual_concept(
+            campaign_objective=text,
+            platform="instagram",
+        )
+
+    if agent_key == "performance":
+        from core.connectors.google_ads import GoogleAdsConnector
+        connector = GoogleAdsConnector(force_demo=True)
+        metrics   = connector.format_for_agent(period_days=7)
+        return agents["performance"].generate_report(
+            report_type="weekly",
+            metrics_data=metrics,
+            platform="all",
+        )
+
+    if agent_key == "social":
+        return agents["social"].run(
+            f"El equipo pregunta sobre social listening:\n\n{text}"
+        )
+
+    if agent_key == "analyst":
+        return agents["analyst"].run(
+            f"El equipo solicita un análisis:\n\n{text}"
+        )
+
+    # Fallback: orquestador genérico usando el copywriter como base
+    return agents["copywriter"].run(text)
+
+
+@app.get(
+    "/chat/setup",
+    tags=["chat-bot"],
+    summary="Instrucciones para conectar el bot a Google Chat",
+)
+async def chat_setup():
+    """Devuelve las instrucciones paso a paso para configurar el Google Chat App."""
+    base_url = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "TU_URL_DE_RAILWAY")
+    webhook  = f"https://{base_url}/chat/webhook"
+    return {
+        "webhook_url": webhook,
+        "instrucciones": [
+            "1. Ve a console.cloud.google.com → proyecto auditor-ventas-heru",
+            "2. APIs y servicios → Biblioteca → habilita 'Google Chat API'",
+            "3. APIs y servicios → Google Chat API → Configuración",
+            "4. Nombre del bot: heru-bot",
+            "5. URL del endpoint: " + webhook,
+            "6. En 'Funciones': activa Mensajes directos y Menciones en espacios",
+            "7. Guarda y publica el bot (estado: Activo)",
+            "8. En tu espacio de Google Chat → Agregar personas y bots → busca 'heru-bot'",
+            "9. Escribe '@heru-bot ayuda' para probar",
+        ],
+        "comandos_ejemplo": [
+            "@heru-bot ayuda",
+            "@heru-bot califica este lead: conductor de Uber CDMX, tiene RFC, nunca ha declarado",
+            "@heru-bot el SAT cambió las reglas de RESICO esta semana",
+            "@heru-bot escribe un post de TikTok sobre el miedo al SAT",
+            "@heru-bot cómo van las campañas esta semana",
+        ],
+    }

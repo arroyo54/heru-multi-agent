@@ -259,6 +259,100 @@ Genera un reporte ejecutivo diario conciso:
 
         return self.run(prompt)
 
+    def analyze_ecosystem_insights(self, mentions_data: str, time_range: str = "última semana") -> str:
+        """
+        Analiza conversaciones del ecosistema (impuestos, SAT, RESICO, freelancers, drivers)
+        para extraer miedos, dolores, oportunidades e insights de mercado.
+        NO es sobre heru — es sobre lo que habla la gente afuera.
+        """
+        prompt = f"""Eres el Social Listener de heru.app. Analiza estas conversaciones públicas
+sobre impuestos, SAT, RESICO, freelancers y conductores de plataformas en México.
+
+OBJETIVO: Extraer inteligencia de mercado — qué le preocupa, duele, confunde y motiva
+a nuestra audiencia objetivo. No busques menciones de heru, busca la voz del usuario.
+
+PERÍODO: {time_range}
+
+CONVERSACIONES:
+{mentions_data}
+
+Entrega este análisis estructurado:
+
+---
+
+## MIEDOS Y ANSIEDADES DETECTADOS
+[Los temores más frecuentes — frases reales si las hay]
+- [Miedo 1]: frecuencia + cita representativa
+- [Miedo 2]: frecuencia + cita representativa
+- [Miedo 3 si hay]
+
+## DOLORES Y FRUSTRACIONES
+[Problemas concretos que la gente está viviendo]
+- [Dolor 1]: descripción + frecuencia
+- [Dolor 2]: descripción + frecuencia
+
+## PREGUNTAS MÁS FRECUENTES
+[Las dudas reales que tiene la gente — oportunidades de contenido directo]
+1. [Pregunta]
+2. [Pregunta]
+3. [Pregunta]
+
+## OPORTUNIDADES DE MERCADO
+[Necesidades no satisfechas que heru podría resolver o capitalizar]
+- [Oportunidad 1]
+- [Oportunidad 2]
+
+## TEMAS DE CONVERSACIÓN TRENDING
+[Los temas más activos esta semana en este ecosistema]
+| Tema | Volumen | Sentimiento | Oportunidad para heru |
+|------|---------|-------------|----------------------|
+
+## INSIGHTS CLAVE PARA PRODUCTO Y MARKETING
+[Máximo 3 insights accionables — lo que este análisis implica para heru]
+1. [Insight → implicación concreta]
+2. [Insight → implicación concreta]
+3. [Insight → implicación concreta]
+
+## OPORTUNIDADES DE CONTENIDO INMEDIATAS
+[Ideas de contenido que responden directamente a lo que la gente está pidiendo esta semana]
+- [Idea 1]: plataforma + ángulo + urgencia
+- [Idea 2]: plataforma + ángulo + urgencia"""
+
+        return self.run(prompt)
+
+    def analyze_brand_mentions(self, mentions_data: str, time_range: str = "última semana") -> str:
+        """
+        Analiza específicamente las menciones directas de heru.app.
+        Sentimiento, crisis, testimonios, quejas y oportunidades de respuesta.
+        """
+        prompt = f"""Analiza estas menciones directas de heru.app en redes sociales:
+
+PERÍODO: {time_range}
+
+MENCIONES:
+{mentions_data}
+
+Entrega:
+
+## MENCIONES DE HERU — {time_range}
+
+**Total analizadas:** X
+**Sentimiento:** 🟢 X% positivo | 🟡 X% neutro | 🔴 X% negativo
+
+### MENCIONES CRÍTICAS (requieren acción)
+[Si hay bugs reportados, acusaciones, problemas de seguridad — con respuesta sugerida]
+
+### MENCIONES POSITIVAS DESTACADAS
+[Top 2-3 que se pueden usar como social proof]
+
+### OPORTUNIDADES DE RESPUESTA
+[Menciones donde heru puede responder y generar valor]
+
+### ALERTAS ACTIVAS
+[Crisis o patrones negativos que requieren atención inmediata]"""
+
+        return self.run(prompt)
+
     def sentiment_analysis(self, text_data: str) -> str:
         """
         Realiza análisis de sentimiento detallado de un conjunto de textos.

@@ -39,6 +39,11 @@ fuentes_de_monitoreo:
         - "declaracion impuestos plataformas"
         - "uber impuestos mexico"
         - "como declarar didi"
+        - "RESICO"
+        - "régimen simplificado de confianza"
+        - "que es RESICO"
+        - "RESICO obligaciones"
+        - "me cambiaron a RESICO"
       relevancia: "Alta para profesionistas y tech-savvy"
 
     - plataforma: "Instagram"
@@ -48,6 +53,9 @@ fuentes_de_monitoreo:
         - "#freelancermexico"
         - "#satmexico"
         - "#trabajadorindependiente"
+        - "#RESICO"
+        - "#régimenSimplificado"
+        - "#impuestosfreelancer"
       relevancia: "Alta para freelancers creativos"
 
     - plataforma: "Facebook"
@@ -55,6 +63,12 @@ fuentes_de_monitoreo:
         - "heru.app"
         - "Grupos: 'Conductores Uber México', 'Freelancers México', 'Rappi México'"
       relevancia: "Alta para conductores y comerciantes"
+
+    - plataforma: "Facebook"
+      queries_resico:
+        - "Grupos: 'RESICO México', 'Freelancers y SAT México', 'Impuestos Independientes México'"
+        - "RESICO que es"
+        - "me dieron de alta en RESICO"
 
     - plataforma: "TikTok"
       queries:
@@ -155,7 +169,28 @@ clasificacion_menciones:
       - "Personas preguntando cómo declarar impuestos (sin mencionar heru)"
       - "Quejas sobre competidores"
       - "Conductores/freelancers con miedo al SAT"
+      - "Personas preguntando qué es RESICO o cómo funciona"
+      - "Personas que dicen 'me cambiaron de régimen y no sé qué hacer'"
+      - "Freelancers quejándose de pagar mucho ISR (posibles candidatos a RESICO)"
     acciones: "Responder de forma útil, sin ser spammy, con CTA sutil"
+
+  resico_especifico:
+    descripcion: >
+      RESICO es un tema de alta oportunidad de conversión. Monitorear activamente
+      conversaciones sobre este régimen porque la audiencia tiene alta necesidad
+      de orientación y bajo conocimiento — fit perfecto con heru.
+    señales_de_oportunidad:
+      - "¿Qué es RESICO?"
+      - "Me cambiaron a RESICO y no sé qué declarar"
+      - "¿Cuánto se paga en RESICO?"
+      - "RESICO obligaciones"
+      - "¿Tengo que declarar anualmente en RESICO?"
+      - "Me salí de RESICO por no declarar"
+      - "¿Cómo me cambio a RESICO?"
+    accion: >
+      Responder con información útil y clara sobre RESICO, posicionando a heru
+      como el experto que simplifica el cumplimiento. CTA hacia contenido
+      educativo o registro, según el nivel de urgencia de la conversación.
 
   tendencias:
     items:
