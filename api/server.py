@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
     model = os.environ.get("MODEL", "claude-opus-4-6")
     client = anthropic.Anthropic(api_key=api_key)
 
-    # Inicializar todos los agentes
+    # Inicializar todos los agentes (modelo principal para la API REST)
     _state["client"] = client
     _state["model"]  = model
     _state["qualifier"]   = LeadQualifierAgent(client=client,   model=model, verbose=False)
@@ -70,7 +70,17 @@ async def lifespan(app: FastAPI):
     _state["analyst"]     = BusinessAnalystAgent(client=client,  model=model, verbose=False)
     _state["sat"]         = SATIntelligenceAgent(client=client,  model=model, verbose=False)
 
-    print(f"✅ 7 agentes inicializados (modelo: {model})")
+    # Agentes rápidos para Google Chat (haiku — responde en ~3s vs 30s de opus)
+    chat_model = os.environ.get("CHAT_MODEL", "claude-haiku-4-5-20251001")
+    _state["chat_qualifier"]   = LeadQualifierAgent(client=client,   model=chat_model, verbose=False)
+    _state["chat_copywriter"]  = CopywriterAgent(client=client,      model=chat_model, verbose=False)
+    _state["chat_designer"]    = GraphicDesignerAgent(client=client,  model=chat_model, verbose=False)
+    _state["chat_social"]      = SocialListenerAgent(client=client,   model=chat_model, verbose=False)
+    _state["chat_performance"] = PerformanceAdsAgent(client=client,   model=chat_model, verbose=False)
+    _state["chat_analyst"]     = BusinessAnalystAgent(client=client,  model=chat_model, verbose=False)
+    _state["chat_sat"]         = SATIntelligenceAgent(client=client,  model=chat_model, verbose=False)
+
+    print(f"✅ 7 agentes inicializados (api: {model} | chat: {chat_model})")
 
     # Scheduler del Social Listener — solo si Apify está configurado
     if ApifyConnector.is_available():
@@ -464,22 +474,23 @@ async def chat_webhook(request: Request):
 
 
 def _run_agent(agent_key: str, text: str) -> str:
-    """Despacha el texto al agente correcto y retorna la respuesta."""
-    agents = _state
+    """Despacha el texto al agente chat (haiku) correcto y retorna la respuesta."""
+    # Usa los agentes rápidos (haiku) dedicados al chat
+    a = _state
 
     if agent_key == "qualifier":
-        return agents["qualifier"].qualify_lead(text)
+        return a["chat_qualifier"].qualify_lead(text)
 
     if agent_key == "sat":
-        return agents["sat"].analyze_sat_update(text)
+        return a["chat_sat"].analyze_sat_update(text)
 
     if agent_key == "copywriter":
-        return agents["copywriter"].run(
+        return a["chat_copywriter"].run(
             f"El equipo de heru te pide lo siguiente:\n\n{text}"
         )
 
     if agent_key == "designer":
-        return agents["designer"].create_visual_concept(
+        return a["chat_designer"].create_visual_concept(
             campaign_objective=text,
             platform="instagram",
         )
@@ -488,24 +499,24 @@ def _run_agent(agent_key: str, text: str) -> str:
         from core.connectors.google_ads import GoogleAdsConnector
         connector = GoogleAdsConnector(force_demo=True)
         metrics   = connector.format_for_agent(period_days=7)
-        return agents["performance"].generate_report(
+        return a["chat_performance"].generate_report(
             report_type="weekly",
             metrics_data=metrics,
             platform="all",
         )
 
     if agent_key == "social":
-        return agents["social"].run(
+        return a["chat_social"].run(
             f"El equipo pregunta sobre social listening:\n\n{text}"
         )
 
     if agent_key == "analyst":
-        return agents["analyst"].run(
+        return a["chat_analyst"].run(
             f"El equipo solicita un análisis:\n\n{text}"
         )
 
-    # Fallback: orquestador genérico usando el copywriter como base
-    return agents["copywriter"].run(text)
+    # Fallback: copywriter
+    return a["chat_copywriter"].run(text)
 
 
 @app.get(

@@ -83,14 +83,23 @@ def detect_agent(text: str) -> Tuple[str, Optional[str]]:
     """
     Detecta qué agente debe responder según el mensaje.
     Retorna (agent_key, hint) donde hint puede ser None.
+    Usa word-boundary para keywords de una sola palabra para evitar
+    falsos positivos (ej: "lead" no debe matchear "leads").
     """
     clean = text.lower()
     # Quitar el @mention si viene (ej: "@heru-bot califica...")
     clean = re.sub(r"@\S+\s*", "", clean).strip()
 
     for route in ROUTES:
-        if any(kw in clean for kw in route["keywords"]):
-            return route["agent"], route["hint"]
+        for kw in route["keywords"]:
+            if " " in kw:
+                # Frase multi-palabra: buscar como substring exacto
+                if kw in clean:
+                    return route["agent"], route["hint"]
+            else:
+                # Palabra sola: usar word boundary para evitar falsos positivos
+                if re.search(r"\b" + re.escape(kw) + r"\b", clean):
+                    return route["agent"], route["hint"]
 
     return "orchestrator", None
 
