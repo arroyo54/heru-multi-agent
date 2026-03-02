@@ -5,8 +5,10 @@ Expone los agentes como endpoints REST.
 Uso:
     uvicorn api.server:app --reload --port 8000
 """
+import asyncio
 import os
 import re
+import time
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -399,10 +401,13 @@ async def chat_webhook(request: Request):
     - ADDED_TO_SPACE: el bot fue agregado al espacio
     - REMOVED_FROM_SPACE: el bot fue eliminado (no requiere respuesta)
     """
+    t0 = time.time()
     try:
         body = await request.json()
     except Exception:
         return JSONResponse({"text": "Error al leer el mensaje."}, status_code=400)
+
+    print(f"[CHAT DEBUG] body={body}")
 
     # Google Chat usa estructura: chat.messagePayload.message
     chat_data       = body.get("chat", {})
@@ -410,11 +415,13 @@ async def chat_webhook(request: Request):
     message         = message_payload.get("message", {})
     sender          = chat_data.get("user", {}).get("displayName", "equipo")
 
-    # argumentText ya tiene el @mention eliminado
+    # argumentText ya tiene el @mention eliminado; fallback a text
     raw_text = message.get("argumentText", message.get("text", "")).strip()
 
+    print(f"[CHAT DEBUG] sender={sender!r} raw_text={raw_text!r}")
+
     if not raw_text:
-        return JSONResponse({"text": "No recibí ningún mensaje."})
+        return JSONResponse({"text": "Hola! Escribe *@growth-agents ayuda* para ver los comandos disponibles."})
 
     text = clean_mention(raw_text)
 
@@ -424,17 +431,30 @@ async def chat_webhook(request: Request):
 
     # Detectar agente
     agent_key, hint = detect_agent(text)
+    print(f"[CHAT DEBUG] agent_key={agent_key!r} elapsed={time.time()-t0:.1f}s")
 
-    # Indicador de "escribiendo..." — no soportado nativamente, pero avisamos
-    thinking_note = f"_Procesando con {agent_key}..._\n\n" if False else ""
-
-    # Ejecutar el agente correcto
+    # Ejecutar el agente con timeout de 25 segundos (Google Chat corta a los 30)
+    loop = asyncio.get_event_loop()
     try:
-        response = _run_agent(agent_key, text)
+        response = await asyncio.wait_for(
+            loop.run_in_executor(None, _run_agent, agent_key, text),
+            timeout=25.0,
+        )
+    except asyncio.TimeoutError:
+        print(f"[CHAT DEBUG] TIMEOUT después de 25s — agent_key={agent_key!r}")
+        return JSONResponse({
+            "text": (
+                f"⏳ El agente {agent_key} está tardando más de lo esperado. "
+                "Intenta con una solicitud más corta o espera un momento."
+            )
+        })
     except Exception as e:
+        print(f"[CHAT DEBUG] ERROR agent_key={agent_key!r} err={e}")
         return JSONResponse({
             "text": f"⚠️ Error al procesar tu solicitud: {str(e)[:200]}"
         })
+
+    print(f"[CHAT DEBUG] OK elapsed={time.time()-t0:.1f}s")
 
     reply = format_response(agent_key, response, sender)
     if hint:
