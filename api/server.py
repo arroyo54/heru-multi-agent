@@ -70,15 +70,15 @@ async def lifespan(app: FastAPI):
     _state["analyst"]     = BusinessAnalystAgent(client=client,  model=model, verbose=False)
     _state["sat"]         = SATIntelligenceAgent(client=client,  model=model, verbose=False)
 
-    # Agentes rápidos para Google Chat (haiku — responde en ~3s vs 30s de opus)
+    # Agentes rápidos para Google Chat (haiku, max 1500 tokens — responde en ~3-5s)
     chat_model = os.environ.get("CHAT_MODEL", "claude-haiku-4-5-20251001")
-    _state["chat_qualifier"]   = LeadQualifierAgent(client=client,   model=chat_model, verbose=False)
-    _state["chat_copywriter"]  = CopywriterAgent(client=client,      model=chat_model, verbose=False)
-    _state["chat_designer"]    = GraphicDesignerAgent(client=client,  model=chat_model, verbose=False)
-    _state["chat_social"]      = SocialListenerAgent(client=client,   model=chat_model, verbose=False)
-    _state["chat_performance"] = PerformanceAdsAgent(client=client,   model=chat_model, verbose=False)
-    _state["chat_analyst"]     = BusinessAnalystAgent(client=client,  model=chat_model, verbose=False)
-    _state["chat_sat"]         = SATIntelligenceAgent(client=client,  model=chat_model, verbose=False)
+    _state["chat_qualifier"]   = LeadQualifierAgent(client=client,   model=chat_model, verbose=False, max_tokens=1500)
+    _state["chat_copywriter"]  = CopywriterAgent(client=client,      model=chat_model, verbose=False, max_tokens=1500)
+    _state["chat_designer"]    = GraphicDesignerAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
+    _state["chat_social"]      = SocialListenerAgent(client=client,   model=chat_model, verbose=False, max_tokens=1500)
+    _state["chat_performance"] = PerformanceAdsAgent(client=client,   model=chat_model, verbose=False, max_tokens=1500)
+    _state["chat_analyst"]     = BusinessAnalystAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
+    _state["chat_sat"]         = SATIntelligenceAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
 
     print(f"✅ 7 agentes inicializados (api: {model} | chat: {chat_model})")
 
@@ -490,10 +490,11 @@ def _run_agent(agent_key: str, text: str) -> str:
         )
 
     if agent_key == "designer":
-        return a["chat_designer"].create_visual_concept(
-            piece_type=text,
-            platform="instagram",
-            generate_image=False,
+        # Chat: prompt directo y conciso — create_visual_concept genera demasiado output
+        return a["chat_designer"].run(
+            f"Eres un director creativo de heru.app. El equipo pide:\n\n{text}\n\n"
+            "Responde en máximo 350 palabras. Incluye: concepto creativo, "
+            "composición/estructura, y un prompt en inglés listo para Midjourney o Stable Diffusion."
         )
 
     if agent_key == "performance":
