@@ -491,8 +491,9 @@ def _run_agent(agent_key: str, text: str) -> str:
 
     if agent_key == "designer":
         return a["chat_designer"].create_visual_concept(
-            campaign_objective=text,
+            piece_type=text,
             platform="instagram",
+            generate_image=False,
         )
 
     if agent_key == "performance":
