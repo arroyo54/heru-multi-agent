@@ -435,6 +435,10 @@ async def chat_webhook(request: Request):
 
     text = clean_mention(raw_text)
 
+    # Ping de diagnóstico — respuesta instantánea para confirmar que el formato es correcto
+    if text.lower() in ("ping", "test", "prueba", "hola"):
+        return JSONResponse({"text": "pong — bot activo"})
+
     # Comando de ayuda
     if text.lower() in ("ayuda", "help", "?", ""):
         return JSONResponse({"text": help_message()})
@@ -470,7 +474,9 @@ async def chat_webhook(request: Request):
     if hint:
         reply += f"\n\n_{hint}_"
 
-    return JSONResponse({"text": reply})
+    payload = {"text": reply}
+    print(f"[CHAT DEBUG] response_len={len(reply)} preview={reply[:120]!r}")
+    return JSONResponse(payload)
 
 
 def _run_agent(agent_key: str, text: str) -> str:
