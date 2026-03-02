@@ -8,8 +8,12 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from google import genai
-from google.genai import types
+try:
+    from google import genai
+    from google.genai import types
+    _GENAI_AVAILABLE = True
+except ImportError:
+    _GENAI_AVAILABLE = False
 
 
 # Aspect ratio hints para incluir en el prompt (Gemini no acepta parámetro directo)
@@ -116,5 +120,5 @@ class ImageGenerator:
 
     @staticmethod
     def is_available() -> bool:
-        """Retorna True si GOOGLE_API_KEY está configurada."""
-        return bool(os.environ.get("GOOGLE_API_KEY"))
+        """Retorna True si GOOGLE_API_KEY está configurada y google-genai instalado."""
+        return _GENAI_AVAILABLE and bool(os.environ.get("GOOGLE_API_KEY"))
