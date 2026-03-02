@@ -132,14 +132,52 @@ tipos_de_contenido:
       - "Cada mes: Tu declaración mensual en tiempo"
     tone_of_voice: "Urgente pero tranquilizador"
 
+  resico:
+    descripcion: >
+      Contenido específico sobre RESICO (Régimen Simplificado de Confianza).
+      Hay dos ángulos: educativo para quienes ya están en él y no conocen
+      sus obligaciones, y de conversión para quienes podrían cambiarse.
+      RESICO es relativamente nuevo (desde 2022) — mucha gente lleva años
+      en él sin saber exactamente qué implica.
+    angulo_ya_en_resico:
+      descripcion: "Para quienes están en RESICO pero no entienden sus obligaciones"
+      ejemplos:
+        - "Estás en RESICO y no sabes qué declarar cada mes — aquí te lo explicamos"
+        - "3 cosas que nadie te dijo cuando te dieron de alta en RESICO"
+        - "RESICO te obliga a declarar anualmente aunque nadie te lo haya dicho"
+        - "¿El SAT te puede sacar de RESICO? Sí, y esto es lo que tienes que hacer"
+    angulo_conversion:
+      descripcion: "Para quienes podrían cambiarse a RESICO desde otro régimen"
+      ejemplos:
+        - "¿Sabías que como freelancer podrías pagar solo 1% de ISR?"
+        - "RESICO existe desde 2022 y miles de independientes aún no saben que pueden usarlo"
+        - "De pagar 25% de ISR a pagar 1.5% — esto es RESICO"
+        - "Si ganas menos de $3.5M al año trabajando independiente, esto te interesa"
+    tone_of_voice: "Revelador, empoderador, sin asustar — 'hay algo mejor y no lo sabías'"
+    hashtags_especificos:
+      - "#RESICO"
+      - "#RégimenSimplificado"
+      - "#impuestosmexico"
+      - "#freelancermexico"
+      - "#SATmexico"
+
 hooks_banco:
-  - "El SAT ya sabe cuánto ganas. La pregunta es: ¿ya lo declaraste?"
-  - "Cada mes que no declaras, el SAT añade recargos. Hoy es el mejor día para ponerte al corriente."
-  - "Tu contador te cobra $2,000 al mes por algo que heru hace por $99."
-  - "Trabajar independiente en México tiene sus ventajas... y sus trampas fiscales."
-  - "¿Sabías que puedes deducir tu celular, internet y hasta tu café? 👀"
-  - "El miedo al SAT se cura con información. Empecemos."
-  - "Uber y Rappi ya le reportaron al SAT cuánto ganaste. ¿Estás listo?"
+  generales:
+    - "El SAT ya sabe cuánto ganas. La pregunta es: ¿ya lo declaraste?"
+    - "Cada mes que no declaras, el SAT añade recargos. Hoy es el mejor día para ponerte al corriente."
+    - "Tu contador te cobra $2,000 al mes por algo que heru hace por $99."
+    - "Trabajar independiente en México tiene sus ventajas... y sus trampas fiscales."
+    - "El miedo al SAT se cura con información. Empecemos."
+    - "Uber y Rappi ya le reportaron al SAT cuánto ganaste. ¿Estás listo?"
+  resico:
+    - "¿Estás en RESICO y no sabes ni qué significa? Este post es para ti."
+    - "El SAT creó un régimen donde pagas hasta 1% de impuestos. Se llama RESICO. ¿Ya lo conoces?"
+    - "3 obligaciones de RESICO que nadie te explicó cuando te dieron de alta."
+    - "Miles de freelancers en México pagan más impuestos de los que deberían. RESICO existe desde 2022."
+    - "Si trabajas independiente y pagas más del 2% de ISR, algo está mal."
+    - "RESICO: el régimen más simple del SAT que la mayoría no sabe que tiene."
+    - "Te cambiaron a RESICO en 2022 y no sabes qué declarar. Tranquilo, no eres el único."
+    - "¿Cuánto pagas de ISR cada mes? Con RESICO podrías pagar hasta 10 veces menos."
 
 ctas_banco:
   registro: "Prueba heru gratis 30 días → [link]"

@@ -27,12 +27,15 @@ console = Console()
 
 from core.orchestration import Orchestrator
 from core.models import AgentRole
+from core.image_generator import ImageGenerator
 from agents.orchestrator.agent import OrchestratorAgent
 from agents.lead_qualifier.agent import LeadQualifierAgent
 from agents.copywriter.agent import CopywriterAgent
 from agents.graphic_designer.agent import GraphicDesignerAgent
 from agents.social_listener.agent import SocialListenerAgent
 from agents.performance_ads.agent import PerformanceAdsAgent
+from agents.business_analyst.agent import BusinessAnalystAgent
+from agents.sat_intelligence.agent import SATIntelligenceAgent
 
 
 # ─── System Builder ──────────────────────────────────────────────────────────
@@ -51,6 +54,17 @@ def build_system(verbose: bool = True) -> Orchestrator:
     client = anthropic.Anthropic(api_key=api_key)
     model = os.getenv("MODEL", "claude-opus-4-6")
 
+    # Imagen 3 (Google) — opcional, solo si hay GOOGLE_API_KEY
+    imagen = None
+    if ImageGenerator.is_available():
+        try:
+            imagen = ImageGenerator()
+            console.print("[green]✓ Google Imagen 3 conectado — el agente de diseño generará imágenes automáticamente[/green]")
+        except Exception as e:
+            console.print(f"[yellow]⚠ Imagen 3 no disponible: {e}[/yellow]")
+    else:
+        console.print("[dim]ℹ GOOGLE_API_KEY no configurada — el agente de diseño generará solo briefs de texto[/dim]")
+
     console.print(
         Panel(
             f"[bold green]🚀 Sistema Multi-Agente heru.app[/bold green]\n"
@@ -67,9 +81,11 @@ def build_system(verbose: bool = True) -> Orchestrator:
         AgentRole.ORCHESTRATOR: OrchestratorAgent(client=client, model=model, verbose=False),
         AgentRole.LEAD_QUALIFIER: LeadQualifierAgent(client=client, model=model, verbose=verbose),
         AgentRole.COPYWRITER: CopywriterAgent(client=client, model=model, verbose=verbose),
-        AgentRole.GRAPHIC_DESIGNER: GraphicDesignerAgent(client=client, model=model, verbose=verbose),
+        AgentRole.GRAPHIC_DESIGNER: GraphicDesignerAgent(client=client, model=model, verbose=verbose, image_generator=imagen),
         AgentRole.SOCIAL_LISTENER: SocialListenerAgent(client=client, model=model, verbose=verbose),
         AgentRole.PERFORMANCE_ADS: PerformanceAdsAgent(client=client, model=model, verbose=verbose),
+        AgentRole.BUSINESS_ANALYST: BusinessAnalystAgent(client=client, model=model, verbose=verbose),
+        AgentRole.SAT_INTELLIGENCE: SATIntelligenceAgent(client=client, model=model, verbose=verbose),
     }
 
     for role, agent in agents.items():
@@ -185,6 +201,7 @@ def run_interactive(orchestrator: Orchestrator):
             "Comandos especiales:\n"
             "  /status  → Ver estado del sistema\n"
             "  /agente <nombre> <tarea>  → Hablar directamente con un agente\n"
+            "     Agentes: leads, copy, diseno, social, ads, analyst, sat, fiscal\n"
             "  /demo    → Ejecutar demos\n"
             "  /salir   → Cerrar el sistema",
             border_style="cyan",
@@ -204,6 +221,12 @@ def run_interactive(orchestrator: Orchestrator):
         "listener": AgentRole.SOCIAL_LISTENER,
         "ads": AgentRole.PERFORMANCE_ADS,
         "performance": AgentRole.PERFORMANCE_ADS,
+        "analyst": AgentRole.BUSINESS_ANALYST,
+        "ba": AgentRole.BUSINESS_ANALYST,
+        "business": AgentRole.BUSINESS_ANALYST,
+        "sat": AgentRole.SAT_INTELLIGENCE,
+        "fiscal": AgentRole.SAT_INTELLIGENCE,
+        "inteligencia": AgentRole.SAT_INTELLIGENCE,
     }
 
     while True:
@@ -255,13 +278,15 @@ Ejemplos:
   python main.py                    Modo interactivo
   python main.py --demo             Ejecutar todos los demos
   python main.py --agent leads      Hablar directamente con el Lead Qualifier
+  python main.py --agent analyst    Hablar directamente con el Business Analyst
+  python main.py --agent sat        Hablar directamente con el SAT Intelligence
   python main.py --quiet            Reducir output verbose
         """,
     )
     parser.add_argument("--demo", action="store_true", help="Ejecutar demos de todos los agentes")
     parser.add_argument(
         "--agent",
-        choices=["leads", "copy", "diseno", "social", "ads"],
+        choices=["leads", "copy", "diseno", "social", "ads", "analyst", "sat"],
         help="Hablar directamente con un agente específico",
     )
     parser.add_argument("--quiet", action="store_true", help="Reducir output verbose")
@@ -279,6 +304,8 @@ Ejemplos:
             "diseno": AgentRole.GRAPHIC_DESIGNER,
             "social": AgentRole.SOCIAL_LISTENER,
             "ads": AgentRole.PERFORMANCE_ADS,
+            "analyst": AgentRole.BUSINESS_ANALYST,
+            "sat": AgentRole.SAT_INTELLIGENCE,
         }
         role = agent_map[args.agent]
         console.print(f"[bold]Modo directo: {role.value}[/bold]")

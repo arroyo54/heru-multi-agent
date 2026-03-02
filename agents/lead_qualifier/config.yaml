@@ -38,9 +38,16 @@ qualification_framework:
       peso: 30
       preguntas:
         - "¿A qué te dedicas? (actividad principal)"
+        - "¿Sabes en qué régimen fiscal estás dado de alta en el SAT?"
         - "¿Cuánto facturas aproximadamente al mes?"
         - "¿Trabajas para una o varias empresas/clientes?"
         - "¿Usas algún sistema contable actualmente?"
+      nota_resico: >
+        Si el lead no sabe su régimen, es señal de oportunidad alta.
+        Si menciona RESICO, profundizar: ¿sabe que tiene que declarar cada mes?
+        ¿Ha presentado su declaración anual? ¿Ha emitido CFDI por todos sus ingresos?
+        Si está en otro régimen y podría beneficiarse de RESICO, mencionarlo
+        como un punto de valor de heru (orientación de régimen).
     urgencia:
       peso: 20
       indicadores:
@@ -80,16 +87,43 @@ planes_heru:
 
   plan_freelancer:
     regimen: "RESICO (Régimen Simplificado de Confianza)"
-    señales:
+    descripcion_resico: >
+      RESICO es un régimen vigente desde enero 2022 con tasas de ISR de 1% a 2.5%
+      para ingresos hasta $3.5M anuales. Es relativamente nuevo y hay dos grupos
+      clave: quienes YA están en RESICO pero no entienden sus obligaciones, y
+      quienes PODRÍAN estar en RESICO pero siguen en otro régimen más complejo.
+    señales_ya_en_resico:
+      - "Menciona RESICO o régimen simplificado de confianza"
+      - "Dice que el SAT lo cambió de régimen en 2022 o 2023"
+      - "Freelancer que ya emite CFDI pero no sabe si declara bien"
+      - "Pregunta por sus obligaciones mensuales o anuales en RESICO"
+      - "Tiene miedo de que el SAT lo saque de RESICO por no cumplir"
+    señales_podria_cambiarse:
+      - "Está en Actividad Empresarial pagando mucho ISR"
+      - "Profesionista en Honorarios con ingresos menores a $3.5M anuales"
+      - "No conoce RESICO pero trabaja de forma independiente"
+      - "Le parece muy complicado y caro su régimen actual"
+    señales_generales:
       - "Freelancer, independiente, trabaja por proyecto"
       - "Diseñador, programador, fotógrafo, editor, community manager, marketer"
-      - "Menciona RESICO o régimen simplificado"
       - "Factura directamente a clientes sin intermediario de plataforma"
       - "Ingresos variables por proyecto o por cliente"
+    tasas_referencia:
+      - "Hasta $300K/año → 1% ISR"
+      - "$300K–$600K/año → 1.1% ISR"
+      - "$600K–$1M/año → 1.5% ISR"
+      - "$1M–$2M/año → 2% ISR"
+      - "$2M–$3.5M/año → 2.5% ISR"
+    obligaciones_que_el_lead_puede_no_conocer:
+      - "Declaración mensual de ISR (simplificada pero obligatoria)"
+      - "Emitir CFDI por cada ingreso — aunque sea un cliente de confianza"
+      - "Declaración anual obligatoria (a diferencia de lo que muchos creen)"
+      - "Si no cumple, el SAT puede sacarlo de RESICO automáticamente"
     cuando_recomendar: >
-      Cuando el lead trabaja de forma independiente prestando servicios
-      y su régimen probable es RESICO. No aplica si tiene honorarios
-      o actividad empresarial formal.
+      Cuando el lead está en RESICO (o debería estarlo) y trabaja de forma
+      independiente. Priorizar la educación sobre sus obligaciones si ya está
+      en el régimen. Si podría cambiarse, explorarlo como oportunidad de ahorro.
+      NO aplica para conductores de plataformas (tienen su propio régimen).
 
   plan_empresarial:
     regimen: "Actividad Empresarial / Servicios Profesionales / Honorarios"

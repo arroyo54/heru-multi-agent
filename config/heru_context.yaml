@@ -39,6 +39,73 @@ producto:
     plan_profesional: "Desde $249 MXN/mes"
     plan_premium: "Desde $499 MXN/mes"
 
+resico:
+  nombre_completo: "Régimen Simplificado de Confianza (RESICO)"
+  vigencia_desde: "Enero 2022"
+  descripcion: >
+    RESICO es un régimen fiscal relativamente nuevo creado por el SAT para
+    simplificar el cumplimiento de personas físicas con actividad empresarial,
+    servicios profesionales o arrendamiento. Ofrece tasas de ISR muy bajas
+    (1% a 2.5%) y un proceso de declaración simplificado. Es uno de los
+    regímenes de mayor oportunidad de conversión para heru porque: muchos
+    contribuyentes que ya están en RESICO no entienden sus obligaciones, y
+    muchos que podrían beneficiarse aún no lo conocen o no han migrado.
+
+  tasa_impuesto:
+    - rango: "Hasta $300,000 MXN/año"
+      tasa: "1%"
+    - rango: "$300,001 – $600,000 MXN/año"
+      tasa: "1.1%"
+    - rango: "$600,001 – $1,000,000 MXN/año"
+      tasa: "1.5%"
+    - rango: "$1,000,001 – $2,000,000 MXN/año"
+      tasa: "2%"
+    - rango: "$2,000,001 – $3,500,000 MXN/año"
+      tasa: "2.5%"
+  tope_ingresos: "$3,500,000 MXN anuales"
+
+  obligaciones_principales:
+    - "Emitir CFDI por cada ingreso recibido"
+    - "Presentar declaración mensual de ISR (pago simplificado)"
+    - "Presentar declaración anual (obligatoria en RESICO)"
+    - "Estar al corriente en declaraciones para no perder el régimen"
+  limitaciones:
+    - "No se pueden deducir gastos (a diferencia de Actividad Empresarial)"
+    - "Aplica solo a personas físicas, no morales"
+    - "No aplica a conductores de plataformas (tienen su propio régimen)"
+    - "Si se superan $3.5M de ingresos anuales, se sale del RESICO"
+
+  quien_puede_estar:
+    - "Freelancers y trabajadores independientes que prestan servicios"
+    - "Profesionistas (médicos, abogados, arquitectos, psicólogos, etc.) que NO están en honorarios formales"
+    - "Personas con pequeña actividad empresarial"
+    - "Arrendadores de inmuebles"
+  quien_no_puede:
+    - "Asalariados (empleados con sueldo)"
+    - "Conductores de plataformas (Uber, DiDi — tienen régimen propio)"
+    - "Personas con ingresos superiores a $3.5M anuales"
+
+  oportunidades_para_heru:
+    ya_en_resico_sin_saber_sus_obligaciones: >
+      Muchas personas fueron migradas a RESICO automáticamente por el SAT
+      o se dieron de alta sin entender qué implica. No saben que deben
+      declarar mensualmente, emitir CFDI o presentar declaración anual.
+      heru puede ser el acompañante que les explica y automatiza todo.
+    podrian_cambiarse_y_no_lo_saben: >
+      Personas en Actividad Empresarial o Honorarios que podrían beneficiarse
+      de las tasas más bajas de RESICO. heru puede educar sobre esta opción
+      y acompañar el cambio de régimen.
+    miedo_a_perder_el_regimen: >
+      Si no cumplen con sus obligaciones mensuales, el SAT los puede sacar
+      de RESICO. Este miedo es un trigger poderoso para contratar heru.
+
+  mensajes_clave_para_comunicacion:
+    - "Estás en RESICO y no sabes qué hacer — heru te explica en 5 minutos"
+    - "RESICO tiene las tasas más bajas de la historia del SAT. Pero hay que cumplir."
+    - "Con RESICO pagas hasta 1% de impuestos. heru se asegura de que lo sigas pagando bien."
+    - "¿Te cambiaron a RESICO y no sabes ni qué es? Tranquilo, nosotros sí sabemos."
+    - "El SAT simplificó tus impuestos con RESICO. heru los automatiza."
+
 diferencial:
   pilares_de_valor:
     - nombre: "Sistema práctico"
@@ -315,8 +382,21 @@ temporadas_fiscales_importantes:
   - mes: "Diciembre"
     evento: "Cierre fiscal, últimas declaraciones del año"
 
+resico_en_summary: >
+  RESICO (Régimen Simplificado de Confianza) es un régimen fiscal vigente desde
+  enero 2022, clave para heru. Ofrece tasas de ISR de 1% a 2.5% para personas
+  físicas con ingresos hasta $3.5M/año. Hay dos audiencias críticas: quienes
+  ya están en RESICO y no conocen sus obligaciones (declaración mensual, CFDI,
+  declaración anual obligatoria), y quienes podrían cambiarse desde otros regímenes
+  pero no lo saben. No aplica para conductores de plataformas (tienen régimen propio).
+  Mensajes clave: simplicidad, tasas bajas, pero hay que cumplir para no perderlo.
+
 summary: >
   heru es una plataforma fiscal y financiera mexicana (heru, siempre en minúsculas)
+  con especial foco en RESICO (Régimen Simplificado de Confianza, vigente desde 2022):
+  tasas de 1%-2.5%, obligatorio declarar mensualmente y anualmente, tope $3.5M/año.
+  Dos audiencias clave en RESICO: quienes ya están pero no saben sus obligaciones,
+  y quienes podrían migrar desde otros regímenes pero no lo conocen.
   que empodera a personas que generan ingresos por su cuenta — freelancers,
   trabajadores independientes y personas con actividad empresarial — para tener
   control total sobre su situación fiscal ante el SAT.

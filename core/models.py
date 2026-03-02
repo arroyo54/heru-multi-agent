@@ -15,6 +15,8 @@ class AgentRole(str, Enum):
     GRAPHIC_DESIGNER = "graphic_designer"
     SOCIAL_LISTENER = "social_listener"
     PERFORMANCE_ADS = "performance_ads"
+    BUSINESS_ANALYST = "business_analyst"
+    SAT_INTELLIGENCE = "sat_intelligence"
 
 
 class TaskStatus(str, Enum):
