@@ -404,6 +404,7 @@ async def chat_webhook(request: Request):
     except Exception:
         return JSONResponse({"text": "Error al leer el mensaje."}, status_code=400)
 
+    print(f"[CHAT DEBUG] body={body}")
     event_type = body.get("type", "")
 
     # Bot agregado al espacio — mensaje de bienvenida
