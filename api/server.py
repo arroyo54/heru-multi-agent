@@ -404,28 +404,14 @@ async def chat_webhook(request: Request):
     except Exception:
         return JSONResponse({"text": "Error al leer el mensaje."}, status_code=400)
 
-    print(f"[CHAT DEBUG] body={body}")
-    event_type = body.get("type", "")
+    # Google Chat usa estructura: chat.messagePayload.message
+    chat_data       = body.get("chat", {})
+    message_payload = chat_data.get("messagePayload", {})
+    message         = message_payload.get("message", {})
+    sender          = chat_data.get("user", {}).get("displayName", "equipo")
 
-    # Bot agregado al espacio — mensaje de bienvenida
-    if event_type == "ADDED_TO_SPACE":
-        space_name = body.get("space", {}).get("displayName", "este espacio")
-        return JSONResponse({
-            "text": (
-                f"*¡Hola! Soy heru-bot* 🤖\n"
-                f"Estoy listo para ayudar al equipo en *{space_name}*.\n\n"
-                f"Escribe `@heru-bot ayuda` para ver qué puedo hacer."
-            )
-        })
-
-    # Bot eliminado — nada que responder
-    if event_type == "REMOVED_FROM_SPACE":
-        return JSONResponse({})
-
-    # Mensaje normal
-    message  = body.get("message", {})
-    raw_text = message.get("text", "").strip()
-    sender   = message.get("sender", {}).get("displayName", "equipo")
+    # argumentText ya tiene el @mention eliminado
+    raw_text = message.get("argumentText", message.get("text", "")).strip()
 
     if not raw_text:
         return JSONResponse({"text": "No recibí ningún mensaje."})
