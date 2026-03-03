@@ -423,14 +423,16 @@ async def _post_to_chat_rest_api(space: str, thread: str, text: str) -> bool:
         await loop.run_in_executor(None, lambda: creds.refresh(GoogleAuthRequest()))
 
         payload: dict = {"text": text}
+        params: dict = {}
         if thread:
             payload["thread"] = {"name": thread}
-            payload["messageReplyOption"] = "REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD"
+            params["messageReplyOption"] = "REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD"
 
         async with httpx.AsyncClient(timeout=15.0) as client:
             r = await client.post(
                 f"https://chat.googleapis.com/v1/{space}/messages",
                 headers={"Authorization": f"Bearer {creds.token}"},
+                params=params,
                 json=payload,
             )
             print(f"[CHAT REST] status={r.status_code} body={r.text[:300]}")
