@@ -6,6 +6,7 @@ Uso:
     uvicorn api.server:app --reload --port 8000
 """
 import asyncio
+import json
 import os
 import re
 import time
@@ -17,6 +18,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import anthropic
+import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -394,6 +396,48 @@ async def qualify_lead(lead: LeadInput) -> QualificationResponse:
     )
 
 
+# ─── Google Chat REST API ────────────────────────────────────────────────────
+
+async def _post_to_chat_rest_api(space: str, thread: str, text: str) -> bool:
+    """
+    Publica un mensaje en Google Chat via REST API usando service account.
+    Necesario cuando el app está configurado como Google Workspace Add-on
+    (gcp-sa-gsuiteaddons), donde las respuestas HTTP síncronas son ignoradas.
+    """
+    sa_json_str = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+    if not sa_json_str:
+        return False
+
+    try:
+        from google.oauth2 import service_account
+        from google.auth.transport.requests import Request as GoogleAuthRequest
+
+        sa_info = json.loads(sa_json_str)
+        creds = service_account.Credentials.from_service_account_info(
+            sa_info,
+            scopes=["https://www.googleapis.com/auth/chat.bot"],
+        )
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: creds.refresh(GoogleAuthRequest()))
+
+        payload: dict = {"text": text}
+        if thread:
+            payload["thread"] = {"name": thread}
+            payload["messageReplyOption"] = "REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD"
+
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            r = await client.post(
+                f"https://chat.googleapis.com/v1/{space}/messages",
+                headers={"Authorization": f"Bearer {creds.token}"},
+                json=payload,
+            )
+            print(f"[CHAT REST] status={r.status_code} body={r.text[:300]}")
+            return r.status_code == 200
+    except Exception as e:
+        print(f"[CHAT REST ERROR] {e}")
+        return False
+
+
 # ─── Google Chat Bot ──────────────────────────────────────────────────────────
 
 @app.post(
@@ -425,29 +469,45 @@ async def chat_webhook(request: Request):
     message         = message_payload.get("message", {})
     sender          = chat_data.get("user", {}).get("displayName", "equipo")
 
+    # Nombres de espacio y hilo para REST API
+    space_name  = message.get("space", {}).get("name", "")
+    thread_name = message.get("thread", {}).get("name", "")
+
+    # Modo de respuesta: REST API (Add-on) o HTTP síncrono (Bot)
+    use_rest_api = bool(os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON"))
+
     # argumentText ya tiene el @mention eliminado; fallback a text
     raw_text = message.get("argumentText", message.get("text", "")).strip()
 
-    print(f"[CHAT DEBUG] sender={sender!r} raw_text={raw_text!r}")
+    print(f"[CHAT DEBUG] sender={sender!r} raw_text={raw_text!r} rest_api={use_rest_api}")
+
+    async def send(text_reply: str):
+        """Envía la respuesta por REST API o HTTP según configuración."""
+        if use_rest_api:
+            asyncio.create_task(
+                _post_to_chat_rest_api(space_name, thread_name, text_reply)
+            )
+            return JSONResponse({})          # 200 vacío — REST API postea la respuesta
+        return JSONResponse({"text": text_reply})
 
     if not raw_text:
-        return JSONResponse({"text": "Hola! Escribe *@growth-agents ayuda* para ver los comandos disponibles."})
+        return await send("Hola! Escribe *@growth-agents ayuda* para ver los comandos disponibles.")
 
     text = clean_mention(raw_text)
 
     # Ping de diagnóstico — respuesta instantánea
     if text.lower() in ("ping", "test", "prueba", "hola"):
-        return JSONResponse({"text": "pong — bot activo"})
+        return await send("pong — bot activo")
 
     # Comando de ayuda
     if text.lower() in ("ayuda", "help", "?", ""):
-        return JSONResponse({"text": help_message()})
+        return await send(help_message())
 
     # Detectar agente
     agent_key, hint = detect_agent(text)
     print(f"[CHAT DEBUG] agent_key={agent_key!r} elapsed={time.time()-t0:.1f}s")
 
-    # Ejecutar el agente con timeout de 25 segundos (Google Chat corta a los 30)
+    # Ejecutar el agente con timeout de 25 segundos
     loop = asyncio.get_event_loop()
     try:
         response = await asyncio.wait_for(
@@ -455,18 +515,14 @@ async def chat_webhook(request: Request):
             timeout=25.0,
         )
     except asyncio.TimeoutError:
-        print(f"[CHAT DEBUG] TIMEOUT después de 25s — agent_key={agent_key!r}")
-        return JSONResponse({
-            "text": (
-                f"⏳ El agente {agent_key} está tardando más de lo esperado. "
-                "Intenta con una solicitud más corta o espera un momento."
-            )
-        })
+        print(f"[CHAT DEBUG] TIMEOUT — agent_key={agent_key!r}")
+        return await send(
+            f"⏳ El agente {agent_key} está tardando más de lo esperado. "
+            "Intenta con una solicitud más corta."
+        )
     except Exception as e:
         print(f"[CHAT DEBUG] ERROR agent_key={agent_key!r} err={e}")
-        return JSONResponse({
-            "text": f"⚠️ Error al procesar tu solicitud: {str(e)[:200]}"
-        })
+        return await send(f"⚠️ Error: {str(e)[:200]}")
 
     print(f"[CHAT DEBUG] OK elapsed={time.time()-t0:.1f}s")
 
@@ -474,9 +530,8 @@ async def chat_webhook(request: Request):
     if hint:
         reply += f"\n\n_{hint}_"
 
-    payload = {"text": reply}
     print(f"[CHAT DEBUG] response_len={len(reply)} preview={reply[:120]!r}")
-    return JSONResponse(payload)
+    return await send(reply)
 
 
 def _run_agent(agent_key: str, text: str) -> str:
