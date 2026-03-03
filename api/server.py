@@ -435,22 +435,9 @@ async def chat_webhook(request: Request):
 
     text = clean_mention(raw_text)
 
-    # Ping de diagnóstico — prueba ambos formatos en paralelo
+    # Ping de diagnóstico — respuesta instantánea
     if text.lower() in ("ping", "test", "prueba", "hola"):
-        # Formato Add-on (renderActions) — para Google Workspace Add-ons con Chat
-        return JSONResponse({
-            "renderActions": {
-                "hostAppAction": {
-                    "chatAction": {
-                        "createMessageAction": {
-                            "message": {
-                                "text": "pong — bot activo"
-                            }
-                        }
-                    }
-                }
-            }
-        })
+        return JSONResponse({"text": "pong — bot activo"})
 
     # Comando de ayuda
     if text.lower() in ("ayuda", "help", "?", ""):
