@@ -474,12 +474,14 @@ async def chat_webhook(request: Request):
     thread_name = message.get("thread", {}).get("name", "")
 
     # Modo de respuesta: REST API (Add-on) o HTTP síncrono (Bot)
-    use_rest_api = bool(os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON"))
+    _sa_val = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
+    use_rest_api = bool(_sa_val)
 
     # argumentText ya tiene el @mention eliminado; fallback a text
     raw_text = message.get("argumentText", message.get("text", "")).strip()
 
-    print(f"[CHAT DEBUG] sender={sender!r} raw_text={raw_text!r} rest_api={use_rest_api}")
+    _sa_status = f"len={len(_sa_val)} starts={_sa_val[:15]!r}" if _sa_val else "EMPTY"
+    print(f"[CHAT DEBUG] sender={sender!r} raw_text={raw_text!r} rest_api={use_rest_api} SA_JSON={_sa_status}")
 
     async def send(text_reply: str):
         """Envía la respuesta por REST API o HTTP según configuración."""
