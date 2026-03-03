@@ -83,6 +83,8 @@ async def lifespan(app: FastAPI):
     _state["chat_sat"]         = SATIntelligenceAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
 
     print(f"✅ 7 agentes inicializados (api: {model} | chat: {chat_model})")
+    _sa = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
+    print(f"[STARTUP] SA_JSON={'SET len=' + str(len(_sa)) if _sa else 'NOT SET / EMPTY'}")
 
     # Scheduler del Social Listener — solo si Apify está configurado
     if ApifyConnector.is_available():
