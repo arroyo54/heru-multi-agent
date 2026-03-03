@@ -72,15 +72,15 @@ async def lifespan(app: FastAPI):
     _state["analyst"]     = BusinessAnalystAgent(client=client,  model=model, verbose=False)
     _state["sat"]         = SATIntelligenceAgent(client=client,  model=model, verbose=False)
 
-    # Agentes rápidos para Google Chat (haiku, max 1500 tokens — responde en ~3-5s)
-    chat_model = os.environ.get("CHAT_MODEL", "claude-haiku-4-5-20251001")
-    _state["chat_qualifier"]   = LeadQualifierAgent(client=client,   model=chat_model, verbose=False, max_tokens=1500)
-    _state["chat_copywriter"]  = CopywriterAgent(client=client,      model=chat_model, verbose=False, max_tokens=1500)
-    _state["chat_designer"]    = GraphicDesignerAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
-    _state["chat_social"]      = SocialListenerAgent(client=client,   model=chat_model, verbose=False, max_tokens=1500)
-    _state["chat_performance"] = PerformanceAdsAgent(client=client,   model=chat_model, verbose=False, max_tokens=1500)
-    _state["chat_analyst"]     = BusinessAnalystAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
-    _state["chat_sat"]         = SATIntelligenceAgent(client=client,  model=chat_model, verbose=False, max_tokens=1500)
+    # Agentes para Google Chat — Sonnet para calidad completa
+    chat_model = os.environ.get("CHAT_MODEL", "claude-sonnet-4-6")
+    _state["chat_qualifier"]   = LeadQualifierAgent(client=client,   model=chat_model, verbose=False)
+    _state["chat_copywriter"]  = CopywriterAgent(client=client,      model=chat_model, verbose=False)
+    _state["chat_designer"]    = GraphicDesignerAgent(client=client,  model=chat_model, verbose=False)
+    _state["chat_social"]      = SocialListenerAgent(client=client,   model=chat_model, verbose=False)
+    _state["chat_performance"] = PerformanceAdsAgent(client=client,   model=chat_model, verbose=False)
+    _state["chat_analyst"]     = BusinessAnalystAgent(client=client,  model=chat_model, verbose=False)
+    _state["chat_sat"]         = SATIntelligenceAgent(client=client,  model=chat_model, verbose=False)
 
     print(f"✅ 7 agentes inicializados (api: {model} | chat: {chat_model})")
     _sa = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
@@ -513,18 +513,18 @@ async def chat_webhook(request: Request):
     agent_key, hint = detect_agent(text)
     print(f"[CHAT DEBUG] agent_key={agent_key!r} elapsed={time.time()-t0:.1f}s")
 
-    # Ejecutar el agente con timeout de 25 segundos
+    # Ejecutar el agente con timeout de 55 segundos (Sonnet puede tardar 15-40s)
     loop = asyncio.get_event_loop()
     try:
         response = await asyncio.wait_for(
             loop.run_in_executor(None, _run_agent, agent_key, text),
-            timeout=25.0,
+            timeout=55.0,
         )
     except asyncio.TimeoutError:
         print(f"[CHAT DEBUG] TIMEOUT — agent_key={agent_key!r}")
         return await send(
-            f"⏳ El agente {agent_key} está tardando más de lo esperado. "
-            "Intenta con una solicitud más corta."
+            f"⏳ El agente {agent_key} tardó más de 55s. "
+            "Intenta dividir la solicitud en partes más pequeñas."
         )
     except Exception as e:
         print(f"[CHAT DEBUG] ERROR agent_key={agent_key!r} err={e}")
@@ -557,21 +557,31 @@ def _run_agent(agent_key: str, text: str) -> str:
         )
 
     if agent_key == "designer":
-        # Chat: prompt directo y conciso — create_visual_concept genera demasiado output
         return a["chat_designer"].run(
             f"Eres un director creativo de heru.app. El equipo pide:\n\n{text}\n\n"
-            "Responde en máximo 350 palabras. Incluye: concepto creativo, "
-            "composición/estructura, y un prompt en inglés listo para Midjourney o Stable Diffusion."
+            "Entrega:\n"
+            "1. CONCEPTO CREATIVO: idea central y composición visual\n"
+            "2. COPY / TEXTO DEL ANUNCIO: headline principal + copy corto\n"
+            "3. LOGO Y MARCA: posición del logo heru, colores (#1790EC azul, #0C3961 azul oscuro)\n"
+            "4. PROMPT IA (inglés, listo para Midjourney/DALL-E)\n"
+            "Máximo 500 palabras."
         )
 
     if agent_key == "performance":
-        from core.connectors.google_ads import GoogleAdsConnector
-        connector = GoogleAdsConnector(force_demo=True)
-        metrics   = connector.format_for_agent(period_days=7)
-        return a["chat_performance"].generate_report(
-            report_type="weekly",
-            metrics_data=metrics,
-            platform="all",
+        metrics_kw = ["métrica", "roas", "cpl", "cac", "cómo van", "resultados", "reporte", "esta semana"]
+        if any(kw in text.lower() for kw in metrics_kw):
+            from core.connectors.google_ads import GoogleAdsConnector
+            connector = GoogleAdsConnector(force_demo=True)
+            metrics   = connector.format_for_agent(period_days=7)
+            return a["chat_performance"].generate_report(
+                report_type="weekly",
+                metrics_data=metrics,
+                platform="all",
+            )
+        return a["chat_performance"].run(
+            f"Eres un experto en performance marketing de heru.app. El equipo pide:\n\n{text}\n\n"
+            "Incluye: objetivo de campaña, audiencia, copy del anuncio (headline + descripción), "
+            "presupuesto sugerido, métricas clave a monitorear. Máximo 500 palabras."
         )
 
     if agent_key == "social":
