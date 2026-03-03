@@ -562,9 +562,13 @@ def _run_agent(agent_key: str, text: str) -> str:
             "Entrega:\n"
             "1. CONCEPTO CREATIVO: idea central y composición visual\n"
             "2. COPY / TEXTO DEL ANUNCIO: headline principal + copy corto\n"
-            "3. LOGO Y MARCA: posición del logo heru, colores (#1790EC azul, #0C3961 azul oscuro)\n"
-            "4. PROMPT IA (inglés, listo para Midjourney/DALL-E)\n"
-            "Máximo 500 palabras."
+            "3. LOGO Y MARCA EN CANVA: indica posición exacta del logo heru (esquina inferior derecha, etc.), "
+            "colores de marca (#1790EC azul heru, #0C3961 azul oscuro), tipografía\n"
+            "4. PROMPT IA (inglés para Gemini/Midjourney/DALL-E): "
+            "el prompt debe terminar SIEMPRE con 'no logos, no text, no watermarks' "
+            "porque el logo se agrega después en Canva\n"
+            "5. PASO A PASO CANVA: instrucciones para armar la pieza final con el logo real\n"
+            "Máximo 600 palabras."
         )
 
     if agent_key == "performance":
