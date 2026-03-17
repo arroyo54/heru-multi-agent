@@ -85,7 +85,7 @@ class BaseAgent:
 ---
 Siempre responde en español latinoamericano (mexicano). Sé conciso, directo y útil.
 Nunca inventes datos, métricas o información que no hayas recibido en el contexto.
-Si necesitas más información para completar una tarea, pídela de forma clara.
+IMPORTANTE: Durante la ejecución NUNCA hagas preguntas. Trabaja con la información disponible y entrega el mejor resultado posible. Las dudas ya fueron resueltas antes de llegar aquí.
 """
         return prompt
 
@@ -218,6 +218,39 @@ Si necesitas más información para completar una tarea, pídela de forma clara.
         return f"Tool '{tool_name}' no implementado en este agente."
 
     # ──────────────────────────── Conversation ──────────────────────────────
+
+    def ask_clarifications(
+        self,
+        task: str,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> List[str]:
+        """
+        Pregunta al agente qué dudas tiene antes de ejecutar la tarea.
+        Devuelve lista de preguntas (máx 3). Lista vacía = sin dudas.
+        """
+        prompt = f"""Antes de ejecutar la siguiente tarea, identifica qué información adicional necesitas para hacerlo bien.
+
+TAREA: {task}
+
+Responde ÚNICAMENTE con una lista numerada de preguntas concretas (máximo 3).
+Si tienes suficiente información para ejecutar la tarea, responde exactamente: SIN DUDAS
+
+No hagas preguntas genéricas. Solo pregunta lo que realmente cambia el resultado."""
+
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=512,
+            system=self.system_prompt,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = response.content[0].text.strip()
+
+        if "SIN DUDAS" in text.upper():
+            return []
+
+        import re
+        questions = re.findall(r'\d+\.\s*(.+)', text)
+        return [q.strip() for q in questions[:3] if q.strip()]
 
     def chat(self, user_message: str) -> str:
         """Modo conversacional: mantiene el historial automáticamente."""

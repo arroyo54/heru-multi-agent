@@ -116,6 +116,29 @@ class Orchestrator:
 
     # ──────────────────────────── Core Methods ──────────────────────────────
 
+    def gather_clarifications(
+        self,
+        request: str,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, List[str]]:
+        """
+        Crea el plan y le pregunta a cada agente qué dudas tiene antes de ejecutar.
+        Devuelve dict {nombre_agente: [pregunta1, pregunta2, ...]}
+        Solo incluye agentes que tengan al menos una pregunta.
+        """
+        plan = self._create_plan(request, context)
+        all_questions: Dict[str, List[str]] = {}
+
+        for step in plan.steps:
+            agent = self.registry.get(step["agent"])
+            if not agent:
+                continue
+            questions = agent.ask_clarifications(step.get("task", request))
+            if questions:
+                all_questions[step["agent_name"]] = questions
+
+        return all_questions
+
     def process(self, request: str, context: Optional[Dict[str, Any]] = None) -> str:
         """
         Punto de entrada principal. Recibe una solicitud, analiza,
@@ -185,46 +208,84 @@ class Orchestrator:
         context: Optional[Dict[str, Any]] = None,
     ) -> OrchestrationPlan:
         """Genera un plan usando el agente orquestador con IA."""
+        import json as _json
+        import re as _re
+
         agents_list = "\n".join(self.registry.list_agents())
 
-        analysis_prompt = f"""Analiza esta solicitud y crea un plan de orquestación:
+        analysis_prompt = f"""Analiza esta solicitud y devuelve un plan de orquestación en formato JSON estricto.
 
 SOLICITUD: {request}
 
 AGENTES DISPONIBLES:
 {agents_list}
 
-Responde con:
-1. ANÁLISIS: ¿Qué se necesita?
-2. AGENTES INVOLUCRADOS: ¿Cuáles y en qué orden?
-3. INSTRUCCIONES: ¿Qué debe hacer cada agente?
-4. EJECUCIÓN: ¿Secuencial o paralelo?
+ROLES VÁLIDOS (usa exactamente estos valores):
+- lead_qualifier
+- copywriter
+- graphic_designer
+- social_listener
+- performance_ads
+- business_analyst
+- sat_intelligence
 
-Sé específico y conciso."""
+REGLAS DE PIPELINE:
+- Si se pide copy + visual/imagen: primero copywriter, luego graphic_designer (el diseñador usa el copy del paso anterior)
+- Si se pide campaña completa: copywriter → graphic_designer → performance_ads
+- Si es un lead o prospecto: solo lead_qualifier
+- Si son métricas, campañas o ads: solo performance_ads
+- Si es monitoreo o menciones: solo social_listener
+- Si es análisis de datos de negocio: solo business_analyst
+- Si es cambio del SAT o fiscal: solo sat_intelligence
+- Activa SOLO los agentes estrictamente necesarios
 
-        analysis = self._orchestrator_agent.run(analysis_prompt, context, maintain_history=False)
+Responde ÚNICAMENTE con este JSON sin texto adicional:
+{{
+  "analysis": "una línea explicando qué se necesita",
+  "steps": [
+    {{
+      "step": 1,
+      "role": "nombre_del_rol",
+      "task": "instrucción específica para este agente"
+    }}
+  ]
+}}"""
 
-        # Construir plan básico desde el análisis
+        raw = self._orchestrator_agent.run(analysis_prompt, context, maintain_history=False)
+
         agents_involved = []
-        for role in AgentRole:
-            if role.value in analysis.lower() or role.value.replace("_", " ") in analysis.lower():
-                if role != AgentRole.ORCHESTRATOR:
-                    agents_involved.append(role)
-
         steps = []
-        for i, agent_role in enumerate(agents_involved):
-            agent = self.registry.get(agent_role)
-            agent_name = agent.name if agent else agent_role.value
-            steps.append({
-                "step": i + 1,
-                "agent": agent_role,
-                "agent_name": agent_name,
-                "task": f"Procesar la solicitud desde la perspectiva de {agent_name}: {request}",
-            })
+        analysis_text = raw
+
+        try:
+            json_match = _re.search(r'\{[\s\S]*\}', raw)
+            if json_match:
+                plan_data = _json.loads(json_match.group())
+                analysis_text = plan_data.get("analysis", raw)
+                role_map = {r.value: r for r in AgentRole}
+                for step_data in plan_data.get("steps", []):
+                    role_str = step_data.get("role", "")
+                    role = role_map.get(role_str)
+                    if role and role != AgentRole.ORCHESTRATOR:
+                        agent = self.registry.get(role)
+                        agent_name = agent.name if agent else role_str
+                        agents_involved.append(role)
+                        steps.append({
+                            "step": step_data.get("step", len(steps) + 1),
+                            "agent": role,
+                            "agent_name": agent_name,
+                            "task": step_data.get("task", request),
+                        })
+        except Exception:
+            pass
+
+        # Fallback si el JSON falló
+        if not steps:
+            return self._keyword_routing_plan(request)
 
         return OrchestrationPlan(
             original_request=request,
-            analysis=analysis,
+            analysis=analysis_text,
             steps=steps,
             agents_involved=agents_involved,
             execution_order="sequential",
@@ -233,54 +294,51 @@ Sé específico y conciso."""
     def _keyword_routing_plan(self, request: str) -> OrchestrationPlan:
         """Routing basado en palabras clave cuando no hay agente orquestador."""
         request_lower = request.lower()
-        agents_involved = []
 
-        routing_rules = {
-            AgentRole.LEAD_QUALIFIER: [
-                "lead", "prospecto", "calificar", "ventas", "cliente potencial",
-                "score", "convertir", "interesado", "usuario pregunta",
-            ],
-            AgentRole.COPYWRITER: [
-                "post", "contenido", "copy", "texto", "redes sociales",
-                "instagram", "facebook", "tiktok", "linkedin", "email",
-                "anuncio", "mensaje", "publicación",
-            ],
-            AgentRole.GRAPHIC_DESIGNER: [
-                "imagen", "diseño", "visual", "foto", "banner", "creativo",
-                "brief", "prompt", "ilustración", "gráfico", "carrusel visual",
-            ],
-            AgentRole.SOCIAL_LISTENER: [
-                "menciones", "monitoreo", "sentimiento", "redes", "escuchar",
-                "trending", "viral", "quejas", "competencia", "reputación",
-            ],
-            AgentRole.PERFORMANCE_ADS: [
-                "ads", "campañas", "google", "meta", "facebook ads",
-                "reporte", "cac", "roas", "presupuesto", "performance",
-                "métricas", "cpa", "cpl",
-            ],
-        }
+        copy_kw    = ["post", "contenido", "copy", "texto", "instagram", "facebook", "tiktok", "linkedin", "email", "anuncio", "publicación", "guión", "caption", "redacta", "escribe"]
+        design_kw  = ["imagen", "diseño", "visual", "banner", "creativo", "brief", "prompt", "ilustración", "gráfico", "carrusel"]
+        lead_kw    = ["lead", "prospecto", "calificar", "cliente potencial", "score", "interesado"]
+        social_kw  = ["menciones", "monitoreo", "sentimiento", "escuchar", "trending", "quejas", "reputación"]
+        ads_kw     = ["ads", "campañas", "roas", "cac", "cpl", "cpa", "performance", "presupuesto", "métricas de campaña", "facebook ads", "google ads"]
+        analyst_kw = ["análisis de datos", "reporte cruzado", "insight de negocio", "correlación"]
+        sat_kw     = ["sat", "resico", "régimen fiscal", "declaración anual", "impuesto", "rfc"]
 
-        for role, keywords in routing_rules.items():
-            if any(kw in request_lower for kw in keywords):
-                agents_involved.append(role)
+        wants_copy   = any(kw in request_lower for kw in copy_kw)
+        wants_design = any(kw in request_lower for kw in design_kw)
 
-        # Default: copywriter si no hay match
-        if not agents_involved:
-            agents_involved = [AgentRole.COPYWRITER]
+        def _agent(role: AgentRole):
+            a = self.registry.get(role)
+            return a.name if a else role.value
 
-        steps = [
-            {
-                "step": i + 1,
-                "agent": role,
-                "agent_name": self.registry.get(role).name if self.registry.get(role) else role.value,
-                "task": request,
-            }
-            for i, role in enumerate(agents_involved)
-        ]
+        steps = []
 
+        # Pipeline copy → diseño: el diseñador trabaja sobre el copy generado
+        if wants_copy and wants_design:
+            steps = [
+                {"step": 1, "agent": AgentRole.COPYWRITER,      "agent_name": _agent(AgentRole.COPYWRITER),      "task": request},
+                {"step": 2, "agent": AgentRole.GRAPHIC_DESIGNER, "agent_name": _agent(AgentRole.GRAPHIC_DESIGNER), "task": "Crea el concepto visual y prompt de IA usando el copy del agente anterior como base."},
+            ]
+        elif wants_copy:
+            steps = [{"step": 1, "agent": AgentRole.COPYWRITER,       "agent_name": _agent(AgentRole.COPYWRITER),       "task": request}]
+        elif wants_design:
+            steps = [{"step": 1, "agent": AgentRole.GRAPHIC_DESIGNER,  "agent_name": _agent(AgentRole.GRAPHIC_DESIGNER),  "task": request}]
+        elif any(kw in request_lower for kw in lead_kw):
+            steps = [{"step": 1, "agent": AgentRole.LEAD_QUALIFIER,    "agent_name": _agent(AgentRole.LEAD_QUALIFIER),    "task": request}]
+        elif any(kw in request_lower for kw in ads_kw):
+            steps = [{"step": 1, "agent": AgentRole.PERFORMANCE_ADS,   "agent_name": _agent(AgentRole.PERFORMANCE_ADS),   "task": request}]
+        elif any(kw in request_lower for kw in social_kw):
+            steps = [{"step": 1, "agent": AgentRole.SOCIAL_LISTENER,   "agent_name": _agent(AgentRole.SOCIAL_LISTENER),   "task": request}]
+        elif any(kw in request_lower for kw in analyst_kw):
+            steps = [{"step": 1, "agent": AgentRole.BUSINESS_ANALYST,  "agent_name": _agent(AgentRole.BUSINESS_ANALYST),  "task": request}]
+        elif any(kw in request_lower for kw in sat_kw):
+            steps = [{"step": 1, "agent": AgentRole.SAT_INTELLIGENCE,  "agent_name": _agent(AgentRole.SAT_INTELLIGENCE),  "task": request}]
+        else:
+            steps = [{"step": 1, "agent": AgentRole.COPYWRITER,        "agent_name": _agent(AgentRole.COPYWRITER),        "task": request}]
+
+        agents_involved = [s["agent"] for s in steps]
         return OrchestrationPlan(
             original_request=request,
-            analysis=f"Routing por palabras clave hacia: {[r.value for r in agents_involved]}",
+            analysis=f"Routing hacia: {[r.value for r in agents_involved]}",
             steps=steps,
             agents_involved=agents_involved,
         )
@@ -288,11 +346,9 @@ Sé específico y conciso."""
     # ─────────────────────────── Plan Execution ─────────────────────────────
 
     def _execute_plan(self, plan: OrchestrationPlan) -> Dict[str, str]:
-        """Ejecuta el plan delegando a cada agente según el orden definido."""
+        """Ejecuta el plan en secuencia, pasando el output de cada agente al siguiente."""
         results: Dict[str, str] = {}
-        accumulated_context: Dict[str, Any] = {
-            "original_request": plan.original_request,
-        }
+        previous_output: Optional[str] = None
 
         for step in plan.steps:
             agent_role = step["agent"]
@@ -302,14 +358,15 @@ Sé específico y conciso."""
                 console.print(f"[yellow]⚠ Agente {agent_role.value} no disponible, saltando...[/yellow]")
                 continue
 
-            task_description = step.get("task", plan.original_request)
-
-            # Agregar contexto acumulado de pasos anteriores
-            if len(results) > 0:
-                accumulated_context["resultados_previos"] = {
-                    k: v[:500] + "..." if len(v) > 500 else v
-                    for k, v in results.items()
-                }
+            # Si hay output del agente anterior, construir tarea encadenada
+            if previous_output and len(plan.steps) > 1:
+                task_description = (
+                    f"SOLICITUD ORIGINAL: {plan.original_request}\n\n"
+                    f"OUTPUT DEL AGENTE ANTERIOR ({list(results.keys())[-1]}):\n{previous_output}\n\n"
+                    f"TU TAREA: {step.get('task', plan.original_request)}"
+                )
+            else:
+                task_description = step.get("task", plan.original_request)
 
             with Progress(
                 SpinnerColumn(),
@@ -318,9 +375,10 @@ Sé específico y conciso."""
                 console=console,
             ) as progress:
                 progress.add_task("", total=None)
-                result = agent.run(task_description, accumulated_context)
+                result = agent.run(task_description, {"original_request": plan.original_request})
 
             results[agent_role.value] = result
+            previous_output = result
 
             if self.verbose:
                 console.print(f"[green]✓[/green] {agent.name} completado")

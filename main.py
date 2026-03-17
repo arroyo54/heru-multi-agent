@@ -258,8 +258,28 @@ def run_interactive(orchestrator: Orchestrator):
                 result = orchestrator.delegate(agent_map[agent_key], task)
 
             else:
-                # Orquestación completa
-                result = orchestrator.process(user_input)
+                # Orquestación completa con ronda de preguntas previa
+                console.print("[dim]Consultando dudas de los agentes...[/dim]")
+                clarifications = orchestrator.gather_clarifications(user_input)
+
+                answers_context: dict = {}
+
+                if clarifications:
+                    console.print(
+                        Panel(
+                            "[bold yellow]Los agentes tienen dudas antes de arrancar[/bold yellow]\n"
+                            "Responde cada pregunta. Puedes dejar en blanco si no aplica.",
+                            border_style="yellow",
+                        )
+                    )
+                    for agent_name, questions in clarifications.items():
+                        console.print(f"\n[bold cyan]{agent_name}[/bold cyan] pregunta:")
+                        for i, q in enumerate(questions, 1):
+                            answer = Prompt.ask(f"  [yellow]{i}. {q}[/yellow]\n  Tu respuesta").strip()
+                            if answer:
+                                answers_context[f"{agent_name} — {q}"] = answer
+
+                result = orchestrator.process(user_input, context=answers_context if answers_context else None)
 
         except KeyboardInterrupt:
             console.print("\n[yellow]Interrumpido. Escribe /salir para cerrar.[/yellow]")
