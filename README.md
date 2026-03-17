@@ -54,7 +54,15 @@ heru-multi-agent/
 │
 ├── scripts/
 │   ├── weekly_report.py             # Reporte semanal Social Listener (automatizado)
-│   └── performance_report.py        # Reporte semanal Performance Ads
+│   ├── performance_report.py        # Reporte semanal Performance Ads
+│   └── campaign_builder.py          # Constructor de campañas: PPT estratégico + CSVs por canal
+│
+├── .claude-skills/                  # Skills de Claude Code para el equipo
+│   ├── remotion/                    # Best practices para video con Remotion
+│   ├── copywriting/                 # Copywriting para landing pages y marketing
+│   ├── paid-ads/                    # Google Ads y Meta Ads
+│   ├── social-content/              # Contenido para redes sociales
+│   └── ...                          # +30 skills de marketing y CRO
 │
 ├── api/
 │   └── server.py                    # FastAPI server con scheduler integrado
@@ -350,6 +358,9 @@ python main.py --agent sat
 # Reportes automáticos
 python scripts/weekly_report.py --preview
 python scripts/performance_report.py
+
+# Constructor de campañas (PPT estratégico + CSVs por canal)
+python scripts/campaign_builder.py
 ```
 
 ### 4. Uso desde código
@@ -443,6 +454,32 @@ alerta = sat.analyze_sat_update("Nueva regla RESICO — baja automática a 2 mes
 | Reportes | Google Sheets (gspread) + Google Chat Webhook |
 | Variables de entorno | python-dotenv |
 | Deploy | Railway |
+
+---
+
+## 🧩 Claude Code Skills
+
+La carpeta `.claude-skills/` contiene **34 skills** listos para usar en Claude Code. El equipo puede instalarlos localmente con:
+
+```bash
+cp -r .claude-skills/* ~/.claude/skills/
+```
+
+Una vez instalados, se invocan desde Claude Code con `/nombre-del-skill`:
+
+| Skill | Uso |
+|-------|-----|
+| `/remotion` | Best practices para video con Remotion |
+| `/copywriting` | Copy para landing pages, hero sections, CTAs |
+| `/paid-ads` | Estrategia y copy para Google Ads y Meta Ads |
+| `/social-content` | Posts para LinkedIn, Instagram, TikTok, X |
+| `/email-sequence` | Secuencias de email y drip campaigns |
+| `/ab-test-setup` | Diseño de experimentos A/B |
+| `/analytics-tracking` | GA4, GTM, planes de tracking |
+| `/pricing-strategy` | Estrategia de precios y packaging |
+| `/churn-prevention` | Flows de cancelación y retención |
+| `/seo-audit` | Auditoría SEO técnica y on-page |
+| + 24 más | CRO, lead magnets, RevOps, SEO, etc. |
 
 ---
 
