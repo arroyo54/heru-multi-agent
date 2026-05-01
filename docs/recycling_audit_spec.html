@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot de Auditoría — Centros de Reciclaje Walmart</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;line-height:1.7;max-width:960px;margin:0 auto;padding:2.5rem 2rem;background:#fff}
+:root{--g:#1a7a4a;--gl:#e8f5ee;--gm:#2d8f5a;--gr:#6b7280;--border:#e5e7eb;--cb:#1e1e2e;--ct:#cdd6f4}
+h1{font-size:2.4rem;font-weight:800;color:var(--g);margin-bottom:.4rem}
+h2{font-size:1.6rem;font-weight:700;color:var(--g);margin:2.8rem 0 1rem;border-bottom:3px solid var(--gl);padding-bottom:.5rem}
+h3{font-size:1.2rem;font-weight:600;margin:1.8rem 0 .6rem}
+h4{font-size:1rem;font-weight:600;color:var(--gr);margin:1.2rem 0 .4rem}
+p{margin-bottom:.8rem}
+ul,ol{margin:.6rem 0 .8rem 1.6rem}
+li{margin-bottom:.3rem}
+a{color:var(--g)}
+.cover{text-align:center;padding:3.5rem 2rem;background:var(--gl);border-radius:1rem;margin-bottom:3rem}
+.cover .badge{display:inline-block;background:var(--g);color:#fff;padding:.25rem 1rem;border-radius:999px;font-size:.82rem;font-weight:700;margin-bottom:1rem;letter-spacing:.05em}
+.cover h1{font-size:2.8rem;margin-bottom:.5rem}
+.cover p{color:var(--gr);font-size:1rem;margin:0}
+.cover .meta{margin-top:1.5rem;font-size:.85rem;color:var(--gr)}
+.toc{background:#f9fafb;border:1px solid var(--border);border-radius:.75rem;padding:1.5rem 2rem;margin:2rem 0}
+.toc h3{margin-top:0;color:var(--g)}
+.toc ol{margin-left:1.2rem}
+.toc li{margin-bottom:.35rem;color:var(--gr)}
+.callout{border-left:4px solid;padding:1rem 1.25rem;margin:1.2rem 0;border-radius:0 .5rem .5rem 0}
+.cg{border-color:var(--g);background:var(--gl)}
+.cy{border-color:#f59e0b;background:#fffbeb}
+.cr{border-color:#dc2626;background:#fef2f2}
+.cb2{border-color:#2563eb;background:#eff6ff}
+.callout strong{display:block;margin-bottom:.2rem}
+table{width:100%;border-collapse:collapse;margin:1.2rem 0;font-size:.88rem}
+th{background:var(--g);color:#fff;padding:.6rem .8rem;text-align:left;font-weight:600}
+td{padding:.5rem .8rem;border-bottom:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#f9fafb}
+pre{background:var(--cb);color:var(--ct);padding:1.25rem;border-radius:.6rem;overflow-x:auto;margin:1rem 0;font-size:.8rem;line-height:1.55}
+code{font-family:'Courier New',monospace}
+p code,li code,td code{background:var(--gl);color:var(--g);padding:.12rem .35rem;border-radius:.25rem;font-size:.83em}
+.tag{display:inline-block;padding:.15rem .6rem;border-radius:999px;font-size:.78rem;font-weight:700}
+.tag-mvp{background:#fef3c7;color:#92400e}
+.tag-full{background:#d1fae5;color:#065f46}
+.tag-ok{background:#d1fae5;color:#065f46}
+.tag-flag{background:#fee2e2;color:#991b1b}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin:1.2rem 0}
+.card{border:1px solid var(--border);border-radius:.75rem;padding:1.2rem}
+.card h4{color:var(--g);margin-top:0}
+.step{display:flex;gap:.75rem;align-items:flex-start;margin:.6rem 0}
+.step-num{background:var(--g);color:#fff;width:1.6rem;height:1.6rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+hr{border:none;border-top:2px solid var(--gl);margin:2.5rem 0}
+.phase-header{background:var(--g);color:#fff;padding:1rem 1.5rem;border-radius:.75rem;margin:2.5rem 0 1.5rem}
+.phase-header h2{color:#fff;border:none;margin:0;font-size:1.4rem}
+.phase-header p{margin:0;opacity:.85;font-size:.9rem}
+@media print{
+  body{max-width:100%;padding:1.5cm;font-size:10pt}
+  pre{font-size:7.5pt;white-space:pre-wrap;word-break:break-all}
+  h1{font-size:2rem}
+  h2{font-size:1.3rem}
+  .cover{padding:2rem}
+  .grid2{display:block}
+  .card{margin-bottom:.8rem}
+  a{color:inherit;text-decoration:none}
+  .phase-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cover{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="badge">ESPECIFICACIÓN TÉCNICA COMPLETA</div>
+  <h1>Bot de Auditoría<br>Centros de Reciclaje</h1>
+  <p>Walmart México · Telegram + Supabase + Dashboard + Notificaciones</p>
+  <div class="meta">Versión 1.0 · Mayo 2026 · Documento generado con Claude Code</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ TOC -->
+<div class="toc">
+  <h3>Índice</h3>
+  <ol>
+    <li>Contexto original del cliente</li>
+    <li>Interpretación del problema</li>
+    <li>Arquitectura general y dos fases</li>
+    <li><span class="tag tag-mvp">FASE 1 · MVP</span> Telegram + Google Sheets</li>
+    <li><span class="tag tag-full">FASE 2 · FULL</span> Telegram + Supabase + Dashboard + Notificaciones</li>
+    <li>Esquema de base de datos Supabase (SQL completo)</li>
+    <li>Código completo — Bot Fase 1 (Google Sheets)</li>
+    <li>Código completo — Bot Fase 2 (Supabase)</li>
+    <li>Dashboard web (Next.js + Supabase)</li>
+    <li>Sistema de notificaciones y alertas programadas</li>
+    <li>Deploy paso a paso</li>
+    <li>Script de carga masiva de centros</li>
+    <li>Checklist de pruebas</li>
+    <li>Evolución futura</li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ 1. CONTEXTO -->
+<h2>1. Contexto original del cliente</h2>
+
+<div class="callout cb2">
+  <strong>Prompt original (sin editar)</strong>
+  <p>"Mi novia trabaja en Walmart y es líder de los centros de reciclaje para más de 50 tiendas. En su día a día tiene que lidiar con los testigos de que se montaron los centros, es decir, las personas responsables de los centros, mandan fotos a un grupo de WhatsApp al abrir, al cerrar, y en el día con el centro limpio. También hay que tener testigos de la recolección de los centros mediante una foto del ticket de recolección. Mes a mes son miles de testigos a validar.</p>
+  <p>Objetivo: busco la manera de que pueda hacer eficiente este proceso, pero con la limitante que las personas que llevan los centros son analfabetas tecnológicos. Nada de apps, nada de procesos complicados.</p>
+  <p>Un bot en Telegram, se mandan las fotos del día al bot, de alguna manera esa información cae en una base de datos. Supabase, firebase, etc, y de ahí se almacena la información del día, el horario y se contrasta vs la meta data de la foto vs la localización pre-guardada del centro. Una vez que se tienen las fotos se genera una auditoría hecha por Claude. En el día tenemos 4 fotos: 2 de entrada y salida, 1 de limpieza y otra de bitácora y el comprobante es muy itinerante. Entonces la auditoría revisa esta data y da una aprobación al testigo o una referencia de algo no cuadra. Se detona una notificación y se revisa manualmente. Así en lugar de revisar una por una, se revisan las que la auditoría salgan con error."</p>
+  <p><strong>Aclaraciones posteriores:</strong> Supabase como base de datos (no Google Sheets). Versión completa con dashboard y notificaciones. Script para cargar centros en cualquier momento.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ 2. INTERPRETACIÓN -->
+<h2>2. Interpretación del problema</h2>
+
+<h3>2.1 Dos tipos de usuario con necesidades opuestas</h3>
+
+<div class="grid2">
+  <div class="card">
+    <h4>👷 Encargados de centro</h4>
+    <ul>
+      <li>Poca experiencia tecnológica</li>
+      <li>No pueden recordar comandos ni llenar formularios</li>
+      <li>El flujo completo del día: máximo 3 taps</li>
+      <li>Si falla una vez sin explicación clara, dejan de usarlo</li>
+      <li><strong>El mayor riesgo no es la AI: es que el bot sea confuso</strong></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>👩‍💼 Supervisora regional</h4>
+    <ul>
+      <li>Habilidades tecnológicas normales</li>
+      <li>Problema real: tiempo, no tecnología</li>
+      <li>Hoy revisa cientos de fotos manualmente al mes</li>
+      <li>Necesita demostrar cobertura a auditorías de Walmart</li>
+      <li><strong>El valor: solo revisa las que fallan, no todas</strong></li>
+    </ul>
+  </div>
+</div>
+
+<h3>2.2 El problema de fondo: trazabilidad legal</h3>
+<p>Los "testigos" son evidencia operativa. Walmart requiere demostrar que los centros operaron correctamente. Esto significa que los registros no se pueden perder, deben ser confiables (no fotos recicladas), y debe existir un trail de quién envió qué, cuándo y desde dónde.</p>
+
+<h3>2.3 Por qué Telegram y no WhatsApp</h3>
+<table>
+  <tr><th>Criterio</th><th>WhatsApp</th><th>Telegram</th></tr>
+  <tr><td>Costo API</td><td>Meta Business API: tiene costo + aprobación</td><td>Gratis, sin aprobaciones</td></tr>
+  <tr><td>Botones interactivos</td><td>Limitados</td><td>ReplyKeyboard + InlineKeyboard nativos</td></tr>
+  <tr><td>Facilidad para usuarios no técnicos</td><td>Igual de simple</td><td>Igual de simple</td></tr>
+  <tr><td>Control del bot</td><td>Limitado</td><td>Total</td></tr>
+  <tr><td>Librería Python</td><td>Complejo</td><td>python-telegram-bot (madura, async)</td></tr>
+</table>
+
+<h3>2.4 El insight central: revisión por excepción</h3>
+<div class="callout cg">
+  <strong>En lugar de aprobar cada foto, el sistema aprueba automáticamente todo lo correcto y solo escala lo incorrecto.</strong>
+  Claude Vision hace el trabajo pesado. La supervisora pasa de revisar 200 fotos/día a revisar 10–20 alertas. Las señales de alerta automáticas son: ubicación incorrecta, horario fuera de rango, foto duplicada exacta (mismo file_id de Telegram), contenido visual que no corresponde al tipo declarado.
+</div>
+
+<!-- ═══════════════════════════════════════════════════ 3. ARQUITECTURA -->
+<h2>3. Arquitectura general y dos fases</h2>
+
+<div class="grid2">
+  <div class="card">
+    <h4><span class="tag tag-mvp">FASE 1 · MVP</span></h4>
+    <p><strong>Objetivo:</strong> validar el flujo completo lo antes posible.</p>
+    <ul>
+      <li>Bot Telegram (Python)</li>
+      <li>Google Sheets como base de datos</li>
+      <li>Claude Vision para auditoría</li>
+      <li>Deploy en Railway</li>
+    </ul>
+    <p><strong>Tiempo estimado:</strong> 1–2 días de desarrollo</p>
+  </div>
+  <div class="card">
+    <h4><span class="tag tag-full">FASE 2 · FULL</span></h4>
+    <p><strong>Objetivo:</strong> sistema productivo a largo plazo.</p>
+    <ul>
+      <li>Bot Telegram (mismo, refactorizado)</li>
+      <li>Supabase (PostgreSQL + Storage + Realtime)</li>
+      <li>Dashboard web (Next.js)</li>
+      <li>Notificaciones y alertas programadas</li>
+      <li>Deploy Railway + Vercel</li>
+    </ul>
+    <p><strong>Tiempo estimado:</strong> 1 semana de desarrollo</p>
+  </div>
+</div>
+
+<h3>Flujo general del sistema</h3>
+<pre>
+[Encargado abre Telegram]
+       │
+       ▼
+[Toca botón: Apertura / Limpieza / Cierre / Comprobante]
+       │
+       ▼
+[Comparte ubicación con botón nativo de Telegram]
+       │
+       ▼
+[Manda la foto]
+       │
+       ▼
+[Bot Python procesa:]
+  ├─ Descarga foto de Telegram
+  ├─ Calcula distancia GPS vs centro registrado
+  ├─ Verifica duplicado (file_id ya existe hoy)
+  ├─ Valida horario según tipo
+  ├─ Manda foto a Claude Vision → {approved, confidence, notes}
+  └─ Determina estado: APROBADO o FLAGGED
+       │
+       ▼
+[Guarda en Supabase / Google Sheets]
+       │
+       ├─ Si APROBADO → responde ✅ al encargado
+       │
+       └─ Si FLAGGED  → responde ⚠️ + notifica a supervisora por Telegram
+                        + actualiza dashboard en tiempo real
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ FASE 1 -->
+<div class="phase-header">
+  <h2>4. FASE 1 · MVP — Telegram + Google Sheets</h2>
+  <p>Versión rápida para validar el flujo. Sin servidor de base de datos. La supervisora ve todo en tiempo real en Google Sheets.</p>
+</div>
+
+<h3>4.1 Stack MVP</h3>
+<table>
+  <tr><th>Capa</th><th>Tecnología</th><th>Por qué</th></tr>
+  <tr><td>Bot</td><td>python-telegram-bot ≥ 20.7</td><td>Async, maduro, botones nativos</td></tr>
+  <tr><td>Base de datos</td><td>Google Sheets (gspread)</td><td>Cero configuración, la supervisora lo entiende</td></tr>
+  <tr><td>AI Audit</td><td>Claude claude-sonnet-4-6 Vision</td><td>Ya disponible, mejor para contexto en español</td></tr>
+  <tr><td>Deploy</td><td>Railway.app (free tier)</td><td>Deploy en 5 minutos, 24/7</td></tr>
+</table>
+
+<h3>4.2 Estructura del Google Sheet</h3>
+<p>3 pestañas con nombres exactos (respetar mayúsculas):</p>
+
+<h4>Pestaña: <code>centros</code></h4>
+<table>
+  <tr><th>Columna</th><th>Nombre</th><th>Descripción</th></tr>
+  <tr><td>A</td><td>codigo</td><td>Código único 4 chars. Ej: <code>4821</code></td></tr>
+  <tr><td>B</td><td>nombre</td><td>Ej: <code>Walmart Insurgentes Norte</code></td></tr>
+  <tr><td>C</td><td>tienda_num</td><td>Número interno Walmart. Ej: <code>WM-047</code></td></tr>
+  <tr><td>D</td><td>lat</td><td>Latitud. Ej: <code>19.4284</code></td></tr>
+  <tr><td>E</td><td>lng</td><td>Longitud. Ej: <code>-99.1677</code></td></tr>
+  <tr><td>F</td><td>radio_metros</td><td>Radio de validación GPS. Default: <code>300</code></td></tr>
+  <tr><td>G</td><td>activo</td><td><code>TRUE</code> o <code>FALSE</code></td></tr>
+</table>
+
+<h4>Pestaña: <code>trabajadores</code> (se llena automáticamente)</h4>
+<table>
+  <tr><th>Columna</th><th>Nombre</th></tr>
+  <tr><td>A</td><td>telegram_chat_id</td></tr>
+  <tr><td>B</td><td>nombre_telegram</td></tr>
+  <tr><td>C</td><td>codigo_centro</td></tr>
+  <tr><td>D</td><td>nombre_centro</td></tr>
+  <tr><td>E</td><td>registrado_en</td></tr>
+</table>
+
+<h4>Pestaña: <code>registros</code> (se llena automáticamente)</h4>
+<table>
+  <tr><th>Columna</th><th>Nombre</th><th>Descripción</th></tr>
+  <tr><td>A</td><td>id</td><td>UUID único</td></tr>
+  <tr><td>B</td><td>timestamp</td><td>Datetime ISO en zona México</td></tr>
+  <tr><td>C</td><td>codigo_centro</td><td></td></tr>
+  <tr><td>D</td><td>nombre_centro</td><td></td></tr>
+  <tr><td>E</td><td>tipo</td><td>apertura / limpieza / cierre / comprobante</td></tr>
+  <tr><td>F</td><td>telegram_chat_id</td><td></td></tr>
+  <tr><td>G</td><td>nombre_encargado</td><td></td></tr>
+  <tr><td>H</td><td>foto_file_id</td><td>ID único de Telegram — sirve para detectar duplicados</td></tr>
+  <tr><td>I</td><td>lat_enviada</td><td></td></tr>
+  <tr><td>J</td><td>lng_enviada</td><td></td></tr>
+  <tr><td>K</td><td>distancia_metros</td><td>Calculada: GPS enviado vs centro registrado</td></tr>
+  <tr><td>L</td><td>ubicacion_ok</td><td>TRUE / FALSE</td></tr>
+  <tr><td>M</td><td>horario_ok</td><td>TRUE / FALSE</td></tr>
+  <tr><td>N</td><td>duplicado</td><td>TRUE / FALSE</td></tr>
+  <tr><td>O</td><td>ai_estado</td><td>aprobado / flagged / pendiente</td></tr>
+  <tr><td>P</td><td>ai_confianza</td><td>0–100</td></tr>
+  <tr><td>Q</td><td>ai_notas</td><td>Observación de Claude en español</td></tr>
+  <tr><td>R</td><td>revisado_manual</td><td>FALSE por default</td></tr>
+  <tr><td>S</td><td>aprobado_manual</td><td>La supervisora escribe TRUE/FALSE</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════ FASE 2 -->
+<div class="phase-header">
+  <h2>5. FASE 2 · FULL — Supabase + Dashboard + Notificaciones</h2>
+  <p>Sistema productivo completo. Base de datos real, fotos en storage, dashboard web, alertas programadas.</p>
+</div>
+
+<h3>5.1 Stack completo</h3>
+<table>
+  <tr><th>Capa</th><th>Tecnología</th><th>Costo</th></tr>
+  <tr><td>Bot</td><td>python-telegram-bot ≥ 20.7</td><td>Gratis</td></tr>
+  <tr><td>Base de datos</td><td>Supabase (PostgreSQL)</td><td>Gratis hasta 500MB</td></tr>
+  <tr><td>Storage fotos</td><td>Supabase Storage</td><td>Gratis hasta 1GB</td></tr>
+  <tr><td>Tiempo real</td><td>Supabase Realtime</td><td>Gratis</td></tr>
+  <tr><td>AI Audit</td><td>Claude claude-sonnet-4-6 Vision</td><td>~$0.003/foto</td></tr>
+  <tr><td>Dashboard</td><td>Next.js 14 + Tailwind + shadcn/ui</td><td>Gratis (Vercel)</td></tr>
+  <tr><td>Email</td><td>Resend (reportes)</td><td>Gratis hasta 3,000/mes</td></tr>
+  <tr><td>Deploy bot</td><td>Railway.app</td><td>Gratis / $5/mes</td></tr>
+  <tr><td>Deploy dashboard</td><td>Vercel</td><td>Gratis</td></tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════ 6. SQL -->
+<h2>6. Esquema de base de datos Supabase (SQL completo)</h2>
+<p>Ejecutar en el SQL Editor de Supabase en este orden:</p>
+
+<pre>
+-- ═══════════════════════════════════════════
+-- EXTENSIONES
+-- ═══════════════════════════════════════════
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- búsqueda de texto
+
+-- ═══════════════════════════════════════════
+-- TABLA: centros
+-- Catálogo de centros de reciclaje
+-- ═══════════════════════════════════════════
+CREATE TABLE centros (
+  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  codigo          VARCHAR(10)  UNIQUE NOT NULL,
+  nombre          VARCHAR(255) NOT NULL,
+  tienda_num      VARCHAR(50),
+  lat             DECIMAL(10, 8),
+  lng             DECIMAL(11, 8),
+  radio_metros    INTEGER      NOT NULL DEFAULT 300,
+  hora_ap_min     SMALLINT     NOT NULL DEFAULT 6,
+  hora_ap_max     SMALLINT     NOT NULL DEFAULT 11,
+  hora_ci_min     SMALLINT     NOT NULL DEFAULT 17,
+  hora_ci_max     SMALLINT     NOT NULL DEFAULT 23,
+  region          VARCHAR(100),           -- para agrupar por zona geográfica
+  activo          BOOLEAN      NOT NULL DEFAULT TRUE,
+  creado_en       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  actualizado_en  TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_centros_codigo ON centros(codigo);
+CREATE INDEX idx_centros_activo ON centros(activo);
+
+-- ═══════════════════════════════════════════
+-- TABLA: trabajadores
+-- Encargados registrados via Telegram
+-- ═══════════════════════════════════════════
+CREATE TABLE trabajadores (
+  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  telegram_chat_id    BIGINT       UNIQUE NOT NULL,
+  telegram_username   VARCHAR(255),
+  nombre              VARCHAR(255) NOT NULL,
+  centro_id           UUID         REFERENCES centros(id) ON DELETE SET NULL,
+  activo              BOOLEAN      NOT NULL DEFAULT TRUE,
+  registrado_en       TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_trabajadores_chat_id ON trabajadores(telegram_chat_id);
+CREATE INDEX idx_trabajadores_centro  ON trabajadores(centro_id);
+
+-- ═══════════════════════════════════════════
+-- TABLA: registros
+-- Log principal de todas las fotos enviadas
+-- ═══════════════════════════════════════════
+CREATE TABLE registros (
+  id                  UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
+  centro_id           UUID         NOT NULL REFERENCES centros(id),
+  trabajador_id       UUID         REFERENCES trabajadores(id),
+  tipo                VARCHAR(20)  NOT NULL CHECK (tipo IN ('apertura','limpieza','cierre','comprobante')),
+
+  -- Foto
+  foto_file_id        TEXT,                          -- ID de Telegram (detección duplicados)
+  foto_url            TEXT,                          -- URL pública en Supabase Storage
+  foto_storage_path   TEXT,                          -- Path en el bucket
+
+  -- Ubicación
+  lat_enviada         DECIMAL(10,8),
+  lng_enviada         DECIMAL(11,8),
+  distancia_metros    INTEGER,
+  ubicacion_ok        BOOLEAN,
+
+  -- Tiempo
+  timestamp           TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  horario_ok          BOOLEAN,
+
+  -- Duplicado
+  es_duplicado        BOOLEAN      NOT NULL DEFAULT FALSE,
+
+  -- Auditoría AI
+  ai_estado           VARCHAR(20)  NOT NULL DEFAULT 'pendiente'
+                      CHECK (ai_estado IN ('aprobado','flagged','pendiente','error')),
+  ai_confianza        SMALLINT,
+  ai_notas            TEXT,
+  ai_raw              JSONB,
+
+  -- Revisión manual
+  revisado_manual     BOOLEAN      NOT NULL DEFAULT FALSE,
+  aprobado_manual     BOOLEAN,
+  revisado_por        VARCHAR(255),
+  revisado_en         TIMESTAMPTZ,
+  notas_supervisor    TEXT
+);
+
+CREATE INDEX idx_registros_centro     ON registros(centro_id);
+CREATE INDEX idx_registros_timestamp  ON registros(timestamp DESC);
+CREATE INDEX idx_registros_tipo       ON registros(tipo);
+CREATE INDEX idx_registros_estado     ON registros(ai_estado);
+CREATE INDEX idx_registros_file_id    ON registros(foto_file_id);
+CREATE INDEX idx_registros_fecha      ON registros(DATE(timestamp AT TIME ZONE 'America/Mexico_City'));
+
+-- ═══════════════════════════════════════════
+-- TABLA: admins
+-- Supervisoras con acceso a comandos admin
+-- ═══════════════════════════════════════════
+CREATE TABLE admins (
+  telegram_chat_id  BIGINT       PRIMARY KEY,
+  nombre            VARCHAR(255) NOT NULL,
+  email             VARCHAR(255),
+  region            VARCHAR(100),                    -- si gestiona solo una zona
+  creado_en         TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+-- ═══════════════════════════════════════════
+-- TABLA: notificaciones
+-- Log de alertas enviadas (evita duplicados)
+-- ═══════════════════════════════════════════
+CREATE TABLE notificaciones (
+  id            UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tipo          VARCHAR(50) NOT NULL,                -- 'flag', 'daily_summary', 'missing_apertura', etc.
+  destinatario  BIGINT      NOT NULL,                -- telegram_chat_id
+  referencia_id UUID,                               -- registro_id al que aplica
+  enviado_en    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  payload       JSONB
+);
+
+CREATE INDEX idx_notif_tipo ON notificaciones(tipo, enviado_en DESC);
+
+-- ═══════════════════════════════════════════
+-- VISTA: resumen_diario
+-- Útil para el dashboard y reportes
+-- ═══════════════════════════════════════════
+CREATE OR REPLACE VIEW resumen_diario AS
+SELECT
+  c.id              AS centro_id,
+  c.codigo,
+  c.nombre,
+  c.region,
+  DATE(r.timestamp AT TIME ZONE 'America/Mexico_City') AS fecha,
+  COUNT(r.id) FILTER (WHERE r.tipo = 'apertura')     AS fotos_apertura,
+  COUNT(r.id) FILTER (WHERE r.tipo = 'limpieza')     AS fotos_limpieza,
+  COUNT(r.id) FILTER (WHERE r.tipo = 'cierre')       AS fotos_cierre,
+  COUNT(r.id) FILTER (WHERE r.tipo = 'comprobante')  AS fotos_comprobante,
+  COUNT(r.id) FILTER (WHERE r.ai_estado = 'flagged') AS total_flags,
+  COUNT(r.id) FILTER (WHERE r.ai_estado = 'aprobado') AS total_aprobados,
+  BOOL_OR(r.tipo = 'apertura'    AND r.ai_estado != 'flagged') AS tiene_apertura,
+  BOOL_OR(r.tipo = 'limpieza'    AND r.ai_estado != 'flagged') AS tiene_limpieza,
+  BOOL_OR(r.tipo = 'cierre'      AND r.ai_estado != 'flagged') AS tiene_cierre,
+  BOOL_OR(r.tipo = 'comprobante')                               AS tiene_comprobante
+FROM centros c
+LEFT JOIN registros r ON r.centro_id = c.id
+WHERE c.activo = TRUE
+GROUP BY c.id, c.codigo, c.nombre, c.region, DATE(r.timestamp AT TIME ZONE 'America/Mexico_City');
+
+-- ═══════════════════════════════════════════
+-- FUNCIÓN: detectar duplicado
+-- Retorna TRUE si el file_id ya existe hoy para este centro
+-- ═══════════════════════════════════════════
+CREATE OR REPLACE FUNCTION es_foto_duplicada(
+  p_centro_id UUID,
+  p_file_id   TEXT
+) RETURNS BOOLEAN LANGUAGE sql STABLE AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM registros
+    WHERE centro_id = p_centro_id
+      AND foto_file_id = p_file_id
+      AND DATE(timestamp AT TIME ZONE 'America/Mexico_City')
+          = DATE(NOW() AT TIME ZONE 'America/Mexico_City')
+  );
+$$;
+
+-- ═══════════════════════════════════════════
+-- RLS (Row Level Security)
+-- Supabase necesita políticas explícitas
+-- ═══════════════════════════════════════════
+ALTER TABLE centros      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE trabajadores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE registros    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admins       ENABLE ROW LEVEL SECURITY;
+
+-- El bot usa service_role key → acceso total. Estas políticas son para el dashboard con anon key.
+-- Solo lectura pública para el dashboard (asegurar con JWT en producción):
+CREATE POLICY "lectura_centros"      ON centros      FOR SELECT USING (TRUE);
+CREATE POLICY "lectura_registros"    ON registros    FOR SELECT USING (TRUE);
+CREATE POLICY "lectura_trabajadores" ON trabajadores FOR SELECT USING (TRUE);
+
+-- ═══════════════════════════════════════════
+-- STORAGE BUCKET
+-- Ejecutar en Supabase Storage o via API
+-- ═══════════════════════════════════════════
+-- En el dashboard de Supabase: Storage → New Bucket → Nombre: "fotos-centros" → Public: NO
+-- O via SQL:
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('fotos-centros', 'fotos-centros', false);
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ 7. CÓDIGO FASE 1 -->
+<h2>7. Código completo — Bot Fase 1 (Google Sheets)</h2>
+
+<h3>Estructura de archivos</h3>
+<pre>
+agents/recycling_audit/
+├── __init__.py
+├── bot.py           ← entrada principal, handlers, máquina de estados
+├── database.py      ← todas las operaciones con Google Sheets
+├── auditor.py       ← Claude Vision
+└── utils.py         ← haversine, validación horario, helpers
+
+scripts/
+└── load_centers.py  ← carga masiva desde CSV
+</pre>
+
+<h3>requirements.txt (agregar estas líneas)</h3>
+<pre>
+python-telegram-bot>=20.7
+gspread>=6.0.0
+google-auth>=2.28.0
+Pillow>=10.0.0
+</pre>
+
+<h3><code>agents/recycling_audit/utils.py</code></h3>
+<pre>
+import math, uuid
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+MEXICO_TZ = ZoneInfo("America/Mexico_City")
+
+def haversine(lat1, lng1, lat2, lng2):
+    R = 6_371_000
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lng2 - lng1)
+    a = math.sin(dp/2)**2 + math.cos(p1)*math.cos(p2)*math.sin(dl/2)**2
+    return round(2 * R * math.asin(math.sqrt(a)))
+
+def now_mx(): return datetime.now(MEXICO_TZ)
+def now_iso(): return now_mx().isoformat(timespec="seconds")
+def gen_id():  return str(uuid.uuid4())
+
+def horario_valido(tipo, hora):
+    rangos = {"apertura":(6,11), "limpieza":(7,19), "cierre":(17,23), "comprobante":(0,23)}
+    lo, hi = rangos.get(tipo, (0,23))
+    return lo <= hora <= hi
+
+TIPO_LABEL = {
+    "apertura":"📷 Apertura", "limpieza":"🧹 Limpieza",
+    "cierre":"📷 Cierre",     "comprobante":"🧾 Comprobante"
+}
+TEXTO_TIPO = {"📷 Apertura":"apertura","🧹 Limpieza":"limpieza",
+              "📷 Cierre":"cierre","🧾 Comprobante":"comprobante"}
+</pre>
+
+<h3><code>agents/recycling_audit/auditor.py</code></h3>
+<pre>
+import os, json, base64, logging
+import httpx, anthropic
+
+log = logging.getLogger(__name__)
+_client = None
+
+DESCRIPCIONES = {
+  "apertura":    "apertura del centro al inicio del día. Debe mostrar el área limpia, contenedores visibles y acceso despejado.",
+  "limpieza":    "limpieza del centro durante el día. Área ordenada, sin residuos en el suelo, contenedores en su lugar.",
+  "cierre":      "cierre del centro al final del día. Centro asegurado, área recogida, acceso cerrado.",
+  "comprobante": "comprobante o ticket de recolección. Debe mostrar un documento físico con texto legible: fecha, cantidad, empresa recolectora.",
+}
+
+def _get():
+    global _client
+    if not _client:
+        _client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    return _client
+
+def audit_photo(photo_bytes: bytes, tipo: str, centro: str) -> dict:
+    """Retorna {approved: bool, confidence: int, notes: str}"""
+    b64 = base64.standard_b64encode(photo_bytes).decode()
+    desc = DESCRIPCIONES.get(tipo, tipo)
+    prompt = f"""Eres auditor de centros de reciclaje para Walmart México.
+Esta foto fue enviada como evidencia de "{tipo}" para el centro "{centro}".
+Se espera: {desc}
+
+Evalúa si la foto es evidencia válida.
+Responde SOLO con JSON válido sin texto extra:
+{{"approved": true, "confidence": 85, "notes": "observación breve en español"}}
+
+Reglas:
+- approved=false si la imagen está muy oscura, borrosa, no muestra nada relevante, o no corresponde al tipo
+- Para comprobante: approved=false si no hay texto legible
+- En duda razonable: approved=true con confidence bajo (30–60)
+- notes: máximo 2 oraciones, tono neutral y profesional"""
+    try:
+        msg = _get().messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=200,
+            messages=[{"role":"user","content":[
+                {"type":"image","source":{"type":"base64","media_type":"image/jpeg","data":b64}},
+                {"type":"text","text":prompt}
+            ]}]
+        )
+        text = msg.content[0].text.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+        r = json.loads(text)
+        return {"approved": bool(r.get("approved",False)),
+                "confidence": int(r.get("confidence",50)),
+                "notes": str(r.get("notes","Sin observaciones."))}
+    except Exception as e:
+        log.error(f"Error auditoría Claude: {e}")
+        return {"approved": False, "confidence": 0, "notes": "Error técnico. Requiere revisión manual."}
+
+async def download_photo(file_url: str) -> bytes:
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.get(file_url)
+        r.raise_for_status()
+        return r.content
+</pre>
+
+<h3><code>agents/recycling_audit/database.py</code> (Google Sheets)</h3>
+<pre>
+import os, json, logging
+from typing import Optional
+import gspread
+from google.oauth2.service_account import Credentials
+from .utils import now_iso
+
+log = logging.getLogger(__name__)
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/drive"]
+_sheet = None
+
+def _db():
+    global _sheet
+    if not _sheet:
+        creds = Credentials.from_service_account_info(
+            json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"]), scopes=SCOPES)
+        _sheet = gspread.authorize(creds).open_by_key(os.environ["GOOGLE_SHEETS_ID"])
+    return _sheet
+
+# ── CENTROS ──────────────────────────────────────────────
+def get_centro(codigo: str) -> Optional[dict]:
+    rows = _db().worksheet("centros").get_all_records()
+    for r in rows:
+        if str(r.get("codigo","")).strip().upper() == codigo.strip().upper():
+            if str(r.get("activo","TRUE")).upper() == "TRUE":
+                return r
+    return None
+
+def list_centros() -> list:
+    rows = _db().worksheet("centros").get_all_records()
+    return [r for r in rows if str(r.get("activo","TRUE")).upper() == "TRUE"]
+
+def add_centro(codigo, nombre, tienda_num, lat, lng, radio=300) -> bool:
+    if get_centro(codigo): return False
+    _db().worksheet("centros").append_row(
+        [codigo.upper(), nombre, tienda_num, lat, lng, radio, "TRUE", now_iso()])
+    return True
+
+# ── TRABAJADORES ─────────────────────────────────────────
+def get_worker(chat_id: int) -> Optional[dict]:
+    rows = _db().worksheet("trabajadores").get_all_records()
+    for r in rows:
+        if str(r.get("telegram_chat_id","")) == str(chat_id):
+            return r
+    return None
+
+def register_worker(chat_id, nombre, centro):
+    if get_worker(chat_id): return
+    _db().worksheet("trabajadores").append_row(
+        [str(chat_id), nombre, centro["codigo"], centro["nombre"], now_iso()])
+
+# ── REGISTROS ────────────────────────────────────────────
+def is_duplicate(centro_codigo: str, file_id: str) -> bool:
+    from .utils import now_mx
+    today = now_mx().strftime("%Y-%m-%d")
+    rows = _db().worksheet("registros").get_all_records()
+    return any(
+        str(r.get("codigo_centro","")).upper() == centro_codigo.upper()
+        and str(r.get("foto_file_id","")) == file_id
+        and str(r.get("timestamp",""))[:10] == today
+        for r in rows
+    )
+
+def save_record(rec: dict):
+    _db().worksheet("registros").append_row([
+        rec.get("id",""),         rec.get("timestamp",""),
+        rec.get("codigo_centro"), rec.get("nombre_centro"),
+        rec.get("tipo",""),       rec.get("telegram_chat_id",""),
+        rec.get("nombre_encargado",""), rec.get("foto_file_id",""),
+        rec.get("lat_enviada",""), rec.get("lng_enviada",""),
+        rec.get("distancia_metros",""), str(rec.get("ubicacion_ok","")),
+        str(rec.get("horario_ok","")), str(rec.get("duplicado",False)),
+        rec.get("ai_estado",""),  rec.get("ai_confianza",""),
+        rec.get("ai_notas",""),   "FALSE", "", ""
+    ])
+
+def get_today_summary() -> dict:
+    from .utils import now_mx
+    today = now_mx().strftime("%Y-%m-%d")
+    rows = _db().worksheet("registros").get_all_records()
+    out = {}
+    for r in rows:
+        if str(r.get("timestamp",""))[:10] != today: continue
+        code = str(r.get("codigo_centro","")).upper()
+        tipo = str(r.get("tipo","")).lower()
+        if code not in out:
+            out[code] = {"nombre": r.get("nombre_centro", code),
+                         "apertura":False,"limpieza":False,"cierre":False,"comprobante":False,"flags":0}
+        if tipo in out[code]: out[code][tipo] = True
+        if str(r.get("ai_estado","")).lower() == "flagged": out[code]["flags"] += 1
+    return out
+
+def get_pending_flags() -> list:
+    rows = _db().worksheet("registros").get_all_records()
+    return [r for r in rows
+            if str(r.get("ai_estado","")).lower() == "flagged"
+            and str(r.get("revisado_manual","FALSE")).upper() == "FALSE"][:20]
+</pre>
+
+<h3><code>agents/recycling_audit/bot.py</code> (completo)</h3>
+<pre>
+import os, logging
+from dataclasses import dataclass, field
+from typing import Optional
+
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+
+from .database import (get_centro, get_worker, register_worker, is_duplicate,
+                        save_record, list_centros, add_centro,
+                        get_today_summary, get_pending_flags)
+from .auditor import audit_photo, download_photo
+from .utils import haversine, now_iso, now_mx, horario_valido, TIPO_LABEL, TEXTO_TIPO, gen_id
+
+logging.basicConfig(format="%(asctime)s %(name)s %(levelname)s %(message)s", level=logging.INFO)
+log = logging.getLogger(__name__)
+
+# ── ESTADOS ──────────────────────────────────────────────
+REGISTER = "REGISTER"; IDLE = "IDLE"
+WAITING_LOCATION = "WAITING_LOCATION"; WAITING_PHOTO = "WAITING_PHOTO"
+ADMIN_CODE = "ADMIN_CODE"; ADMIN_NAME = "ADMIN_NAME"
+ADMIN_STORE = "ADMIN_STORE"; ADMIN_LOC = "ADMIN_LOC"
+
+@dataclass
+class US:
+    state: str = REGISTER
+    pending_type: Optional[str] = None
+    pending_loc: Optional[tuple] = None
+    admin: dict = field(default_factory=dict)
+
+_states: dict[int, US] = {}
+def st(cid): return _states.setdefault(cid, US())
+def set_st(cid, s, **kw):
+    u = st(cid); u.state = s
+    for k,v in kw.items(): setattr(u,k,v)
+
+def is_admin(cid):
+    return cid in [int(x) for x in os.environ.get("ADMIN_CHAT_IDS","").split(",") if x.strip().isdigit()]
+
+MENU = ReplyKeyboardMarkup(
+    [[KeyboardButton("📷 Apertura"), KeyboardButton("🧹 Limpieza")],
+     [KeyboardButton("📷 Cierre"),   KeyboardButton("🧾 Comprobante")]],
+    resize_keyboard=True, is_persistent=True)
+
+LOC_KB = ReplyKeyboardMarkup(
+    [[KeyboardButton("📍 Compartir mi ubicación", request_location=True)]],
+    resize_keyboard=True, one_time_keyboard=True)
+
+# ── HANDLERS ─────────────────────────────────────────────
+async def cmd_start(u: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    cid = u.effective_chat.id
+    w = get_worker(cid)
+    if w:
+        set_st(cid, IDLE)
+        await u.message.reply_text(
+            f"👋 Hola {w['nombre_telegram']}!\nCentro: *{w['nombre_centro']}*\nElige el tipo de foto:",
+            parse_mode="Markdown", reply_markup=MENU)
+    else:
+        set_st(cid, REGISTER)
+        await u.message.reply_text(
+            "👋 Bienvenido.\nEscribe el *código de tu centro de reciclaje*:",
+            parse_mode="Markdown", reply_markup=ReplyKeyboardRemove())
+
+async def cmd_cancel(u: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    cid = u.effective_chat.id
+    set_st(cid, IDLE if get_worker(cid) else REGISTER, pending_type=None, pending_loc=None)
+    await u.message.reply_text("Cancelado.", reply_markup=MENU if get_worker(cid) else ReplyKeyboardRemove())
+
+async def handle_text(u: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    cid = u.effective_chat.id
+    txt = u.message.text.strip()
+    s = st(cid)
+
+    if s.state == REGISTER:
+        c = get_centro(txt)
+        if not c: await u.message.reply_text("❌ Código no encontrado. Verifica con tu supervisor."); return
+        register_worker(cid, u.effective_user.full_name or "Sin nombre", c)
+        set_st(cid, IDLE)
+        await u.message.reply_text(f"✅ Registrado en *{c['nombre']}*\nElige el tipo de foto:",
+                                    parse_mode="Markdown", reply_markup=MENU); return
+
+    if is_admin(cid) and s.state == ADMIN_CODE:
+        if get_centro(txt): await u.message.reply_text(f"❌ Código `{txt}` ya existe.", parse_mode="Markdown"); set_st(cid,IDLE); return
+        s.admin["codigo"] = txt.upper(); set_st(cid, ADMIN_NAME)
+        await u.message.reply_text("Nombre del centro (ej: *Walmart Insurgentes Norte*):", parse_mode="Markdown"); return
+
+    if is_admin(cid) and s.state == ADMIN_NAME:
+        s.admin["nombre"] = txt; set_st(cid, ADMIN_STORE)
+        await u.message.reply_text("Número de tienda Walmart (ej: WM-047) o escribe `omitir`:", parse_mode="Markdown"); return
+
+    if is_admin(cid) and s.state == ADMIN_STORE:
+        s.admin["tienda"] = "" if txt.lower() == "omitir" else txt
+        set_st(cid, ADMIN_LOC)
+        await u.message.reply_text("Comparte la ubicación del centro o escribe `lat,lng`:",
+            reply_markup=ReplyKeyboardMarkup([[KeyboardButton("📍 Ubicación del centro",request_location=True)]],
+            resize_keyboard=True, one_time_keyboard=True)); return
+
+    if is_admin(cid) and s.state == ADMIN_LOC:
+        try:
+            pts = txt.replace(" ","").split(","); lat,lng = float(pts[0]),float(pts[1])
+            await _save_centro(u, cid, lat, lng)
+        except: await u.message.reply_text("❌ Formato: `19.4284,-99.1677`", parse_mode="Markdown")
+        return
+
+    if s.state == IDLE and txt in TEXTO_TIPO:
+        tipo = TEXTO_TIPO[txt]; set_st(cid, WAITING_LOCATION, pending_type=tipo)
+        if tipo == "comprobante":
+            await u.message.reply_text("📍 Opcional: comparte tu ubicación o toca *Saltar*.",
+                parse_mode="Markdown",
+                reply_markup=ReplyKeyboardMarkup([
+                    [KeyboardButton("📍 Compartir ubicación",request_location=True)],
+                    [KeyboardButton("➡️ Saltar ubicación")]],resize_keyboard=True,one_time_keyboard=True)); return
+        await u.message.reply_text("📍 Comparte tu *ubicación* para verificar que estás en el centro:",
+                                    parse_mode="Markdown", reply_markup=LOC_KB); return
+
+    if s.state == WAITING_LOCATION and txt == "➡️ Saltar ubicación":
+        set_st(cid, WAITING_PHOTO, pending_loc=None)
+        await u.message.reply_text("Ahora manda la foto del comprobante.", reply_markup=ReplyKeyboardRemove()); return
+
+    if s.state == WAITING_LOCATION:
+        await u.message.reply_text("Primero comparte tu *ubicación*.", parse_mode="Markdown", reply_markup=LOC_KB); return
+    if s.state == WAITING_PHOTO:
+        await u.message.reply_text("Manda la *foto* ahora.", parse_mode="Markdown"); return
+    if s.state == IDLE:
+        await u.message.reply_text("Usa los botones del menú.", reply_markup=MENU)
+
+async def handle_location(u: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    cid = u.effective_chat.id; s = st(cid)
+    lat = u.message.location.latitude; lng = u.message.location.longitude
+    if is_admin(cid) and s.state == ADMIN_LOC:
+        await _save_centro(u, cid, lat, lng); return
+    if s.state != WAITING_LOCATION:
+        await u.message.reply_text("No esperaba ubicación.", reply_markup=MENU); return
+    set_st(cid, WAITING_PHOTO, pending_loc=(lat,lng))
+    await u.message.reply_text("✅ Ubicación recibida. Ahora manda la *foto*.",
+                                parse_mode="Markdown", reply_markup=ReplyKeyboardRemove())
+
+async def _save_centro(u, cid, lat, lng):
+    s = st(cid); d = s.admin
+    ok = add_centro(d["codigo"], d["nombre"], d.get("tienda",""), lat, lng)
+    set_st(cid, IDLE, admin={}); kb = MENU if not is_admin(cid) else ReplyKeyboardRemove()
+    if ok: await u.message.reply_text(f"✅ Centro *{d['codigo']}* — {d['nombre']} agregado.", parse_mode="Markdown", reply_markup=kb)
+    else:  await u.message.reply_text("❌ Error al guardar.", reply_markup=kb)
+
+async def handle_photo(u: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    cid = u.effective_chat.id; s = st(cid)
+    if s.state != WAITING_PHOTO:
+        await u.message.reply_text("Primero elige el tipo de foto.", reply_markup=MENU); return
+    w = get_worker(cid)
+    if not w: set_st(cid,REGISTER); await u.message.reply_text("No registrado. Escribe tu código."); return
+    c = get_centro(w["codigo_centro"])
+    if not c: await u.message.reply_text("❌ Tu centro no está activo."); return
+
+    await u.message.reply_text("⏳ Procesando...")
+    photo = u.message.photo[-1]; file_id = photo.file_id
+
+    dup = is_duplicate(c["codigo"], file_id)
+    lat_e = lng_e = dist = ubic_ok = ""
+    if s.pending_loc:
+        lat_e, lng_e = s.pending_loc
+        if c.get("lat") and c.get("lng"):
+            dist = haversine(lat_e, lng_e, float(c["lat"]), float(c["lng"]))
+            ubic_ok = dist <= int(c.get("radio_metros", 300))
+
+    hora = now_mx().hour
+    hor_ok = horario_valido(s.pending_type, hora)
+
+    try:
+        f = await ctx.bot.get_file(file_id)
+        bts = await download_photo(f.file_path)
+        ai = audit_photo(bts, s.pending_type, c["nombre"])
+    except Exception as e:
+        log.error(e); ai = {"approved":False,"confidence":0,"notes":"Error técnico."}
+
+    flags = []
+    if dup:            flags.append("foto duplicada del día")
+    if ubic_ok is False: flags.append(f"ubicación fuera del centro ({dist}m)")
+    if not hor_ok and s.pending_type in ("apertura","cierre"):
+        flags.append(f"fuera de horario esperado para {s.pending_type}")
+    if not ai["approved"]: flags.append(ai["notes"])
+
+    estado = "aprobado" if not flags else "flagged"
+    rec = {
+        "id": gen_id(), "timestamp": now_iso(),
+        "codigo_centro": c["codigo"], "nombre_centro": c["nombre"],
+        "tipo": s.pending_type, "telegram_chat_id": str(cid),
+        "nombre_encargado": w["nombre_telegram"], "foto_file_id": file_id,
+        "lat_enviada": lat_e, "lng_enviada": lng_e,
+        "distancia_metros": dist, "ubicacion_ok": ubic_ok,
+        "horario_ok": hor_ok, "duplicado": dup,
+        "ai_estado": estado, "ai_confianza": ai["confidence"], "ai_notas": ai["notes"]
+    }
+    save_record(rec); set_st(cid, IDLE, pending_type=None, pending_loc=None)
+    tl = TIPO_LABEL.get(s.pending_type, s.pending_type)
+
+    if estado == "aprobado":
+        await u.message.reply_text(f"✅ *{tl}* registrada correctamente.", parse_mode="Markdown", reply_markup=MENU)
+    else:
+        await u.message.reply_text(f"✅ *{tl}* recibida. En revisión.", parse_mode="Markdown", reply_markup=MENU)
+        motivos = "\n".join(f"• {f}" for f in flags)
+        msg = (f"⚠️ *Registro para revisión*\n\nCentro: *{c['nombre']}*\n"
+               f"Tipo: {tl}\nEncargado: {w['nombre_telegram']}\nHora: {now_mx().strftime('%H:%M')}\n\n"
+               f"*Motivos:*\n{motivos}")
+        for aid in [int(x) for x in os.environ.get("ADMIN_CHAT_IDS","").split(",") if x.strip().isdigit()]:
+            try:
+                await ctx.bot.forward_message(aid, cid, u.message.message_id)
+                await ctx.bot.send_message(aid, msg, parse_mode="Markdown")
+            except Exception as e: log.error(f"Admin {aid}: {e}")
+
+# ── COMANDOS ADMIN ────────────────────────────────────────
+async def cmd_centros(u,ctx):
+    if not is_admin(u.effective_chat.id): return
+    cs = list_centros()
+    lines = [f"`{c['codigo']}` — {c['nombre']}" for c in cs]
+    await u.message.reply_text(f"*Centros ({len(cs)}):*\n\n"+"\n".join(lines), parse_mode="Markdown")
+
+async def cmd_addcentro(u,ctx):
+    if not is_admin(u.effective_chat.id): return
+    set_st(u.effective_chat.id, ADMIN_CODE, admin={})
+    await u.message.reply_text("Escribe el *código* del nuevo centro (4 chars):",
+                                parse_mode="Markdown", reply_markup=ReplyKeyboardRemove())
+
+async def cmd_reporte(u,ctx):
+    if not is_admin(u.effective_chat.id): return
+    s = get_today_summary(); cs = list_centros()
+    lines = []
+    for c in cs:
+        code = c["codigo"].upper()
+        d = s.get(code, {})
+        ap = "✅" if d.get("apertura") else "❌"
+        li = "✅" if d.get("limpieza") else "❌"
+        ci = "✅" if d.get("cierre")    else "❌"
+        co = "✅" if d.get("comprobante") else "—"
+        fl = f" ⚠️{d['flags']}" if d.get("flags",0) else ""
+        lines.append(f"{ap}{li}{ci}{co} `{code}` {c['nombre']}{fl}")
+    hoy = now_mx().strftime("%d/%m/%Y")
+    comp = sum(1 for c in cs if s.get(c["codigo"].upper(),{}).get("cierre"))
+    await u.message.reply_text(
+        f"📊 *Reporte {hoy}*\n{comp}/{len(cs)} centros con cierre\n`Ap Li Ci Co`\n\n"+"\n".join(lines),
+        parse_mode="Markdown")
+
+async def cmd_flags(u,ctx):
+    if not is_admin(u.effective_chat.id): return
+    fs = get_pending_flags()
+    if not fs: await u.message.reply_text("✅ Sin flags pendientes."); return
+    lines = [f"• `{f.get('codigo_centro')}` {f.get('tipo')} — _{f.get('ai_notas','')}_" for f in fs]
+    await u.message.reply_text(f"⚠️ *Flags pendientes ({len(fs)}):*\n\n"+"\n\n".join(lines), parse_mode="Markdown")
+
+# ── MAIN ──────────────────────────────────────────────────
+def main():
+    from dotenv import load_dotenv; load_dotenv()
+    app = Application.builder().token(os.environ["TELEGRAM_BOT_TOKEN"]).build()
+    app.add_handler(CommandHandler("start",      cmd_start))
+    app.add_handler(CommandHandler("cancelar",   cmd_cancel))
+    app.add_handler(CommandHandler("centros",    cmd_centros))
+    app.add_handler(CommandHandler("addcentro",  cmd_addcentro))
+    app.add_handler(CommandHandler("reporte",    cmd_reporte))
+    app.add_handler(CommandHandler("flags",      cmd_flags))
+    app.add_handler(MessageHandler(filters.LOCATION,               handle_location))
+    app.add_handler(MessageHandler(filters.PHOTO,                  handle_photo))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+    log.info("Bot arrancado.")
+    app.run_polling(drop_pending_updates=True)
+
+if __name__ == "__main__": main()
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ 8. CÓDIGO FASE 2 -->
+<h2>8. Código completo — Bot Fase 2 (Supabase)</h2>
+
+<h3>Dependencias adicionales para Fase 2</h3>
+<pre>
+supabase>=2.4.0
+APScheduler>=3.10.0
+resend>=0.7.0         # para emails
+imagehash>=4.3.1      # detección duplicados visual
+</pre>
+
+<h3><code>agents/recycling_audit/database_supabase.py</code></h3>
+<pre>
+import os, logging
+from typing import Optional
+from supabase import create_client, Client
+from .utils import now_iso
+
+log = logging.getLogger(__name__)
+_db: Optional[Client] = None
+
+def db() -> Client:
+    global _db
+    if not _db:
+        _db = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
+    return _db
+
+# ── CENTROS ──────────────────────────────────────────────
+def get_centro(codigo: str) -> Optional[dict]:
+    r = db().table("centros").select("*").eq("codigo", codigo.upper()).eq("activo", True).single().execute()
+    return r.data if r.data else None
+
+def list_centros() -> list:
+    r = db().table("centros").select("*").eq("activo", True).order("nombre").execute()
+    return r.data or []
+
+def add_centro(codigo, nombre, tienda_num, lat, lng, radio=300) -> bool:
+    try:
+        db().table("centros").insert({
+            "codigo": codigo.upper(), "nombre": nombre, "tienda_num": tienda_num,
+            "lat": lat, "lng": lng, "radio_metros": radio
+        }).execute()
+        return True
+    except Exception as e:
+        log.error(f"add_centro error: {e}"); return False
+
+# ── TRABAJADORES ─────────────────────────────────────────
+def get_worker(chat_id: int) -> Optional[dict]:
+    r = db().table("trabajadores").select("*, centros(*)").eq("telegram_chat_id", chat_id).eq("activo", True).execute()
+    return r.data[0] if r.data else None
+
+def register_worker(chat_id, nombre, username, centro_id):
+    existing = db().table("trabajadores").select("id").eq("telegram_chat_id", chat_id).execute()
+    if existing.data: return
+    db().table("trabajadores").insert({
+        "telegram_chat_id": chat_id, "nombre": nombre,
+        "telegram_username": username, "centro_id": centro_id
+    }).execute()
+
+# ── REGISTROS ────────────────────────────────────────────
+def is_duplicate(centro_id: str, file_id: str) -> bool:
+    r = db().rpc("es_foto_duplicada", {"p_centro_id": centro_id, "p_file_id": file_id}).execute()
+    return bool(r.data)
+
+def save_record(rec: dict) -> dict:
+    r = db().table("registros").insert(rec).execute()
+    return r.data[0] if r.data else {}
+
+async def upload_photo(photo_bytes: bytes, path: str) -> str:
+    """Sube foto a Supabase Storage y retorna URL pública firmada."""
+    db().storage.from_("fotos-centros").upload(
+        path, photo_bytes, {"content-type": "image/jpeg", "upsert": "true"})
+    url = db().storage.from_("fotos-centros").create_signed_url(path, 60*60*24*365)
+    return url["signedURL"]
+
+def get_today_summary() -> list:
+    from .utils import now_mx
+    today = now_mx().strftime("%Y-%m-%d")
+    r = db().table("resumen_diario").select("*").eq("fecha", today).execute()
+    return r.data or []
+
+def get_pending_flags(limit=20) -> list:
+    r = (db().table("registros")
+         .select("*, centros(nombre,codigo)")
+         .eq("ai_estado","flagged")
+         .eq("revisado_manual", False)
+         .order("timestamp", desc=True)
+         .limit(limit).execute())
+    return r.data or []
+
+def get_centros_sin_apertura() -> list:
+    """Retorna centros activos que no han enviado apertura hoy."""
+    from .utils import now_mx
+    today = now_mx().strftime("%Y-%m-%d")
+    todos = db().table("centros").select("id,codigo,nombre").eq("activo",True).execute().data or []
+    con_apertura = (db().table("registros").select("centro_id")
+                    .eq("tipo","apertura")
+                    .gte("timestamp", f"{today}T00:00:00-06:00")
+                    .execute().data or [])
+    ids_con = {r["centro_id"] for r in con_apertura}
+    return [c for c in todos if c["id"] not in ids_con]
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ 9. DASHBOARD -->
+<h2>9. Dashboard web (Next.js + Supabase)</h2>
+
+<h3>9.1 Estructura del proyecto Next.js</h3>
+<pre>
+dashboard/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx              ← resumen del día (KPIs + tabla de centros)
+│   ├── flags/page.tsx        ← registros flagged pendientes de revisión
+│   ├── centro/[id]/page.tsx  ← historial de un centro específico
+│   └── reporte/page.tsx      ← reportes mensuales
+├── components/
+│   ├── KPICard.tsx
+│   ├── CentrosTable.tsx
+│   ├── PhotoModal.tsx
+│   └── FlagCard.tsx
+├── lib/
+│   └── supabase.ts
+└── .env.local
+</pre>
+
+<h3>9.2 Inicialización</h3>
+<pre>
+npx create-next-app@latest dashboard --typescript --tailwind --app
+cd dashboard
+npm install @supabase/supabase-js @supabase/ssr
+npx shadcn@latest init
+npx shadcn@latest add card table badge button dialog
+</pre>
+
+<h3>9.3 <code>lib/supabase.ts</code></h3>
+<pre>
+import { createClient } from "@supabase/supabase-js";
+
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+</pre>
+
+<h3>9.4 <code>app/page.tsx</code> — Pantalla principal</h3>
+<pre>
+import { supabase } from "@/lib/supabase";
+import { KPICard }     from "@/components/KPICard";
+import { CentrosTable } from "@/components/CentrosTable";
+
+export const revalidate = 60; // refresca cada 60 segundos
+
+async function getResumen() {
+  const today = new Date().toISOString().split("T")[0];
+  const { data } = await supabase
+    .from("resumen_diario")
+    .select("*")
+    .eq("fecha", today);
+  return data || [];
+}
+
+async function getFlags() {
+  const { count } = await supabase
+    .from("registros")
+    .select("*", { count: "exact", head: true })
+    .eq("ai_estado", "flagged")
+    .eq("revisado_manual", false);
+  return count || 0;
+}
+
+export default async function Home() {
+  const [resumen, pendingFlags] = await Promise.all([getResumen(), getFlags()]);
+  const total  = resumen.length;
+  const completos = resumen.filter(r => r.tiene_apertura && r.tiene_cierre).length;
+  const conFlags   = resumen.filter(r => r.total_flags > 0).length;
+
+  return (
+    &lt;main className="p-6 max-w-7xl mx-auto"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6 text-green-800"&gt;
+        Auditoría Centros de Reciclaje
+      &lt;/h1&gt;
+
+      &lt;div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"&gt;
+        &lt;KPICard title="Centros activos"  value={total}        color="green" /&gt;
+        &lt;KPICard title="Completos hoy"    value={completos}    color="blue"  /&gt;
+        &lt;KPICard title="Con alertas"       value={conFlags}     color="yellow"/&gt;
+        &lt;KPICard title="Flags pendientes" value={pendingFlags} color="red"   /&gt;
+      &lt;/div&gt;
+
+      &lt;CentrosTable data={resumen} /&gt;
+    &lt;/main&gt;
+  );
+}
+</pre>
+
+<h3>9.5 <code>components/CentrosTable.tsx</code></h3>
+<pre>
+"use client";
+import { Badge } from "@/components/ui/badge";
+import Link    from "next/link";
+
+export function CentrosTable({ data }: { data: any[] }) {
+  const sorted = [...data].sort((a,b) => {
+    // Primero los que tienen flags, luego los incompletos
+    if (a.total_flags > 0 && b.total_flags === 0) return -1;
+    if (!a.tiene_apertura && b.tiene_apertura)     return -1;
+    return a.nombre.localeCompare(b.nombre);
+  });
+
+  return (
+    &lt;div className="overflow-x-auto rounded-lg border"&gt;
+      &lt;table className="w-full text-sm"&gt;
+        &lt;thead className="bg-green-700 text-white"&gt;
+          &lt;tr&gt;
+            &lt;th className="p-3 text-left"&gt;Centro&lt;/th&gt;
+            &lt;th className="p-3"&gt;Apertura&lt;/th&gt;
+            &lt;th className="p-3"&gt;Limpieza&lt;/th&gt;
+            &lt;th className="p-3"&gt;Cierre&lt;/th&gt;
+            &lt;th className="p-3"&gt;Comprobante&lt;/th&gt;
+            &lt;th className="p-3"&gt;Flags&lt;/th&gt;
+          &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+          {sorted.map(r =&gt; (
+            &lt;tr key={r.codigo} className="border-t hover:bg-green-50"&gt;
+              &lt;td className="p-3"&gt;
+                &lt;Link href={`/centro/${r.centro_id}`} className="font-medium text-green-800 hover:underline"&gt;
+                  {r.nombre}
+                &lt;/Link&gt;
+                &lt;span className="ml-2 text-gray-400 text-xs"&gt;{r.codigo}&lt;/span&gt;
+              &lt;/td&gt;
+              {["tiene_apertura","tiene_limpieza","tiene_cierre","tiene_comprobante"].map(k =&gt; (
+                &lt;td key={k} className="p-3 text-center"&gt;
+                  {r[k] ? "✅" : "❌"}
+                &lt;/td&gt;
+              ))}
+              &lt;td className="p-3 text-center"&gt;
+                {r.total_flags &gt; 0
+                  ? &lt;Badge variant="destructive"&gt;{r.total_flags}&lt;/Badge&gt;
+                  : &lt;span className="text-gray-300"&gt;—&lt;/span&gt;}
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          ))}
+        &lt;/tbody&gt;
+      &lt;/table&gt;
+    &lt;/div&gt;
+  );
+}
+</pre>
+
+<h3>9.6 <code>app/flags/page.tsx</code> — Revisión de alertas</h3>
+<pre>
+import { supabase } from "@/lib/supabase";
+import { FlagCard }  from "@/components/FlagCard";
+
+export const revalidate = 30;
+
+export default async function FlagsPage() {
+  const { data } = await supabase
+    .from("registros")
+    .select("*, centros(nombre, codigo)")
+    .eq("ai_estado", "flagged")
+    .eq("revisado_manual", false)
+    .order("timestamp", { ascending: false });
+
+  return (
+    &lt;main className="p-6 max-w-5xl mx-auto"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6 text-red-700"&gt;
+        ⚠️ Registros para revisión ({data?.length || 0})
+      &lt;/h1&gt;
+      &lt;div className="flex flex-col gap-4"&gt;
+        {data?.map(r =&gt; &lt;FlagCard key={r.id} record={r} /&gt;)}
+        {!data?.length &amp;&amp; &lt;p className="text-green-700 font-medium"&gt;✅ Sin alertas pendientes.&lt;/p&gt;}
+      &lt;/div&gt;
+    &lt;/main&gt;
+  );
+}
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ 10. NOTIFICACIONES -->
+<h2>10. Sistema de notificaciones y alertas programadas</h2>
+
+<h3>10.1 Tipos de notificación</h3>
+<table>
+  <tr><th>Notificación</th><th>Cuándo</th><th>Canal</th></tr>
+  <tr><td>Flag inmediato</td><td>En cuanto la foto es rechazada por Claude</td><td>Telegram a la supervisora</td></tr>
+  <tr><td>Alerta apertura faltante</td><td>11:00am — centros sin apertura registrada</td><td>Telegram</td></tr>
+  <tr><td>Alerta cierre faltante</td><td>9:00pm — centros sin cierre registrado</td><td>Telegram</td></tr>
+  <tr><td>Resumen diario</td><td>9:30pm — estadísticas del día</td><td>Telegram + Email</td></tr>
+  <tr><td>Reporte semanal</td><td>Lunes 8:00am — resumen de la semana</td><td>Email (PDF)</td></tr>
+</table>
+
+<h3>10.2 <code>agents/recycling_audit/scheduler.py</code></h3>
+<pre>
+import os, logging
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron      import CronTrigger
+import pytz
+
+log = logging.getLogger(__name__)
+MEXICO = pytz.timezone("America/Mexico_City")
+
+def setup_scheduler(app):
+    """
+    Recibe la Application de python-telegram-bot y registra los jobs.
+    Llamar desde bot.py después de build_app().
+    """
+    sched = AsyncIOScheduler(timezone=MEXICO)
+
+    sched.add_job(
+        lambda: app.create_task(alerta_apertura_faltante(app.bot)),
+        CronTrigger(hour=11, minute=0, timezone=MEXICO),
+        id="alerta_apertura", replace_existing=True
+    )
+    sched.add_job(
+        lambda: app.create_task(alerta_cierre_faltante(app.bot)),
+        CronTrigger(hour=21, minute=0, timezone=MEXICO),
+        id="alerta_cierre", replace_existing=True
+    )
+    sched.add_job(
+        lambda: app.create_task(resumen_diario(app.bot)),
+        CronTrigger(hour=21, minute=30, timezone=MEXICO),
+        id="resumen_diario", replace_existing=True
+    )
+    sched.start()
+    log.info("Scheduler iniciado.")
+    return sched
+
+async def _get_admins():
+    return [int(x) for x in os.environ.get("ADMIN_CHAT_IDS","").split(",") if x.strip().isdigit()]
+
+async def alerta_apertura_faltante(bot):
+    from .database_supabase import get_centros_sin_apertura
+    sin_ap = get_centros_sin_apertura()
+    if not sin_ap: return
+    lineas = "\n".join(f"• `{c['codigo']}` {c['nombre']}" for c in sin_ap[:15])
+    msg = f"⏰ *11:00am — Centros sin apertura ({len(sin_ap)}):*\n\n{lineas}"
+    for aid in await _get_admins():
+        try: await bot.send_message(aid, msg, parse_mode="Markdown")
+        except Exception as e: log.error(e)
+
+async def alerta_cierre_faltante(bot):
+    from .database_supabase import db
+    from .utils import now_mx
+    today = now_mx().strftime("%Y-%m-%d")
+    todos = db().table("centros").select("id,codigo,nombre").eq("activo",True).execute().data or []
+    con_cierre = {r["centro_id"] for r in
+        db().table("registros").select("centro_id")
+            .eq("tipo","cierre").gte("timestamp",f"{today}T00:00:00-06:00")
+            .execute().data or []}
+    sin_ci = [c for c in todos if c["id"] not in con_cierre]
+    if not sin_ci: return
+    lineas = "\n".join(f"• `{c['codigo']}` {c['nombre']}" for c in sin_ci[:15])
+    msg = f"🔒 *9:00pm — Centros sin cierre ({len(sin_ci)}):*\n\n{lineas}"
+    for aid in await _get_admins():
+        try: await bot.send_message(aid, msg, parse_mode="Markdown")
+        except Exception as e: log.error(e)
+
+async def resumen_diario(bot):
+    from .database_supabase import get_today_summary, list_centros
+    resumen = get_today_summary()
+    cs = list_centros()
+    total = len(cs)
+    if not resumen: return
+    completos  = sum(1 for r in resumen if r.get("tiene_apertura") and r.get("tiene_cierre"))
+    flags      = sum(r.get("total_flags",0) for r in resumen)
+    aprobados  = sum(r.get("total_aprobados",0) for r in resumen)
+    from .utils import now_mx
+    hoy = now_mx().strftime("%d/%m/%Y")
+    msg = (f"📊 *Resumen del {hoy}*\n\n"
+           f"Centros completos: *{completos}/{total}*\n"
+           f"Fotos aprobadas: *{aprobados}*\n"
+           f"Flags pendientes: *{flags}*\n\n"
+           f"{'✅ Excelente día.' if flags == 0 else '⚠️ Hay registros pendientes de revisión en /flags'}")
+    for aid in await _get_admins():
+        try: await bot.send_message(aid, msg, parse_mode="Markdown")
+        except Exception as e: log.error(e)
+    # Enviar resumen por email también
+    if os.environ.get("RESEND_API_KEY") and os.environ.get("SUPERVISOR_EMAIL"):
+        await send_daily_email(hoy, completos, total, flags)
+
+async def send_daily_email(fecha, completos, total, flags):
+    import resend
+    resend.api_key = os.environ["RESEND_API_KEY"]
+    html = f"""
+    &lt;h2&gt;Resumen Centros de Reciclaje — {fecha}&lt;/h2&gt;
+    &lt;p&gt;Centros completos: &lt;strong&gt;{completos}/{total}&lt;/strong&gt;&lt;/p&gt;
+    &lt;p&gt;Flags pendientes: &lt;strong&gt;{flags}&lt;/strong&gt;&lt;/p&gt;
+    &lt;p&gt;&lt;a href="{os.environ.get('DASHBOARD_URL','#')}"&gt;Ver dashboard completo&lt;/a&gt;&lt;/p&gt;
+    """
+    resend.Emails.send({
+        "from": "bot@reciclaje.walmart.mx",
+        "to": os.environ["SUPERVISOR_EMAIL"],
+        "subject": f"Resumen reciclaje {fecha} — {completos}/{total} centros",
+        "html": html
+    })
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ 11. DEPLOY -->
+<h2>11. Deploy paso a paso</h2>
+
+<h3>11.1 Variables de entorno (todas)</h3>
+<table>
+  <tr><th>Variable</th><th>Dónde obtenerla</th></tr>
+  <tr><td><code>TELEGRAM_BOT_TOKEN</code></td><td>@BotFather en Telegram → /newbot</td></tr>
+  <tr><td><code>ANTHROPIC_API_KEY</code></td><td>console.anthropic.com</td></tr>
+  <tr><td><code>ADMIN_CHAT_IDS</code></td><td>Telegram: buscar @userinfobot → te da tu ID. Separar con comas si son varios.</td></tr>
+  <tr><td><code>SUPABASE_URL</code></td><td>Supabase → Project Settings → API → Project URL</td></tr>
+  <tr><td><code>SUPABASE_SERVICE_KEY</code></td><td>Supabase → Project Settings → API → service_role key (NO la anon)</td></tr>
+  <tr><td><code>GOOGLE_SERVICE_ACCOUNT</code></td><td>Solo Fase 1. Google Cloud Console → Service Account → clave JSON</td></tr>
+  <tr><td><code>GOOGLE_SHEETS_ID</code></td><td>Solo Fase 1. ID del Sheet en la URL</td></tr>
+  <tr><td><code>RESEND_API_KEY</code></td><td>resend.com → API Keys (opcional)</td></tr>
+  <tr><td><code>SUPERVISOR_EMAIL</code></td><td>Email de la supervisora para reportes</td></tr>
+  <tr><td><code>DASHBOARD_URL</code></td><td>URL de Vercel del dashboard (configurar después del deploy)</td></tr>
+</table>
+
+<h3>11.2 Deploy del bot en Railway</h3>
+<div class="step"><div class="step-num">1</div><div>Crear cuenta en <strong>railway.app</strong></div></div>
+<div class="step"><div class="step-num">2</div><div><strong>New Project → Deploy from GitHub Repo</strong> → seleccionar el repositorio</div></div>
+<div class="step"><div class="step-num">3</div><div>En <strong>Variables</strong> agregar todas las variables de entorno de la tabla anterior</div></div>
+<div class="step"><div class="step-num">4</div><div>En <strong>Settings → Deploy → Start Command</strong> escribir: <code>python -m agents.recycling_audit.bot</code></div></div>
+<div class="step"><div class="step-num">5</div><div>Railway detecta <code>requirements.txt</code> y hace el build automáticamente</div></div>
+<div class="step"><div class="step-num">6</div><div>El bot queda corriendo 24/7. Cada push a la rama activa re-deploy automático</div></div>
+
+<h3>11.3 Deploy del dashboard en Vercel (Fase 2)</h3>
+<div class="step"><div class="step-num">1</div><div>Crear cuenta en <strong>vercel.com</strong></div></div>
+<div class="step"><div class="step-num">2</div><div><strong>New Project → Import Git Repository</strong> → seleccionar la carpeta <code>dashboard/</code></div></div>
+<div class="step"><div class="step-num">3</div><div>Agregar en Environment Variables: <code>NEXT_PUBLIC_SUPABASE_URL</code> y <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></div></div>
+<div class="step"><div class="step-num">4</div><div>Deploy → Vercel entrega una URL tipo <code>dashboard-xxx.vercel.app</code></div></div>
+<div class="step"><div class="step-num">5</div><div>Copiar esa URL y agregarla como <code>DASHBOARD_URL</code> en Railway</div></div>
+
+<h3>11.4 Configurar Supabase (Fase 2)</h3>
+<div class="step"><div class="step-num">1</div><div>Crear cuenta en <strong>supabase.com → New Project</strong></div></div>
+<div class="step"><div class="step-num">2</div><div><strong>SQL Editor → New Query</strong> → pegar el SQL completo de la sección 6 → Run</div></div>
+<div class="step"><div class="step-num">3</div><div><strong>Storage → New Bucket</strong> → Nombre: <code>fotos-centros</code> → Public: OFF</div></div>
+<div class="step"><div class="step-num">4</div><div><strong>Project Settings → API</strong> → copiar Project URL y service_role key</div></div>
+
+<!-- ═══════════════════════════════════════════════════ 12. SCRIPT CARGA -->
+<h2>12. Script de carga masiva de centros</h2>
+
+<h3>Formato del CSV (<code>centros.csv</code>)</h3>
+<pre>
+codigo,nombre,tienda_num,lat,lng,radio_metros,region
+4821,Walmart Insurgentes Norte,WM-047,19.4284,-99.1677,300,CDMX Norte
+3302,Walmart Perinorte,WM-002,19.5721,-99.1234,250,CDMX Norte
+7891,Walmart Satélite,WM-123,19.5200,-99.2300,300,Estado de México
+</pre>
+
+<h3><code>scripts/load_centers.py</code></h3>
+<pre>
+"""
+Uso:
+    python scripts/load_centers.py centros.csv
+    python scripts/load_centers.py centros.csv --dry-run  (solo muestra, no guarda)
+
+Carga masiva de centros desde CSV a Supabase o Google Sheets
+según las variables de entorno disponibles.
+"""
+import sys, os, csv
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from dotenv import load_dotenv; load_dotenv()
+
+DRY = "--dry-run" in sys.argv
+
+def load(filepath):
+    added = skipped = 0; errors = []
+    # Detectar backend
+    if os.environ.get("SUPABASE_URL"):
+        from agents.recycling_audit.database_supabase import add_centro, get_centro
+    else:
+        from agents.recycling_audit.database import add_centro, get_centro
+
+    with open(filepath, newline="", encoding="utf-8") as f:
+        for i, row in enumerate(csv.DictReader(f), 2):
+            try:
+                code = row["codigo"].strip()
+                name = row["nombre"].strip()
+                lat  = float(row["lat"])
+                lng  = float(row["lng"])
+                if not code or not name or not lat or not lng:
+                    errors.append(f"Fila {i}: datos incompletos"); continue
+                radio  = int(row.get("radio_metros",300) or 300)
+                tienda = row.get("tienda_num","").strip()
+                if DRY:
+                    print(f"[DRY] {code} — {name} ({lat},{lng})"); added += 1; continue
+                if add_centro(code, name, tienda, lat, lng, radio):
+                    print(f"✅ {code} — {name}"); added += 1
+                else:
+                    print(f"⏭  Ya existe: {code}"); skipped += 1
+            except Exception as e:
+                errors.append(f"Fila {i}: {e}")
+    print(f"\n{'─'*40}")
+    print(f"{'[DRY RUN] ' if DRY else ''}Agregados: {added} | Ya existían: {skipped}")
+    if errors:
+        print(f"Errores ({len(errors)}):"); [print(f"  • {e}") for e in errors]
+
+if __name__ == "__main__":
+    f = next((a for a in sys.argv[1:] if not a.startswith("--")), None)
+    if not f: print("Uso: python scripts/load_centers.py archivo.csv"); sys.exit(1)
+    if not os.path.exists(f): print(f"Archivo no encontrado: {f}"); sys.exit(1)
+    print(f"Cargando desde: {f} {'(DRY RUN)' if DRY else ''}\n")
+    load(f)
+</pre>
+
+<!-- ═══════════════════════════════════════════════════ 13. PRUEBAS -->
+<h2>13. Checklist de pruebas</h2>
+
+<h3>Bot — Flujo de registro</h3>
+<ul>
+  <li>☐ Encargado nuevo escribe código válido → queda registrado, ve el menú</li>
+  <li>☐ Encargado escribe código inválido → mensaje de error claro</li>
+  <li>☐ Encargado ya registrado hace /start → va directo al menú</li>
+  <li>☐ Encargado inactivo (activo=false) → se le pide registrarse de nuevo</li>
+</ul>
+
+<h3>Bot — Flujo de foto</h3>
+<ul>
+  <li>☐ Apertura: botón → ubicación → foto → ✅ en Supabase con ai_estado correcto</li>
+  <li>☐ Limpieza: mismo flujo</li>
+  <li>☐ Cierre: mismo flujo</li>
+  <li>☐ Comprobante: puede saltar ubicación → foto guardada</li>
+  <li>☐ Foto enviada sin elegir tipo primero → bot pide elegir tipo</li>
+  <li>☐ Foto enviada sin ubicación en flujo que la requiere → bot pide ubicación</li>
+</ul>
+
+<h3>Bot — Detección de anomalías</h3>
+<ul>
+  <li>☐ Misma foto enviada 2 veces el mismo día → segunda marcada como duplicado y flagged</li>
+  <li>☐ Foto enviada desde ubicación falsa (&gt;300m) → ubicacion_ok=FALSE y flagged</li>
+  <li>☐ Supervisora recibe notificación con foto reenviada y motivos del flag</li>
+  <li>☐ Foto de apertura enviada a las 3pm → horario_ok=FALSE (no bloquea, solo registra)</li>
+</ul>
+
+<h3>Bot — Comandos admin</h3>
+<ul>
+  <li>☐ /centros → lista de centros activos con códigos</li>
+  <li>☐ /addcentro → flujo guiado completo, centro aparece en BD</li>
+  <li>☐ /reporte → resumen del día con emojis ✅/❌ por tipo</li>
+  <li>☐ /flags → lista de registros pendientes de revisión</li>
+  <li>☐ Trabajador intenta usar comandos admin → bot no responde (silencio seguro)</li>
+</ul>
+
+<h3>Scheduler — Notificaciones programadas</h3>
+<ul>
+  <li>☐ 11am: alerta llega con lista de centros sin apertura</li>
+  <li>☐ 9pm: alerta llega con lista de centros sin cierre</li>
+  <li>☐ 9:30pm: resumen diario completo llega por Telegram</li>
+  <li>☐ Si no hay alertas, no se envía mensaje (silencio correcto)</li>
+</ul>
+
+<h3>Dashboard</h3>
+<ul>
+  <li>☐ Página principal muestra KPIs del día actual</li>
+  <li>☐ Tabla de centros ordenada: primero con flags, luego incompletos</li>
+  <li>☐ /flags muestra fotos con motivos de rechazo</li>
+  <li>☐ Clic en centro muestra historial de envíos</li>
+</ul>
+
+<h3>Script de carga masiva</h3>
+<ul>
+  <li>☐ <code>--dry-run</code> lista centros sin guardar nada</li>
+  <li>☐ Carga correcta de 50+ centros desde CSV</li>
+  <li>☐ Códigos duplicados se omiten sin error</li>
+  <li>☐ Filas con datos incompletos reportan error con número de fila</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════ 14. EVOLUCIÓN -->
+<h2>14. Evolución futura</h2>
+
+<div class="callout cy">
+  <strong>Lo siguiente NO forma parte del alcance actual pero el diseño lo permite sin reescritura:</strong>
+  <ul>
+    <li><strong>Reportes PDF mensuales:</strong> WeasyPrint o Puppeteer generan un PDF desde HTML con las estadísticas del mes. Se envía por email el primer día de cada mes.</li>
+    <li><strong>Multi-región con permisos:</strong> Supabase Auth + RLS para que cada supervisora regional solo vea sus centros. Ya hay columna <code>region</code> en la tabla centros.</li>
+    <li><strong>Validación visual avanzada:</strong> guardar hashes perceptuales (imagehash) de fotos aprobadas y comparar contra nuevas entregas. Detecta fotos casi-idénticas aunque tengan file_id diferente.</li>
+    <li><strong>App móvil (React Native + Expo):</strong> si en el futuro los encargados son más sofisticados. La API de Supabase ya está lista.</li>
+    <li><strong>Integración con Walmart:</strong> exportar reportes de cumplimiento en el formato que pide Walmart internamente. Solo se necesita un script de exportación.</li>
+    <li><strong>WhatsApp como canal alternativo:</strong> migrar el bot a WhatsApp Business API cuando el presupuesto lo permita. Toda la lógica de auditoría es independiente del canal.</li>
+  </ul>
+</div>
+
+<hr>
+<p style="text-align:center;color:#9ca3af;font-size:.85rem;margin-top:2rem">
+  Documento técnico completo · Bot de Auditoría Centros de Reciclaje · Walmart México<br>
+  Generado con Claude Code · Mayo 2026 · Versión 1.0
+</p>
+
+</body>
+</html>
