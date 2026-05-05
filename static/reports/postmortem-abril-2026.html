@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postmortem Outbound · Abril 2026 · Heru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #F4F6F8;
+    --surface: #FFFFFF;
+    --border: #E5E7EB;
+    --border-light: #F0F2F5;
+    --ink: #1A365D;
+    --ink-2: #4B5563;
+    --ink-3: #9CA3AF;
+    --blue: #5DADE2;
+    --green: #22C55E;
+    --green-soft: #DCFCE7;
+    --red: #EF4444;
+    --red-soft: #FEE2E2;
+    --amber: #F59E0B;
+    --amber-soft: #FEF3C7;
+    --purple: #8B5CF6;
+    --purple-soft: #EDE9FE;
+    --regus: #F59E0B;
+    --favor: #22C55E;
+    --pagar: #EF4444;
+    --cero: #6B7280;
+    --sidebar: #1F4060;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.65;
+    font-size: 14.5px;
+  }
+
+  .topbar {
+    background: var(--sidebar);
+    color: white;
+    padding: 14px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    color: white;
+    line-height: 1;
+  }
+  .topbar-title {
+    border-left: 1px solid rgba(255,255,255,0.18);
+    padding-left: 14px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .topbar-right {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 44px 36px 80px;
+  }
+
+  .report-head { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .eyebrow {
+    font-size: 11px; color: var(--ink-3);
+    font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+  .report-head h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .report-head h1 em { font-style: italic; font-weight: 400; }
+  .report-head .lead {
+    color: var(--ink-2);
+    font-size: 15.5px;
+    max-width: 760px;
+    line-height: 1.6;
+  }
+
+  section { margin-bottom: 64px; }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  h2 em { font-style: italic; font-weight: 400; }
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 28px;
+    margin-bottom: 12px;
+  }
+  .section-tag {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  p { margin-bottom: 14px; color: var(--ink-2); }
+  p strong { color: var(--ink); font-weight: 600; }
+  p code {
+    background: var(--bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.92em;
+    font-family: 'SF Mono', monospace;
+    color: var(--ink);
+  }
+
+  .tldr {
+    background: linear-gradient(135deg, #F8FBFF, #F0F4F9);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin-bottom: 36px;
+  }
+  .tldr h3 {
+    font-size: 11px;
+    color: var(--blue);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .tldr p { font-size: 14.5px; color: var(--ink); line-height: 1.65; margin-bottom: 8px; }
+  .tldr p:last-child { margin-bottom: 0; }
+  .tldr strong { font-weight: 600; }
+
+  .quality-banner {
+    background: var(--amber-soft);
+    border: 1px solid #F4D58E;
+    border-left: 4px solid var(--amber);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin: 16px 0;
+  }
+  .quality-banner .icon { font-size: 22px; line-height: 1; margin-top: 1px; }
+  .quality-banner .content { font-size: 13.5px; color: #78521A; line-height: 1.6; }
+  .quality-banner strong { color: #5C3D0E; font-weight: 600; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 18px 0 8px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .kpi-label {
+    font-size: 10px; color: var(--ink-3);
+    font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .kpi-value {
+    font-size: 28px; font-weight: 700;
+    color: var(--ink); line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .kpi-value.positive { color: var(--green); }
+  .kpi-value.negative { color: var(--red); }
+  .kpi-value .unit { font-size: 16px; font-weight: 600; opacity: 0.7; margin-left: 1px; }
+  .kpi-sub { font-size: 11px; color: var(--ink-3); margin-top: 6px; line-height: 1.4; }
+
+  .triview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 18px 0;
+  }
+  .triview .row {
+    display: grid;
+    grid-template-columns: 220px 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .triview .row:last-child { border-bottom: none; }
+  .triview .row.head {
+    background: var(--bg);
+    font-size: 10px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .triview .row > div {
+    padding: 11px 16px;
+    font-size: 13px;
+    border-right: 1px solid var(--border-light);
+  }
+  .triview .row > div:last-child { border-right: none; }
+  .triview .label { color: var(--ink-2); font-weight: 500; }
+  .triview .num { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; }
+  .triview .num.dim { color: var(--ink-3); font-weight: 400; }
+  .triview .num.good { color: var(--green); }
+  .triview .num.bad { color: var(--red); }
+
+  .roi-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .roi-row {
+    display: grid;
+    grid-template-columns: 26px 200px 80px 80px 1fr 70px;
+    gap: 14px;
+    align-items: center;
+    padding: 11px 22px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .roi-row:last-child { border-bottom: none; }
+  .roi-row.featured { background: linear-gradient(90deg, rgba(34, 197, 94, 0.05), transparent 60%); }
+  .roi-row.danger { background: linear-gradient(90deg, rgba(239, 68, 68, 0.05), transparent 60%); }
+  .roi-row.head {
+    background: var(--bg);
+    font-size: 10px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 22px;
+  }
+  .roi-rank { font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .roi-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .roi-name .tag {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+  .roi-name .tag.best { background: var(--green-soft); color: var(--green); }
+  .roi-name .tag.worst { background: var(--red-soft); color: var(--red); }
+  .roi-name .tag.star { background: var(--purple-soft); color: var(--purple); }
+  .roi-metric { font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; }
+  .roi-metric strong { color: var(--ink); font-weight: 600; }
+  .roi-bar { height: 16px; background: var(--border-light); border-radius: 4px; overflow: hidden; }
+  .roi-bar-fill { height: 100%; border-radius: 4px; }
+  .roi-bar-fill.good { background: var(--green); }
+  .roi-bar-fill.bad { background: var(--red); }
+  .roi-bar-fill.warn { background: var(--amber); }
+  .roi-bar-fill.normal { background: var(--blue); }
+  .roi-bar-fill.star { background: var(--purple); }
+  .roi-value {
+    text-align: right;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .roi-value.good { color: var(--green); }
+  .roi-value.bad { color: var(--red); }
+  .roi-value.warn { color: var(--amber); }
+  .roi-value.star { color: var(--purple); }
+
+  .ch-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .ch-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 100px 100px 70px;
+    gap: 14px;
+    align-items: center;
+    padding: 13px 22px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .ch-row:last-child { border-bottom: none; }
+  .ch-row.head {
+    background: var(--bg);
+    font-size: 10px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 22px;
+  }
+  .ch-name { font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .ch-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .ch-bar { height: 22px; background: var(--border-light); border-radius: 4px; overflow: hidden; }
+  .ch-fill { height: 100%; background: var(--blue); border-radius: 4px; }
+  .ch-num { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .ch-num strong { color: var(--ink); font-weight: 600; }
+  .ch-roi {
+    text-align: right;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .ch-roi.star { color: var(--purple); }
+  .ch-roi.good { color: var(--green); }
+  .ch-roi.warn { color: var(--amber); }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 18px;
+    border-top: 3px solid var(--blue);
+  }
+  .week-card.peak { border-top-color: var(--green); background: linear-gradient(180deg, rgba(34, 197, 94, 0.04), transparent); }
+  .week-card.bad { border-top-color: var(--red); background: linear-gradient(180deg, rgba(239, 68, 68, 0.04), transparent); }
+  .week-name { font-size: 11px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .week-roi { font-size: 28px; font-weight: 700; color: var(--ink); line-height: 1; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .week-roi.good { color: var(--green); }
+  .week-roi.bad { color: var(--red); }
+  .week-stats { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; line-height: 1.55; }
+  .week-stats strong { color: var(--ink-2); font-weight: 600; }
+
+  .freq-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .freq-row {
+    display: grid;
+    grid-template-columns: 200px 80px 90px 100px 90px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+  }
+  .freq-row:last-child { border-bottom: none; }
+  .freq-row.head {
+    background: var(--bg);
+    font-size: 10px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 9px 22px;
+  }
+  .freq-name { font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .freq-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .freq-num { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .freq-num strong { color: var(--ink); font-weight: 600; }
+  .freq-pct { text-align: right; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .freq-pct.good { color: var(--green); }
+  .freq-pct.bad { color: var(--red); }
+  .freq-pct.warn { color: var(--amber); }
+  .freq-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--red-soft);
+    color: var(--red);
+    font-weight: 600;
+  }
+  .freq-tag.warn { background: var(--amber-soft); color: var(--amber); }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 22px 14px;
+    margin: 18px 0;
+  }
+  .chart-header {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .fatigue-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+  }
+  .fatigue-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-top: 3px solid var(--blue);
+  }
+  .fatigue-card.regus { border-top-color: var(--regus); }
+  .fatigue-card.favor { border-top-color: var(--favor); }
+  .fatigue-card.pagar { border-top-color: var(--pagar); }
+  .fatigue-card.cero  { border-top-color: var(--cero); }
+  .fatigue-head {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 8px;
+  }
+  .fatigue-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .fatigue-stats { text-align: right; font-size: 11px; color: var(--ink-3); line-height: 1.5; font-variant-numeric: tabular-nums; }
+  .fatigue-stats strong { color: var(--ink); font-weight: 600; }
+  .fatigue-chart { height: 110px; margin: 6px 0 8px; }
+  .fatigue-takeaway {
+    font-size: 12px; color: var(--ink-2);
+    line-height: 1.5; padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .fatigue-takeaway strong { color: var(--ink); font-weight: 600; }
+
+  /* TABBED FATIGUE COMPONENT */
+  .ft-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 24px 16px;
+    margin: 18px 0;
+  }
+  .ft-card .chart-header { margin-bottom: 6px; padding-bottom: 0; border-bottom: none; }
+  .ft-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin: 4px 0 14px;
+  }
+  .ft-title em { font-style: italic; font-weight: 500; }
+  .ft-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .ft-tab {
+    padding: 7px 16px;
+    border-radius: 100px;
+    background: transparent;
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .ft-tab:hover { background: var(--bg); }
+  .ft-tab.active {
+    background: var(--ink);
+    color: white;
+    font-weight: 600;
+  }
+  .ft-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 18px 0 6px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ft-meta-text {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .ft-burn {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--red);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .ft-chart-wrap {
+    height: 320px;
+    position: relative;
+    margin-top: 4px;
+  }
+
+  /* Side-by-side: chart card + patterns panel */
+  .ft-row {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 14px;
+    align-items: stretch;
+    margin: 18px 0;
+  }
+  .ft-row > .ft-card { margin: 0; }
+
+  .ft-patterns {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ft-patterns-head { margin-bottom: 4px; }
+  .ft-patterns-tag {
+    font-size: 10.5px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ft-patterns-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.25;
+    margin: 4px 0 6px;
+  }
+  .ftp-card {
+    background: var(--red-soft);
+    border-radius: 8px;
+    padding: 12px 14px;
+    flex: 1;
+  }
+  .ftp-card.amber { background: var(--amber-soft); }
+  .ftp-card.green { background: var(--green-soft); }
+  .ftp-num {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--red);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .ftp-card.amber .ftp-num { color: #B45309; }
+  .ftp-card.green .ftp-num { color: #15803D; }
+  .ftp-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1px;
+  }
+  .ftp-text {
+    font-size: 11.5px;
+    color: var(--ink-2);
+    line-height: 1.45;
+  }
+
+  .pareto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .pareto-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .pareto-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 60px 50px;
+    gap: 10px;
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--border-light);
+    align-items: center;
+    font-size: 12px;
+  }
+  .pareto-row:last-child { border-bottom: none; }
+  .pareto-row.head {
+    background: var(--bg);
+    font-size: 9px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+  }
+  .pareto-rank { color: var(--ink-3); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .pareto-name { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pareto-num { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .pareto-pct { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pareto-pct.good { color: var(--green); }
+  .pareto-pct.bad { color: var(--red); }
+
+  .recs {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 26px;
+    margin: 16px 0;
+  }
+  .rec-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .rec-item:last-child { border-bottom: none; }
+  .rec-num {
+    width: 26px; height: 26px;
+    background: var(--ink); color: white;
+    border-radius: 50%;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rec-num.green { background: var(--green); }
+  .rec-num.red { background: var(--red); }
+  .rec-num.amber { background: var(--amber); }
+  .rec-title { font-size: 14.5px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .rec-body { font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+  .rec-body strong { color: var(--ink); font-weight: 600; }
+  .rec-impact {
+    display: inline-block; margin-top: 8px;
+    font-size: 11px; padding: 3px 9px;
+    border-radius: 4px;
+    background: var(--green-soft); color: var(--green);
+    font-weight: 600;
+  }
+  .rec-impact.warn { background: var(--amber-soft); color: var(--amber); }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-3);
+    text-align: center;
+  }
+
+  /* PATRONES (lista numerada con cuantificación) */
+  .patterns {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+  .pattern {
+    display: grid;
+    grid-template-columns: 60px 1fr 110px;
+    gap: 18px;
+    align-items: center;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .pattern:last-child { border-bottom: none; }
+  .pattern-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--ink-3);
+    line-height: 1;
+    font-style: italic;
+  }
+  .pattern-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  .pattern-text strong { color: var(--ink); font-weight: 600; }
+  .pattern-metric {
+    text-align: right;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--red);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .pattern-metric.amber { color: var(--amber); }
+  .pattern-metric .label {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 9.5px;
+    color: var(--ink-3);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* COST CALLOUT */
+  .cost-callout {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.04), rgba(245, 158, 11, 0.04));
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--red);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .cost-callout-stat {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--red);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .cost-callout-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+  .cost-callout-text strong { color: var(--ink); font-weight: 600; }
+
+  /* ELASTICIDAD REGIONES */
+  .regions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .region-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-top: 3px solid var(--blue);
+  }
+  .region-card.sweet { border-top-color: var(--green); }
+  .region-card.cliff { border-top-color: var(--amber); }
+  .region-card.dead  { border-top-color: var(--ink-3); }
+  .region-tag {
+    font-size: 9.5px;
+    color: var(--ink-3);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .region-tag.sweet { color: var(--green); }
+  .region-tag.cliff { color: var(--amber); }
+  .region-tag.dead { color: var(--ink-3); }
+  .region-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .region-range { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; font-variant-numeric: tabular-nums; }
+  .region-text { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; }
+  .region-text strong { color: var(--ink); font-weight: 600; }
+
+  @media (max-width: 1100px) {
+    .kpi-grid, .week-grid { grid-template-columns: repeat(2, 1fr); }
+    .regions-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 820px) {
+    main { padding: 28px 18px; }
+    .report-head h1 { font-size: 32px; }
+    h2 { font-size: 24px; }
+    .fatigue-grid, .pareto-grid, .ft-row { grid-template-columns: 1fr; }
+    .ft-chart-wrap { height: 280px; }
+    .ft-burn { font-size: 26px; }
+    .pattern { grid-template-columns: 40px 1fr; gap: 14px; padding: 14px 18px; }
+    .pattern-num { font-size: 28px; }
+    .pattern-metric { grid-column: 2; text-align: left; font-size: 20px; }
+    .triview { background: transparent; border: none; border-radius: 0; }
+    .triview .row.head { display: none; }
+    .triview .row {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 12px 14px;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas: "label label label" "v1 v2 v3";
+      gap: 6px 10px;
+    }
+    .triview .row > div { border: none !important; padding: 0; }
+    .triview .row > div:first-child {
+      grid-area: label;
+      font-size: 10.5px;
+      color: var(--ink-3);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-light) !important;
+      margin-bottom: 4px;
+    }
+    .triview .row > div:nth-child(2) { grid-area: v1; }
+    .triview .row > div:nth-child(3) { grid-area: v2; }
+    .triview .row > div:nth-child(4) { grid-area: v3; }
+    .triview .row > div:nth-child(n+2) { text-align: center; font-size: 14px; line-height: 1.2; }
+    .triview .row > div:nth-child(n+2)::after {
+      display: block;
+      font-size: 8.5px; color: var(--ink-3);
+      font-weight: 600; letter-spacing: 0.08em;
+      margin-top: 3px;
+    }
+    .triview .row > div:nth-child(2)::after { content: "TOTAL"; }
+    .triview .row > div:nth-child(3)::after { content: "PRE-20"; }
+    .triview .row > div:nth-child(4)::after { content: "POST-20"; }
+    .roi-list, .ch-list, .freq-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .roi-row, .roi-row.head { min-width: 720px; }
+    .ch-row, .ch-row.head { min-width: 580px; }
+    .freq-row, .freq-row.head { min-width: 700px; }
+  }
+  @media (max-width: 560px) {
+    .kpi-grid, .week-grid { grid-template-columns: 1fr; }
+    .topbar { padding: 12px 18px; }
+    .topbar-title { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo-text">heru</div>
+    <div class="topbar-title">Postmortem · Outbound Abril 2026</div>
+  </div>
+  <div class="topbar-right">
+    <span><span class="status-dot"></span>Actualizado 4/5/2026</span>
+  </div>
+</div>
+
+<main>
+
+<div class="report-head">
+  <div class="eyebrow">REPORTE MENSUAL · OUTBOUND</div>
+  <h1>Postmortem · <em>Temporada Declaración Anual</em></h1>
+  <p class="lead">El canal outbound atribuyó <strong>$2.29M MXN</strong> en revenue al mes (proyección a partir de la única ventana con data deduplicada) sobre $23,486 USD invertidos. ROI de <strong>5.4x</strong>, conversión real de <strong>0.74%</strong>, y un patrón estructural de fatiga severo: las audiencias top recibieron entre 8 y 17 días de envíos durante abril.</p>
+</div>
+
+<div class="tldr">
+  <h3>RESUMEN EJECUTIVO</h3>
+  <p>El programa de outbound generó <strong>$2.29M MXN de revenue atribuido</strong> sobre $422K MXN invertidos en abril (ROI 5.4x). La ineficiencia se concentra en dos lugares específicos: <strong>la audiencia <code>no-vinculados</code> consumió 23% del presupuesto y generó ROI 0.2x</strong> (pérdida neta ~$79K MXN), y <strong>la segunda semana del mes absorbió 43% del costo y devolvió solo 14% del revenue</strong> (ROI 1.7x).</p>
+  <p>El hallazgo más fuerte es la <strong>fatiga de audiencias</strong>. Saldo a favor recibió envíos durante <strong>17 días</strong> en abril, Saldo a pagar 14 días, Reguz 16 días y Saldo en cero 8 días. El response rate se aplanó en un piso de 0.5% durante 9 días seguidos sin recuperación, sin importar cuánto se subiera el descuento.</p>
+  <p>Tres movimientos identificados pueden generar <strong>$594K-$1.5M MXN incrementales</strong> el próximo ciclo sin aumentar el presupuesto: cortar <code>no-vinculados</code>, limitar la frecuencia a 2 hits por audiencia con espaciado mínimo de 7 días, y multiplicar el ángulo Crossell sobre Reguz y Base-Activa.</p>
+</div>
+
+<!-- ============= 1. METODOLOGÍA ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 1 · METODOLOGÍA</div>
+  <h2>De dónde sale el <em>$2.29M</em></h2>
+  <p>La data tiene un problema estructural en las primeras dos semanas del mes: usuarios que aparecían en múltiples audiencias hacían que cada conversión fuera atribuida varias veces. La suma bruta del CSV de campañas da $2.92M, lo que es incluso <em>mayor</em> que el total de ventas de la empresa en abril ($2.8M), confirmando la sobreatribución. <strong>Desde el 20 de abril la deduplicación está aplicada</strong>, así que esa ventana es la única confiable.</p>
+
+  <p>El método: tomamos los <strong>rates per-envío</strong> del periodo limpio post-20-Abr y los proyectamos al mes completo. Las 15 campañas post-20-Abr generaron 1,065 conversiones y $767K MXN de revenue sobre 143,063 envíos — eso es <strong>0.74% de conversión</strong> y <strong>$5.36 MXN de revenue por envío</strong>. Aplicado a los 427,269 envíos totales del mes, da <strong>$2.29M MXN</strong>.</p>
+
+  <div class="triview">
+    <div class="row head">
+      <div>Métrica</div>
+      <div>Sumado bruto (con dupes)</div>
+      <div>Proyectado limpio</div>
+      <div>Diferencia</div>
+    </div>
+    <div class="row">
+      <div class="label">Conversiones</div>
+      <div class="num">3,758</div>
+      <div class="num good">3,181</div>
+      <div class="num bad">−577 (15%)</div>
+    </div>
+    <div class="row">
+      <div class="label">Revenue atribuido</div>
+      <div class="num">$2.92M</div>
+      <div class="num good">$2.29M</div>
+      <div class="num bad">−$629K (22%)</div>
+    </div>
+    <div class="row">
+      <div class="label">Conv. global</div>
+      <div class="num">0.88%</div>
+      <div class="num good">0.74%</div>
+      <div class="num bad">−0.14pp</div>
+    </div>
+    <div class="row">
+      <div class="label">ROI sobre $422K</div>
+      <div class="num">6.9x</div>
+      <div class="num good">5.4x</div>
+      <div class="num bad">−1.5x</div>
+    </div>
+  </div>
+
+  <p>De acá en adelante todos los números del reporte usan la <strong>vista corregida</strong>. Las audiencias y semanas post-20-Abr se reportan tal cual (data ya limpia). Las audiencias y semanas que abarcan pre-20-Abr se ajustan por el factor de proyección. <strong>El $2.92M sumado no aparece más en el resto del reporte — lo dejamos enterrado acá.</strong></p>
+
+  <div class="quality-banner">
+    <div class="icon">📐</div>
+    <div class="content"><strong>Es una proyección conservadora.</strong> Pre-20-Abr era el peak SAT (audiencias frescas + first hits + urgencia natural) — los rates reales pre-20 fueron probablemente más altos que los post-20 que estamos usando como base. El revenue real del canal podría estar entre $2.29M (piso conservador) y $2.5M-$2.7M (estimado central). Nos quedamos con el piso para no sobrevender.</div>
+  </div>
+</section>
+
+<!-- ============= 2. KPIs ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 2 · KPIS GLOBALES</div>
+  <h2>Resultados del <em>mes</em></h2>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Revenue Atribuido</div>
+      <div class="kpi-value">$2.29<span class="unit">M</span></div>
+      <div class="kpi-sub">MXN · proyección desde data limpia · piso conservador</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Inversión Canal</div>
+      <div class="kpi-value">$23.5<span class="unit">K USD</span></div>
+      <div class="kpi-sub">$422K MXN @ TC 18 · $0.055 / envío</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ROI del Mes</div>
+      <div class="kpi-value positive">5.4<span class="unit">x</span></div>
+      <div class="kpi-sub">$2.29M / $422K · sin descontar margen</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Conversión Real</div>
+      <div class="kpi-value positive">0.74<span class="unit">%</span></div>
+      <div class="kpi-sub">tasa per envío · base post-20-Abr limpia</div>
+    </div>
+  </div>
+
+  <p>Los $2.29M de revenue del canal NO equivalen al $2.8M de ventas totales de la empresa en abril — esos $2.8M incluyen orgánico, web, paid media de Google/Meta/TikTok. El outbound aporta una fracción importante pero no toda.</p>
+</section>
+
+<!-- ============= 3. ROI POR AUDIENCIA ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 3 · PERFORMANCE POR AUDIENCIA</div>
+  <h2>Quién <em>paga</em> y quién <em>quema</em></h2>
+  <p>El ranking de ROI con la data limpia (post-20-Abr) muestra una distribución muy clara. <strong>Tres audiencias concentran la eficiencia</strong> (Base-Activa, Anual-saldo-contra y Reguz), <strong>tres están en zona muerta</strong> (vinculados, Churn, Anual-saldo-0) y <code>no-vinculados</code> es un caso aparte que perdió plata neta y va abajo.</p>
+
+  <h3>Ranking ROI · Data limpia (post 20-Abr)</h3>
+
+  <div class="roi-list">
+    <div class="roi-row head">
+      <span>#</span><span>Audiencia</span><span style="text-align:right">Envíos</span><span style="text-align:right">Conv.</span><span>Performance</span><span style="text-align:right">ROI</span>
+    </div>
+    <div class="roi-row featured">
+      <span class="roi-rank">01</span>
+      <span class="roi-name">Base-Activa <span class="tag best">Top eficiencia</span></span>
+      <span class="roi-metric">11,979</span>
+      <span class="roi-metric"><strong>1.71%</strong></span>
+      <div class="roi-bar"><div class="roi-bar-fill good" style="width: 100%"></div></div>
+      <span class="roi-value good">8.4x</span>
+    </div>
+    <div class="roi-row">
+      <span class="roi-rank">02</span>
+      <span class="roi-name">Anual-saldo-contra</span>
+      <span class="roi-metric">39,049</span>
+      <span class="roi-metric"><strong>1.08%</strong></span>
+      <div class="roi-bar"><div class="roi-bar-fill good" style="width: 88%"></div></div>
+      <span class="roi-value good">7.4x</span>
+    </div>
+    <div class="roi-row">
+      <span class="roi-rank">03</span>
+      <span class="roi-name">Reguz</span>
+      <span class="roi-metric">36,461</span>
+      <span class="roi-metric">0.31%</span>
+      <div class="roi-bar"><div class="roi-bar-fill good" style="width: 60%"></div></div>
+      <span class="roi-value good">5.0x</span>
+    </div>
+    <div class="roi-row">
+      <span class="roi-rank">04</span>
+      <span class="roi-name">Anual-saldo-favor</span>
+      <span class="roi-metric">42,174</span>
+      <span class="roi-metric">0.69%</span>
+      <div class="roi-bar"><div class="roi-bar-fill normal" style="width: 49%"></div></div>
+      <span class="roi-value">4.1x</span>
+    </div>
+    <div class="roi-row">
+      <span class="roi-rank">05</span>
+      <span class="roi-name">vinculados</span>
+      <span class="roi-metric">3,257</span>
+      <span class="roi-metric">0.31%</span>
+      <div class="roi-bar"><div class="roi-bar-fill normal" style="width: 38%"></div></div>
+      <span class="roi-value">3.2x</span>
+    </div>
+    <div class="roi-row">
+      <span class="roi-rank">06</span>
+      <span class="roi-name">Churn</span>
+      <span class="roi-metric">2,754</span>
+      <span class="roi-metric">0.22%</span>
+      <div class="roi-bar"><div class="roi-bar-fill warn" style="width: 31%"></div></div>
+      <span class="roi-value warn">2.6x</span>
+    </div>
+    <div class="roi-row">
+      <span class="roi-rank">07</span>
+      <span class="roi-name">Anual-saldo-0 <span class="tag worst">Casi break-even</span></span>
+      <span class="roi-metric">7,389</span>
+      <span class="roi-metric">0.23%</span>
+      <div class="roi-bar"><div class="roi-bar-fill warn" style="width: 18%"></div></div>
+      <span class="roi-value warn">1.5x</span>
+    </div>
+  </div>
+
+  <p><strong>Base-Activa</strong> es la más eficiente del periodo limpio: 8.4x ROI con la conversión más alta del mes (1.71%) — son usuarios que ya conocen el producto, fricción de adquisición mínima. <strong>Anual-saldo-contra</strong> combina volumen + intención (deuda con SAT = urgencia natural) con ROI 7.4x. <strong>Reguz</strong> tiene conversión baja (0.31%) pero ticket alto (10.6 items por conversión), por eso da ROI 5.0x.</p>
+
+  <p><strong>Anual-saldo-0 está casi en break-even</strong>. Sin saldo a favor ni en contra, sin urgencia natural — apenas paga el envío. Es candidata clara a recortar el próximo ciclo. Lo mismo con <strong>Churn vía descuento puro</strong>: ni con 95-off responde — necesita otra mecánica.</p>
+
+  <h3>Audiencias pre-20-Abr (con corrección por proyección)</h3>
+
+  <p>Tres audiencias importantes solo tuvieron campañas pre-20-Abr y no aparecen arriba. Con el factor de corrección aplicado al revenue reportado:</p>
+
+  <div class="roi-list">
+    <div class="roi-row head">
+      <span>#</span><span>Audiencia</span><span style="text-align:right">Envíos</span><span style="text-align:right">Costo</span><span>Performance</span><span style="text-align:right">ROI</span>
+    </div>
+    <div class="roi-row featured">
+      <span class="roi-rank">⭐</span>
+      <span class="roi-name">Anual-con-reguz <span class="tag star">Outlier</span></span>
+      <span class="roi-metric">342</span>
+      <span class="roi-metric">$339</span>
+      <div class="roi-bar"><div class="roi-bar-fill star" style="width: 100%"></div></div>
+      <span class="roi-value star">124x</span>
+    </div>
+    <div class="roi-row featured">
+      <span class="roi-rank">⭐</span>
+      <span class="roi-name">Usuarios-sin-Producto <span class="tag star">Email</span></span>
+      <span class="roi-metric">35,079</span>
+      <span class="roi-metric">$34,728</span>
+      <div class="roi-bar"><div class="roi-bar-fill star" style="width: 100%"></div></div>
+      <span class="roi-value star">13.8x</span>
+    </div>
+    <div class="roi-row danger">
+      <span class="roi-rank">⊘</span>
+      <span class="roi-name">no-vinculados <span class="tag worst">Pérdida neta</span></span>
+      <span class="roi-metric">99,998</span>
+      <span class="roi-metric">$98,998</span>
+      <div class="roi-bar"><div class="roi-bar-fill bad" style="width: 1%"></div></div>
+      <span class="roi-value bad">0.2x</span>
+    </div>
+  </div>
+
+  <h3>El hallazgo grande: no-vinculados perdió plata</h3>
+
+  <p>Esa audiencia consumió <strong>23% del presupuesto del mes</strong> ($99K MXN ≈ $5,500 USD) y devolvió ~$15.5K MXN en revenue corregido. <strong>Pérdida neta ~$83K MXN</strong>. Dos campañas con descuentos brutales (95-off y 80-off) convirtieron 0.03% en total. La audiencia parece mal definida, mal targeteada o el producto no les hace sentido — diagnóstico obligatorio antes de volver a impactarla.</p>
+
+  <h3>Outliers a estudiar</h3>
+
+  <p><strong>Anual-con-reguz</strong> (1 campaña, 50% off): 342 envíos → 45 conversiones (13.16%), $156 rev/usuario, ROI 124x corregido. La jugada más eficiente del mes por mucho. Si la composición es replicable, hay una palanca enorme. <strong>Usuarios-sin-Producto</strong> (3 campañas, las únicas via Email): 791 conversiones sobre 35K envíos, ROI 13.8x corregido. Es la audiencia con mejor combinación de volumen + eficiencia, aunque sospechamos que parte del ROI viene del canal Email y no de la audiencia per se.</p>
+</section>
+
+<!-- ============= 4. ROI POR CANAL ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 4 · PERFORMANCE POR CANAL</div>
+  <h2>El canal que <em>multiplica</em></h2>
+  <p>WhatsApp es el caballo de batalla del programa: 84% del volumen, 70% del revenue, ROI 4.5x. Modesto pero a esa escala mueve la facturación. Pero el canal con mejor retorno es claramente <strong>Email</strong>, con un ROI 4.4x mayor que WhatsApp.</p>
+
+  <div class="ch-list">
+    <div class="ch-row head">
+      <span>Canal</span><span>Revenue (corregido)</span><span style="text-align:right">Costo MXN</span><span style="text-align:right">Rev/User</span><span style="text-align:right">ROI</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name"><span class="ch-dot" style="background:var(--purple)"></span>Email</span>
+      <div class="ch-bar"><div class="ch-fill" style="background:var(--purple); width: 28%"></div></div>
+      <span class="ch-num">$23,117</span>
+      <span class="ch-num"><strong>$19.70</strong></span>
+      <span class="ch-roi star">19.9x</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name"><span class="ch-dot" style="background:var(--green)"></span>Multicanal</span>
+      <div class="ch-bar"><div class="ch-fill" style="background:var(--green); width: 13%"></div></div>
+      <span class="ch-num">$31,826</span>
+      <span class="ch-num"><strong>$6.62</strong></span>
+      <span class="ch-roi good">6.7x</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name"><span class="ch-dot" style="background:var(--blue)"></span>WhatsApp</span>
+      <div class="ch-bar"><div class="ch-fill" style="background:var(--blue); width: 100%"></div></div>
+      <span class="ch-num">$356,439</span>
+      <span class="ch-num"><strong>$4.45</strong></span>
+      <span class="ch-roi">4.5x</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name"><span class="ch-dot" style="background:var(--amber)"></span>Push</span>
+      <div class="ch-bar"><div class="ch-fill" style="background:var(--amber); width: 1%"></div></div>
+      <span class="ch-num">$11,614</span>
+      <span class="ch-num"><strong>$1.59</strong></span>
+      <span class="ch-roi warn">1.6x</span>
+    </div>
+  </div>
+
+  <p>El asterisco de Email es que las 3 campañas que se corrieron fueron todas a "Usuarios-sin-Producto" — no se puede separar canal de audiencia con esta data. Pero $19.70 de rev/usuario son difíciles de explicar solo por la audiencia. Hay que probarlo en otras audiencias para aislar el efecto.</p>
+
+  <div class="quality-banner">
+    <div class="icon">💡</div>
+    <div class="content"><strong>El modelo de costo asume $0.055/envío uniforme</strong> — razonable para WhatsApp pero probablemente sobreestima Email y Push (que típicamente cuestan &lt;$0.001/envío). Si normalizás el costo real por canal, el ROI de Email sería mucho más alto y el de WhatsApp se mantendría parecido. Por eso nos quedamos con el supuesto conservador.</div>
+  </div>
+</section>
+
+<!-- ============= 5. CALENDARIO ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 5 · OPTIMIZACIÓN DEL CALENDARIO</div>
+  <h2>El problema no era el <em>presupuesto</em>, era el <em>cuándo</em></h2>
+  <p>Si se mira abril semana a semana (con revenue corregido por proyección en S1 y S2), la distribución es brutal: <strong>la primera semana fue el momento de oro y la segunda fue donde se perdió la mayor parte del dinero</strong>. S1 corrió 12 campañas a audiencias frescas con descuentos chicos y rindió 12.4x. S2 corrió 9 campañas re-impactando audiencias ya tocadas más el lanzamiento de <code>no-vinculados</code> con descuentos brutales — rindió 1.7x.</p>
+
+  <div class="week-grid">
+    <div class="week-card peak">
+      <div class="week-name">S1 · 8-12 ABR</div>
+      <div class="week-roi good">12.4x</div>
+      <div class="week-stats">
+        <strong>12 campañas · 99K envíos</strong><br>
+        Revenue: $1.21M corregido<br>
+        Costo: $98K MXN<br>
+        First hits + descuentos chicos
+      </div>
+    </div>
+    <div class="week-card bad">
+      <div class="week-name">S2 · 13-19 ABR</div>
+      <div class="week-roi bad">1.7x</div>
+      <div class="week-stats">
+        <strong>9 campañas · 185K envíos</strong><br>
+        Revenue: $309K corregido<br>
+        Costo: $183K MXN<br>
+        Re-hit + lanzamiento no-vinculados
+      </div>
+    </div>
+    <div class="week-card">
+      <div class="week-name">S3 · 20-26 ABR</div>
+      <div class="week-roi">5.4x</div>
+      <div class="week-stats">
+        <strong>9 campañas · 83K envíos</strong><br>
+        Revenue: $444K (data limpia)<br>
+        Costo: $82K MXN<br>
+        Cierre + Crossell
+      </div>
+    </div>
+    <div class="week-card">
+      <div class="week-name">S4 · 27 ABR-3 MAY</div>
+      <div class="week-roi">5.5x</div>
+      <div class="week-stats">
+        <strong>6 campañas · 60K envíos</strong><br>
+        Revenue: $322K (data limpia)<br>
+        Costo: $59K MXN<br>
+        Post-deadline
+      </div>
+    </div>
+  </div>
+
+  <p><strong>S2 absorbió el 43% del presupuesto del mes y devolvió 14% del revenue.</strong> Es la semana donde se concentra prácticamente toda la ineficiencia del programa. <strong>Si solo se replanteara S2 dejando todo lo demás igual, se recupera el grueso de la inversión perdida del mes.</strong></p>
+
+  <p><strong>S3-S4 están subutilizadas.</strong> Con 33% de los envíos del mes generaron 33% del revenue corregido con ROI sano (5.4-5.5x). Hay espacio para trasladar volumen a estas semanas si se sostiene la calidad de las audiencias.</p>
+</section>
+
+<!-- ============= 6. FATIGA REAL ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 6 · FATIGA REAL DE AUDIENCIA</div>
+  <h2>Cuántas veces le pegamos a la <em>misma base</em></h2>
+  <p>Las audiencias top no recibieron 4-6 hits — recibieron entre 8 y 17 días de envíos en abril. <strong>Saldo a favor</strong> tuvo envíos durante 17 días, <strong>Reguz</strong> 16 días, <strong>Saldo a pagar</strong> 14 días y <strong>Saldo en cero</strong> 8 días seguidos. Esto explica por qué la respuesta colapsa después del primer hit y se sostiene en piso por días enteros.</p>
+
+  <div class="freq-table">
+    <div class="freq-row head">
+      <span>Audiencia</span>
+      <span style="text-align:right">Envíos reales</span>
+      <span style="text-align:right">Días activos</span>
+      <span style="text-align:right">Templates</span>
+      <span style="text-align:right">Resp. promedio</span>
+      <span>Estado</span>
+    </div>
+    <div class="freq-row">
+      <span class="freq-name"><span class="freq-dot" style="background:var(--favor)"></span>Saldo a favor</span>
+      <span class="freq-num"><strong>251,353</strong></span>
+      <span class="freq-num"><strong>17 días</strong></span>
+      <span class="freq-num">20</span>
+      <span class="freq-pct warn">1.10%</span>
+      <span><span class="freq-tag">Fatiga severa</span></span>
+    </div>
+    <div class="freq-row">
+      <span class="freq-name"><span class="freq-dot" style="background:var(--pagar)"></span>Saldo a pagar</span>
+      <span class="freq-num"><strong>241,036</strong></span>
+      <span class="freq-num"><strong>14 días</strong></span>
+      <span class="freq-num">15</span>
+      <span class="freq-pct bad">0.89%</span>
+      <span><span class="freq-tag">Fatiga severa</span></span>
+    </div>
+    <div class="freq-row">
+      <span class="freq-name"><span class="freq-dot" style="background:var(--regus)"></span>Reguz</span>
+      <span class="freq-num"><strong>174,532</strong></span>
+      <span class="freq-num"><strong>16 días</strong></span>
+      <span class="freq-num">22</span>
+      <span class="freq-pct warn">1.08%</span>
+      <span><span class="freq-tag warn">Bimodal</span></span>
+    </div>
+    <div class="freq-row">
+      <span class="freq-name"><span class="freq-dot" style="background:var(--cero)"></span>Saldo en cero</span>
+      <span class="freq-num"><strong>26,810</strong></span>
+      <span class="freq-num"><strong>8 días</strong></span>
+      <span class="freq-num">8</span>
+      <span class="freq-pct bad">0.70%</span>
+      <span><span class="freq-tag">No responde</span></span>
+    </div>
+  </div>
+
+  <p>Esto explica por qué la respuesta colapsa después del primer hit. <strong>Saldo a favor</strong> recibió mensajes durante 17 días no consecutivos pero con 9 días seguidos del 21 al 30 de abril. <strong>Saldo a pagar</strong> tuvo cadencia diaria del 19 al 28 de abril (8 de 10 días). <strong>Saldo en cero</strong> tuvo goteo diario del 22 al 30 (9 días seguidos).</p>
+
+  <p>El patrón es el mismo en los tres: <strong>los primeros 2-3 días concentran ~50% del revenue del segmento</strong> con 15-20% del volumen. El resto del calendario es una larga cola de envíos a audiencia quemada con response rates de 0.4-0.7% sin recuperación posible aunque suba el descuento al 90%.</p>
+
+  <h3>Curvas día por día</h3>
+
+  <div class="ft-row">
+    <div class="ft-card">
+      <div class="chart-header" style="display:flex; justify-content:space-between; align-items:baseline;">
+        <span>TASA DE RESPUESTA DIARIA</span>
+        <span style="font-size:10px; color:var(--ink-3); letter-spacing:0.05em; text-transform:none;">fuente: <em style="font-family:'SF Mono',monospace; padding:1px 5px; background:var(--bg); border-radius:3px;">CSV mes completo</em></span>
+      </div>
+      <h3 class="ft-title" style="margin-top:0;">Las 3 audiencias diarias se <em>quemaron</em></h3>
+      <div class="ft-tabs">
+        <button class="ft-tab active" data-aud="pagar">Saldo a pagar</button>
+        <button class="ft-tab" data-aud="favor">Saldo a favor</button>
+        <button class="ft-tab" data-aud="regus">Reguz</button>
+      </div>
+      <div class="ft-meta">
+        <span class="ft-meta-text" id="ftMetaText">12 envíos · 8 abr → 30 abr · base ≈18K usuarios/día</span>
+        <span class="ft-burn" id="ftBurn">−77%</span>
+      </div>
+      <div class="ft-chart-wrap">
+        <canvas id="chFatigueTab"></canvas>
+      </div>
+    </div>
+
+    <div class="ft-patterns">
+      <div class="ft-patterns-head">
+        <div class="ft-patterns-tag">4 PATRONES DE FATIGA</div>
+        <div class="ft-patterns-title">Qué se repite en las <em style="font-style:italic;">3 audiencias</em></div>
+      </div>
+      <div class="ftp-card">
+        <div class="ftp-num">−50%</div>
+        <div class="ftp-title">Caída al segundo día</div>
+        <div class="ftp-text">Mismo mensaje al día siguiente pierde 30–50% de respuesta.</div>
+      </div>
+      <div class="ftp-card amber">
+        <div class="ftp-num">día 4</div>
+        <div class="ftp-title">Punto de quiebre</div>
+        <div class="ftp-text">Al cuarto envío seguido la respuesta cae bajo 30% del baseline.</div>
+      </div>
+      <div class="ftp-card green">
+        <div class="ftp-num">+3×</div>
+        <div class="ftp-title">Rebote con copy nuevo</div>
+        <div class="ftp-text">Los picos coinciden con cambio de mensaje, no de descanso.</div>
+      </div>
+      <div class="ftp-card">
+        <div class="ftp-num">−15%</div>
+        <div class="ftp-title">Daño permanente</div>
+        <div class="ftp-text">Cae también la entrega → usuarios bloqueando el chat.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cost-callout">
+    <div class="cost-callout-stat">4×</div>
+    <div class="cost-callout-text">El <strong>costo efectivo por respuesta sube 4× cuando la respuesta cae a 0.5%</strong>. Aunque el costo por mensaje sea fijo en $0.99 MXN, un envío diario sin rotación es matemáticamente más caro cada día que pasa: a 2.2% costó $45 por respuesta, a 0.5% cuesta $198 por respuesta.</div>
+  </div>
+</section>
+
+<!-- ============= 7. ELASTICIDAD DEL DESCUENTO ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 7 · ELASTICIDAD DEL DESCUENTO</div>
+  <h2>Hasta dónde paga el <em>descuento</em></h2>
+  <p>La última semana de abril se corrió un experimento controlado: bajar 10 puntos de descuento por día desde 90% hasta 10%, manteniendo audiencia y mensaje constantes. El resultado revela <strong>tres regiones bien diferenciadas</strong> en la curva de elasticidad y una excepción importante por audiencia.</p>
+
+  <div class="chart-card">
+    <div class="chart-header">REDENCIONES POR NIVEL DE DESCUENTO · EXPERIMENTO ÚLTIMA SEMANA ABRIL</div>
+    <div style="height: 280px; position: relative;"><canvas id="chElasticidad"></canvas></div>
+  </div>
+
+  <div class="regions-grid">
+    <div class="region-card sweet">
+      <div class="region-tag sweet">PUNTO DULCE</div>
+      <div class="region-name">Elasticidad lineal</div>
+      <div class="region-range">70% – 90% off</div>
+      <div class="region-text">Cada 10 puntos de descuento que se quitan reducen las redenciones aproximadamente <strong>50%</strong>. La curva es predecible y el descuento está pagando por sí mismo en términos de respuesta.</div>
+    </div>
+    <div class="region-card cliff">
+      <div class="region-tag cliff">CAÍDA FUERTE</div>
+      <div class="region-name">El acantilado</div>
+      <div class="region-range">50% – 70% off</div>
+      <div class="region-text">Pasar de 70 a 60 sigue siendo caída del 20%, pero la siguiente caída de <strong>60 a 50 es del 75%</strong>. Es el quiebre real de la curva — zona de alta sensibilidad.</div>
+    </div>
+    <div class="region-card dead">
+      <div class="region-tag dead">ZONA MUERTA</div>
+      <div class="region-name">Meseta residual</div>
+      <div class="region-range">≤ 40% off</div>
+      <div class="region-text">A partir de 50% off las redenciones se estabilizan en <strong>~10/día sin importar el nivel</strong>. Es demanda residual que no responde al descuento — son los usuarios que iban a comprar igual.</div>
+    </div>
+  </div>
+
+  <h3>La excepción que rompe la curva</h3>
+
+  <p><strong>Anual-saldo-contra convierte igual o mejor con 30% que con 90%.</strong> Es la audiencia que ya tiene urgencia propia (deuda con SAT) — el descuento no es lo que mueve la conversión, sino la fecha límite. Por eso la curva de elasticidad <strong>tiene que leerse por audiencia, no de forma global</strong>: aplicar 90% off a saldo-contra es regalar margen sin ganancia incremental.</p>
+
+  <h3>Regla operativa</h3>
+
+  <div class="cost-callout" style="border-left-color: var(--amber); background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(34, 197, 94, 0.04));">
+    <div class="cost-callout-stat" style="color: var(--amber);">40–60%</div>
+    <div class="cost-callout-text">Cualquier campaña con descuento entre <strong>40% y 60% está en zona ineficiente</strong>: paga descuento alto sin la conversión que justifica el sweet spot, o tira margen residual sin activar elasticidad. <strong>O subes a 70+ para activar elasticidad lineal, o bajas a 10–30% si la audiencia tiene urgencia propia.</strong> La franja del medio es donde se quema margen sin retorno.</div>
+  </div>
+</section>
+
+<!-- ============= 8. PARETO TEMPLATES ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 8 · PARETO DE TEMPLATES · WHATSAPP</div>
+  <h2>Lo que <em>responde</em> y lo que <em>sangra</em></h2>
+  <p>El canal WhatsApp procesó 1.33M envíos en 343 templates con 34K respuestas (2.56% global). <strong>Solo 89 templates (26%) generan el 80% de las respuestas</strong> — ahí está casi todo el valor del canal.</p>
+
+  <p>Patrón importante: los templates ganadores del canal <strong>no son de adquisición pura</strong> — son de funnel. Renovaciones, mid-funnel, sign-ups, leads web, Crossell. La adquisición fría con <code>saldo_*</code> y <code>regus_*</code> diarios es donde está el grueso del volumen pero responde 5-10x peor.</p>
+
+  <div class="pareto-grid">
+    <div class="pareto-table">
+      <div class="pareto-row head">
+        <span>#</span><span>TOP 10 GANADORES</span><span style="text-align:right">ENVÍOS</span><span style="text-align:right">% RESP</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">01</span>
+        <span class="pareto-name">renovacion_Fernanda</span>
+        <span class="pareto-num">42,254</span>
+        <span class="pareto-pct good">9.3%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">02</span>
+        <span class="pareto-name">Decl. Anual - Pendientes Aprob.</span>
+        <span class="pareto-num">31,389</span>
+        <span class="pareto-pct good">8.8%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">03</span>
+        <span class="pareto-name">sin_anual_090426</span>
+        <span class="pareto-num">11,630</span>
+        <span class="pareto-pct good">8.0%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">04</span>
+        <span class="pareto-name">paty_sign_up</span>
+        <span class="pareto-num">1,978</span>
+        <span class="pareto-pct good">39.8%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">05</span>
+        <span class="pareto-name">regus_combo_anual&regus_marzo</span>
+        <span class="pareto-num">8,829</span>
+        <span class="pareto-pct good">8.1%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">06</span>
+        <span class="pareto-name">Reguz Platech 11:59pm 70%</span>
+        <span class="pareto-num">17,270</span>
+        <span class="pareto-pct good">4.0%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">07</span>
+        <span class="pareto-name">sr_70_off_ultimas_horas</span>
+        <span class="pareto-num">8,295</span>
+        <span class="pareto-pct good">7.7%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">08</span>
+        <span class="pareto-name">maria_lead_web_apertura</span>
+        <span class="pareto-num">1,257</span>
+        <span class="pareto-pct good">49.0%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">09</span>
+        <span class="pareto-name">Vinculacion_exitosa_2025</span>
+        <span class="pareto-num">5,676</span>
+        <span class="pareto-pct good">10.0%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">10</span>
+        <span class="pareto-name">regus_black_friday</span>
+        <span class="pareto-num">6,105</span>
+        <span class="pareto-pct good">6.8%</span>
+      </div>
+    </div>
+
+    <div class="pareto-table">
+      <div class="pareto-row head">
+        <span>#</span><span>TOP 10 PEORES (sangrado)</span><span style="text-align:right">ENVÍOS</span><span style="text-align:right">% RESP</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">01</span>
+        <span class="pareto-name">saldo_pagar_240426</span>
+        <span class="pareto-num">18,948</span>
+        <span class="pareto-pct bad">0.4%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">02</span>
+        <span class="pareto-name">saldo_pagar_270426</span>
+        <span class="pareto-num">18,939</span>
+        <span class="pareto-pct bad">0.6%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">03</span>
+        <span class="pareto-name">saldo_pagar_250426</span>
+        <span class="pareto-num">18,945</span>
+        <span class="pareto-pct bad">0.5%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">04</span>
+        <span class="pareto-name">saldo_pagar_230426</span>
+        <span class="pareto-num">18,989</span>
+        <span class="pareto-pct bad">0.6%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">05</span>
+        <span class="pareto-name">sin_anual_con_regus_230426</span>
+        <span class="pareto-num">18,725</span>
+        <span class="pareto-pct bad">0.6%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">06</span>
+        <span class="pareto-name">saldo_a_favor_170426</span>
+        <span class="pareto-num">17,833</span>
+        <span class="pareto-pct bad">0.8%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">07</span>
+        <span class="pareto-name">saldo_favor_270426</span>
+        <span class="pareto-num">17,229</span>
+        <span class="pareto-pct bad">0.4%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">08</span>
+        <span class="pareto-name">regus_270426</span>
+        <span class="pareto-num">16,143</span>
+        <span class="pareto-pct bad">0.3%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">09</span>
+        <span class="pareto-name">saldo_favor_280426</span>
+        <span class="pareto-num">17,214</span>
+        <span class="pareto-pct bad">0.5%</span>
+      </div>
+      <div class="pareto-row">
+        <span class="pareto-rank">10</span>
+        <span class="pareto-name">saldo_favor_260426</span>
+        <span class="pareto-num">17,225</span>
+        <span class="pareto-pct bad">0.6%</span>
+      </div>
+    </div>
+  </div>
+
+  <p><strong>El patrón es quirúrgico:</strong> 5 templates <code>saldo_pagar_*</code> consecutivos (23, 24, 24, 25, 27 abril) hacia esencialmente la misma audiencia. 94K envíos, 506 respuestas, 0.5% rate. Lo mismo con <code>saldo_favor_*</code> (8 templates entre 13-28 abril, 138K envíos, 1.0%) y <code>regus_*</code> diarios (4 templates, 64K envíos, 0.4%).</p>
+
+  <p>Los <strong>Crossell</strong> son la excepción que confirma la regla: <code>regus_combo</code> 8.1%, <code>regus_black_friday</code> 6.8%, <code>Reguz Platech 70%</code> 4.0%. Si los volúmenes de adquisición Reguz (que están en &lt;1%) se redirigen a templates Crossell, el revenue del segmento Reguz se multiplica.</p>
+</section>
+
+<!-- ============= 9. HALLAZGOS ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 9 · HALLAZGOS TRANSVERSALES</div>
+  <h2>Lo que <em>aprendimos</em></h2>
+
+  <p><strong>El descuento no compra conversión por sí solo.</strong> <code>no-vinculados</code> con 95-off y 80-off convirtió 0.03%. <code>Anual-saldo-contra</code> con 30-off convirtió 0.8%. La intención del usuario (saldo en contra = urgencia real) pesa mucho más que el tamaño del descuento.</p>
+
+  <p><strong>La fatiga es del mensaje, no del canal.</strong> Los rebotes en las curvas de respuesta ocurren cuando cambia el copy, no cuando se da un día de descanso. Las audiencias no necesitan "descansar" del canal — necesitan un mensaje distinto. El cuarto envío del mismo copy está muerto incluso con días de pausa entre medio.</p>
+
+  <p><strong>La curva de descuento tiene un acantilado entre 50% y 60%.</strong> Por arriba (70-90%) la elasticidad es lineal y predecible; por debajo (≤40%) las redenciones se aplanan en demanda residual. El medio (40-60%) es zona ineficiente: paga descuento alto sin la respuesta del sweet spot.</p>
+
+  <p><strong>Cross-sell le gana a adquisición.</strong> Las dos campañas Crossell (ambas Reguz, post 20-Abr) tuvieron 22.4% y 5.9% de conversión, contra el promedio de 0.7% de WhatsApp en adquisición. Es un canal infrautilizado.</p>
+
+  <p><strong>El 23% del presupuesto se fue a una audiencia que perdió plata.</strong> Cortar <code>no-vinculados</code> libera ~$5,500 USD para reinvertir en audiencias top.</p>
+
+  <p><strong>Email está subexplotado.</strong> 3 campañas, 5% del costo del mes, generaron 20% del revenue. Justificaría 5x-10x el volumen al menos para probar si la performance se sostiene en otras audiencias.</p>
+
+  <p><strong>La frecuencia real está mal medida.</strong> Las audiencias top recibieron entre 8 y 17 días de envíos en abril, no 4-6 como pareciera a nivel de campaña. Las reglas de cadencia tienen que aplicarse a nivel de envío, no de tag.</p>
+
+  <p><strong>La inversión está mal distribuida en el calendario.</strong> Los 4 grupos de saldo + Reguz juntos invirtieron 82% del volumen del mes en el periodo de menor response rate (post-20-Abr promedio 0.65%). Los 8-10 días iniciales (con response rate 1.8-2.5%) recibieron solo ~18% del volumen.</p>
+</section>
+
+<!-- ============= 10. RECOMENDACIONES ============= -->
+<section>
+  <div class="section-tag">SECCIÓN 10 · PLAN DE ACCIÓN</div>
+  <h2>Recomendaciones para el <em>próximo ciclo</em></h2>
+  <p>Las siguientes seis acciones se derivan directamente del análisis: tres movimientos de "cortar" para liberar presupuesto, dos movimientos de "amplificar" para crecer revenue, y uno operativo. El impacto estimado conservador es entre $594K y $2.5M MXN incrementales sin aumentar el presupuesto.</p>
+
+  <div class="recs">
+    <div class="rec-item">
+      <div class="rec-num red">1</div>
+      <div>
+        <div class="rec-title">Cortar <code>no-vinculados</code> hasta diagnóstico</div>
+        <div class="rec-body">Esa audiencia consumió $99K MXN ($5,500 USD) y devolvió ROI 0.2x. Antes de impactarla otra vez, revisar segmentación y mensaje. <strong>La reasignación a Email u otras audiencias top genera $594K-$1.5M MXN adicionales</strong> bajo escenarios conservadores.</div>
+        <span class="rec-impact">Ahorro: $5,500 USD · Libera 23% del presupuesto</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num red">2</div>
+      <div>
+        <div class="rec-title">Rotar mensaje, no solo cadencia</div>
+        <div class="rec-body">El insight central de la fatiga es que <strong>el descanso no recupera audiencia, el cambio de copy sí</strong>. En vez de pausar 2 días entre envíos, rotar entre 2-3 mensajes con ángulos distintos (urgencia, beneficio, social proof, deadline). El cuarto envío del mismo copy está muerto incluso con pausa.</div>
+        <span class="rec-impact">Esperado: +50% recuperación de respuesta en hits 3-4</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num red">3</div>
+      <div>
+        <div class="rec-title">Eliminar la cadencia diaria de <code>saldo_pagar_*</code> y <code>saldo_favor_*</code></div>
+        <div class="rec-body">Templates casi idénticos lanzados día tras día (23, 24, 25, 27 abril) tuvieron response &lt;0.6%. <strong>Máximo 2 envíos a la misma audiencia con espaciado mínimo de 7 días</strong>, y el segundo con ángulo distinto al primero (no más descuento). Medir esto a nivel de envío real, no de campaña tag.</div>
+        <span class="rec-impact">Ahorro estimado: ~$4K USD · Sin pérdida de revenue significativa</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num amber">4</div>
+      <div>
+        <div class="rec-title">Salir de la zona ineficiente de descuento (40–60%)</div>
+        <div class="rec-body">El experimento de elasticidad mostró que entre 40 y 60% off se paga margen alto sin activar la conversión del sweet spot. <strong>Las campañas a audiencias con baja urgencia natural deberían usar 70%+ off</strong> para activar elasticidad lineal. <strong>Las audiencias con urgencia propia (saldo-contra) usan 10–30%</strong> porque pagan igual con o sin descuento alto.</div>
+        <span class="rec-impact">Ahorro de margen estimado: 5-8% sobre el revenue total del canal</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num amber">5</div>
+      <div>
+        <div class="rec-title">Pausar <code>Anual-saldo-0</code> hasta tener mensaje específico</div>
+        <div class="rec-body">ROI 1.5x (casi break-even), 0.23% conversión, ningún día superó 1.11% en el mes. La audiencia no responde al descuento porque no tiene urgencia natural (no debe ni le deben). Necesita una propuesta de valor distinta — no más descuento.</div>
+        <span class="rec-impact warn">Liberación: $13K MXN · Reasignar a Crossell</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num green">6</div>
+      <div>
+        <div class="rec-title">Multiplicar Crossell sobre Reguz y Base-Activa</div>
+        <div class="rec-body">Los templates <code>regus_combo</code> (8.1%), <code>regus_black_friday</code> (6.8%) y <strong>Reguz Crossell post-20Abr (22.4%)</strong> son los de mayor ROI absoluto del mes. Replicar la mecánica sobre toda la base existente con templates similares puede 3-5x el revenue del segmento Reguz.</div>
+        <span class="rec-impact">Oportunidad: $300K-$700K MXN incremental</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num green">7</div>
+      <div>
+        <div class="rec-title">Subir el peso de Email a 5-10x el volumen actual</div>
+        <div class="rec-body">3 campañas de Email generaron $460K MXN corregido con $23K MXN de costo. Probar Email a otras audiencias (saldo-contra, Base-Activa, Reguz) para aislar si el ROI 19.9x es del canal o de "Usuarios-sin-Producto". <strong>Aún diluyéndose a 12x, generaría $1M+ MXN incremental.</strong></div>
+        <span class="rec-impact">Oportunidad: $1M+ MXN incremental</span>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num amber">8</div>
+      <div>
+        <div class="rec-title">Resolver pipeline: deduplicación + tracking a nivel envío</div>
+        <div class="rec-body">Sin deduplicación retroactiva no se puede medir conversión real campaña-a-campaña en el peak estacional. Y sin tracking a nivel de envío real (no solo a nivel de tag), el equipo de marketing pierde visibilidad sobre la frecuencia con la que está impactando a las mismas audiencias. Auditar también el flujo <code>renovacion_*</code> y <code>Pendientes Aprobación</code> que solo entre dos templates absorbieron 20% de las respuestas del mes — si están dentro del presupuesto de marketing, el ROI real está sobreestimado.</div>
+        <span class="rec-impact warn">Bloqueador para análisis preciso</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Las cuatro reglas para el próximo calendario</h3>
+
+  <p><strong>1. Una audiencia recibe 2 envíos máximo dentro de 7 días.</strong> Medido a nivel de envío real, no de tag de campaña. El tercer envío requiere un ángulo nuevo (cross-sell, mensaje diferente, evento), no más descuento.</p>
+
+  <p><strong>2. Rotar mensaje, no descansar.</strong> El descanso no recupera audiencia — el cambio de copy sí. Tener 2-3 ángulos rotativos preparados antes de empezar la cadencia.</p>
+
+  <p><strong>3. Salir de la franja 40-60% de descuento.</strong> O subir a 70+ para activar elasticidad lineal, o bajar a 10-30% si la audiencia tiene urgencia propia. La franja del medio quema margen sin retorno.</p>
+
+  <p><strong>4. Cortar audiencias &lt;1.5x ROI a menos que se prueben con ángulo nuevo.</strong> Anual-saldo-0, no-vinculados, Churn — diagnóstico antes de seguir gastando ahí.</p>
+</section>
+
+<footer>
+  Postmortem Outbound · Abril 2026 · Heru Campaign Dashboard<br>
+  Revenue del canal: $2.29M MXN proyectado desde data limpia · Inversión $23,486 USD · ROI 5.4x
+</footer>
+
+</main>
+
+<script>
+Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.size = 10;
+Chart.defaults.color = '#9CA3AF';
+
+// FATIGA TABBED — single chart that updates on tab click
+const audData = {
+  pagar: {
+    days: ['8 abr', '10', '19', '20', '21', '22', '23', '24', '25', '27', '30'],
+    rates: [2.22, 1.13, 0.90, 1.11, 0.81, 0.90, 0.64, 0.56, 0.52, 0.58, 1.33],
+    peakIdx: 0,
+    recoveryIdx: 10,
+    meta: '12 envíos · 8 abr → 30 abr · base ≈18K usuarios/día',
+    burn: '−77%',
+    yMax: 2.5
+  },
+  favor: {
+    days: ['8 abr', '10', '13', '17', '21', '22', '25', '26', '27', '28', '29'],
+    rates: [1.82, 2.47, 1.24, 0.84, 0.70, 0.57, 0.58, 0.55, 0.40, 0.51, 1.32],
+    peakIdx: 1,
+    recoveryIdx: 10,
+    meta: '14 envíos · 8 abr → 29 abr · base ≈17K usuarios/día',
+    burn: '−78%',
+    yMax: 3
+  },
+  regus: {
+    days: ['14 abr', '15', '16', '17', '23', '25', '26', '27', '28'],
+    rates: [1.39, 0.72, 0.95, 0.93, 0.60, 0.53, 0.34, 0.29, 0.55],
+    peakIdx: 0,
+    recoveryIdx: -1,
+    meta: '11 envíos · 14 abr → 28 abr · base ≈16K usuarios/día',
+    burn: '−79%',
+    yMax: 1.5
+  }
+};
+
+let currentAud = 'pagar';
+
+const pointLabelsPlugin = {
+  id: 'pointLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const meta = chart.getDatasetMeta(0);
+    const data = chart.data.datasets[0].data;
+    const aud = audData[currentAud];
+    if (!meta.data) return;
+    meta.data.forEach((point, i) => {
+      const value = data[i];
+      if (value == null) return;
+      const isPeak = i === aud.peakIdx;
+      const isRecovery = i === aud.recoveryIdx;
+      const color = (isPeak || isRecovery) ? '#15803D' : '#DC2626';
+      ctx.save();
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.fillStyle = color;
+      // Position label above-right of point
+      const offsetX = 6;
+      const offsetY = -6;
+      ctx.textAlign = 'left';
+      ctx.fillText(value.toFixed(2) + '%', point.x + offsetX, point.y + offsetY);
+      ctx.restore();
+    });
+  }
+};
+
+const fatigueChart = new Chart(document.getElementById('chFatigueTab'), {
+  type: 'line',
+  data: {
+    labels: audData.pagar.days,
+    datasets: [{
+      data: audData.pagar.rates,
+      borderColor: '#DC2626',
+      backgroundColor: 'rgba(239, 68, 68, 0.08)',
+      borderWidth: 1.8,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBorderColor: 'white',
+      pointBorderWidth: 1.5,
+      pointBackgroundColor: function(context) {
+        const idx = context.dataIndex;
+        const aud = audData[currentAud];
+        if (idx === aud.peakIdx || idx === aud.recoveryIdx) return '#15803D';
+        return '#DC2626';
+      },
+      tension: 0.25,
+      fill: true,
+      spanGaps: false
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 22, right: 40, left: 4, bottom: 4 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1A365D', titleColor: '#FFF', bodyColor: '#FFF',
+        borderWidth: 0, padding: 8, cornerRadius: 4,
+        titleFont: { size: 11, weight: '600' }, bodyFont: { size: 11 },
+        callbacks: { label: (c) => c.parsed.y.toFixed(2) + '%' }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { font: { size: 11 }, color: '#9CA3AF', maxRotation: 0 }
+      },
+      y: {
+        min: 0,
+        max: 2.5,
+        grid: { color: '#F4D5D5', drawTicks: false, lineWidth: 1 },
+        border: { display: false },
+        ticks: {
+          font: { size: 10 },
+          color: '#9CA3AF',
+          callback: v => v.toFixed(1) + '%',
+          stepSize: 2.5 / 4
+        }
+      }
+    }
+  },
+  plugins: [pointLabelsPlugin]
+});
+
+function updateFatigueChart(audKey) {
+  currentAud = audKey;
+  const aud = audData[audKey];
+  fatigueChart.data.labels = aud.days;
+  fatigueChart.data.datasets[0].data = aud.rates;
+  fatigueChart.options.scales.y.max = aud.yMax;
+  fatigueChart.options.scales.y.ticks.stepSize = aud.yMax / 4;
+  fatigueChart.update();
+  document.getElementById('ftMetaText').textContent = aud.meta;
+  document.getElementById('ftBurn').textContent = aud.burn;
+}
+
+document.querySelectorAll('.ft-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ft-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    updateFatigueChart(tab.dataset.aud);
+  });
+});
+
+// ELASTICIDAD - bar chart con regiones color-coded
+new Chart(document.getElementById('chElasticidad'), {
+  type: 'bar',
+  data: {
+    labels: ['90% off', '80% off', '70% off', '60% off', '50% off', '≤40% off'],
+    datasets: [{
+      data: [200, 100, 50, 40, 10, 10],
+      backgroundColor: ['#22C55E', '#22C55E', '#22C55E', '#F59E0B', '#EF4444', '#9CA3AF'],
+      borderRadius: 4,
+      maxBarThickness: 64
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1A365D', titleColor: '#FFF', bodyColor: '#FFF',
+        borderWidth: 0, padding: 10, cornerRadius: 4,
+        titleFont: { size: 12, weight: '600' }, bodyFont: { size: 12 },
+        callbacks: { label: (c) => c.parsed.y + ' redenciones' }
+      },
+      // Drop labels above bars
+      annotation: false
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        border: { display: false },
+        ticks: { font: { size: 11, weight: '600' }, color: '#4B5563' }
+      },
+      y: {
+        beginAtZero: true,
+        max: 240,
+        grid: { color: '#F0F2F5' },
+        border: { display: false },
+        ticks: { font: { size: 10 }, callback: v => v }
+      }
+    }
+  },
+  plugins: [{
+    id: 'dropLabels',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      const meta = chart.getDatasetMeta(0);
+      const drops = ['baseline', '−50%', '−50%', '−20%', '−75%', 'flat'];
+      const colors = ['#9CA3AF', '#22C55E', '#22C55E', '#F59E0B', '#EF4444', '#9CA3AF'];
+      meta.data.forEach((bar, i) => {
+        const value = chart.data.datasets[0].data[i];
+        ctx.save();
+        // Value on top of bar
+        ctx.font = '600 13px Inter';
+        ctx.fillStyle = '#1A365D';
+        ctx.textAlign = 'center';
+        ctx.fillText(value, bar.x, bar.y - 22);
+        // Drop label
+        ctx.font = '600 11px Inter';
+        ctx.fillStyle = colors[i];
+        ctx.fillText(drops[i], bar.x, bar.y - 6);
+        ctx.restore();
+      });
+    }
+  }]
+});
+</script>
+
+</body>
+</html>
