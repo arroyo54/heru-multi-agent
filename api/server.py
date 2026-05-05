@@ -22,6 +22,7 @@ import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from agents.lead_qualifier.agent import LeadQualifierAgent
 from agents.copywriter.agent import CopywriterAgent
@@ -116,6 +117,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+_static_dir = Path(__file__).parent.parent / "static"
+if _static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
