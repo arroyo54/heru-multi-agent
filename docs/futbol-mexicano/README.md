@@ -2,11 +2,11 @@
 
 Sistema multiagente de investigación, diagnóstico, diseño institucional y planeación para construir, en 20 años, un sistema futbolístico mexicano sostenible: más jugadores de élite, mejores entrenadores, más exportación, clubes más sólidos, selecciones juveniles consistentes y una Selección Mayor que compita regularmente por cuartos/semifinal y, con una generación excepcional, por una final.
 
-## Estado actual: Fase 4 completada (benchmark internacional consolidado)
+## Estado actual: Fase 6 completada (integración preliminar del diseño)
 
-Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto avanzó fase por fase: Fase 1 (metodología), Fase 2 (línea base mexicana), Fase 3 (integración de línea base) y Fase 4 (benchmark internacional, 20 países en 5 bloques regionales + integración). **El Control 3 (Benchmark) está superado.** El proyecto está listo para iniciar la Fase 5 (diseño de los 14 pilares, Agentes 6–13), pendiente de aprobación.
+Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto avanzó fase por fase: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración de línea base), Fase 4 (benchmark internacional), Fase 5 (diseño de 8 pilares por los Agentes 6–13) y Fase 6 (integración preliminar del diseño). **El Control 4 (Diseño) está superado.** El proyecto está listo para iniciar la Fase 7 (Agentes 14 y 15: presupuesto e implementación), pendiente de aprobación.
 
-**No contiene todavía** el diseño de los 14 pilares, el presupuesto ni la hoja de ruta — esos son productos de la Fase 5 en adelante.
+**No contiene todavía** el presupuesto, la hoja de ruta de implementación, el Red Team (Fase 8) ni el diseño explícito de los pilares de Gobernanza, Marco jurídico, Reforma de competencias, Exportación e Integridad (que el prompt maestro no asigna a un agente de diseño propio — ver `09-fase6-integracion-preliminar-diseno.md`, sección 8).
 
 ## Contenido de esta carpeta
 
@@ -30,6 +30,15 @@ Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el pro
 | [`fase4-agente5d-benchmark-america.md`](./fase4-agente5d-benchmark-america.md) | Estados Unidos/MLS, Canadá, Argentina, Brasil, Colombia |
 | [`fase4-agente5e-benchmark-asia-oceania.md`](./fase4-agente5e-benchmark-asia-oceania.md) | Japón, Corea del Sur, Australia |
 | [`08-fase4-benchmark-consolidado.md`](./08-fase4-benchmark-consolidado.md) | Matriz de transferibilidad de los 20 países, hallazgo transversal, cierre del Control 3, paquete de traspaso a Fase 5 |
+| [`fase5-agente6-formacion-fuerzas-basicas.md`](./fase5-agente6-formacion-fuerzas-basicas.md) | Diseño del recorrido 5-23 años y estándares de fuerzas básicas (Pilares 3 y 5) |
+| [`fase5-agente7-escuela-universidad-comunidad.md`](./fase5-agente7-escuela-universidad-comunidad.md) | Diseño del modelo escuela-universidad-club sin copiar la NCAA (Pilar 4) |
+| [`fase5-agente8-entrenadores-ciencia.md`](./fase5-agente8-entrenadores-ciencia.md) | Diseño del sistema de licencias, metas por cada mil jugadores (Pilar 8) |
+| [`fase5-agente9-infraestructura.md`](./fase5-agente9-infraestructura.md) | Diseño de infraestructura priorizando mantenimiento sobre construcción nueva (Pilar 10) |
+| [`fase5-agente10-datos-scouting.md`](./fase5-agente10-datos-scouting.md) | Diseño de la arquitectura de datos interoperable, extendiendo el SIID (Pilar 9) |
+| [`fase5-agente11-selecciones.md`](./fase5-agente11-selecciones.md) | Diseño de continuidad institucional y captación de diáspora binacional (Pilar 13) |
+| [`fase5-agente12-cultura-medios.md`](./fase5-agente12-cultura-medios.md) | Diseño de estrategia narrativa sin propaganda (Pilar 12) |
+| [`fase5-agente13-femenil-inclusion.md`](./fase5-agente13-femenil-inclusion.md) | Diseño del Pilar 11 + auditoría transversal a los otros 4 pilares de la Tanda 1 |
+| [`09-fase6-integracion-preliminar-diseno.md`](./09-fase6-integracion-preliminar-diseno.md) | Resuelve duplicidades entre pilares, incorpora la corrección de infraestructura, cierra el Control 4, paquete de traspaso a Fase 7 |
 
 ## Hallazgos más relevantes de la línea base (resumen de una línea cada uno)
 
