@@ -4,7 +4,7 @@ Sistema multiagente de investigación, diagnóstico, diseño institucional y pla
 
 ## Estado: proyecto completo — las 11 fases del prompt maestro, Control 8 superado
 
-Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto recorrió las 11 fases previstas: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración), Fase 4 (benchmark internacional, 20 países), Fase 5 y 5b (diseño de los 13 pilares), Fase 6 y 6b (integración del diseño), Fase 7 (presupuesto e implementación), Fase 8 (Red Team — 15 críticas), Fase 9 (corrección del borrador), Fase 10 (integración final) y Fase 11 (revisión final, Control 8 superado). **38 documentos, ~10,800 líneas, todos commiteados y pusheados.**
+Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto recorrió las 11 fases previstas: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración), Fase 4 (benchmark internacional, 20 países), Fase 5 y 5b (diseño de los 13 pilares), Fase 6 y 6b (integración del diseño), Fase 7 (presupuesto e implementación), Fase 8 (Red Team — 15 críticas), Fase 9 (corrección del borrador), Fase 10 (integración final: documento ejecutivo, técnico, teoría de cambio, escenarios y presentación) y Fase 11 (revisión final, Control 8 superado). **41 documentos, ~11,400 líneas, todos commiteados y pusheados.**
 
 **Para leer solo lo esencial:** empieza por [`12-fase10-documento-ejecutivo.md`](./12-fase10-documento-ejecutivo.md) — 16 secciones, incluye visión, principios, 10 reformas prioritarias, primeros 100 días, presupuesto resumido, hoja de ruta y la decisión más importante del proyecto.
 
@@ -52,6 +52,9 @@ Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el pro
 | [`12-fase10-documento-ejecutivo.md`](./12-fase10-documento-ejecutivo.md) | **Documento ejecutivo** — visión, 10 principios, 10 reformas prioritarias, primeros 100 días, presupuesto resumido, hoja de ruta, manifiesto, decisión más importante |
 | [`13-fase10-tecnico-raci-dashboard-riesgos.md`](./13-fase10-tecnico-raci-dashboard-riesgos.md) | Documento técnico — RACI de 21 clústeres, dashboard de 15 indicadores, top 10 riesgos, propuesta regulatoria, índice de anexos |
 | [`14-fase11-revision-final.md`](./14-fase11-revision-final.md) | Checklist del Control 8, qué es y qué no es este proyecto, cierre formal |
+| [`15-teoria-de-cambio.md`](./15-teoria-de-cambio.md) | Insumos → actividades → productos → resultados intermedios → impacto, con supuestos causales explícitos |
+| [`16-escenarios.md`](./16-escenarios.md) | Continuista / reforma parcial / transformación integral, proyectados a los ciclos Mundialistas 2030-2046 (probabilidades ilustrativas, nivel D) |
+| [`17-presentacion.md`](./17-presentacion.md) | Versión en 18 diapositivas del documento ejecutivo |
 
 ## Hallazgos más relevantes de la línea base (resumen de una línea cada uno)
 
