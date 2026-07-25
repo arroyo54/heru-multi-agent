@@ -2,9 +2,9 @@
 
 Sistema multiagente de investigación, diagnóstico, diseño institucional y planeación para construir, en 20 años, un sistema futbolístico mexicano sostenible: más jugadores de élite, mejores entrenadores, más exportación, clubes más sólidos, selecciones juveniles consistentes y una Selección Mayor que compita regularmente por cuartos/semifinal y, con una generación excepcional, por una final.
 
-## Estado actual: diseño de los 14 pilares y presupuesto/cronograma completos — listo para el Red Team
+## Estado actual: Fase 9 completada (corrección del borrador) — listo para la integración final
 
-Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto avanzó fase por fase: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración de línea base), Fase 4 (benchmark internacional), Fase 5 (diseño de 8 pilares), Fase 6 (integración del diseño), Fase 7 (presupuesto e implementación) y Fase 5b/6b (diseño e integración de los 5 pilares que el prompt maestro no asignó a un agente propio: Gobernanza, Marco jurídico, Reforma de competencias, Exportación, Integridad). **Los 13 pilares con agente asignable están diseñados, presupuestados y calendarizados.** Pendiente: Fase 8 (Red Team, Agente 16).
+Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto avanzó fase por fase: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración), Fase 4 (benchmark internacional), Fase 5 y 5b (diseño de los 13 pilares), Fase 6 y 6b (integración del diseño), Fase 7 (presupuesto e implementación), Fase 8 (Red Team — 15 críticas, veredicto: no pasaba el Control 7 tal como estaba) y Fase 9 (corrección del borrador — las 3 críticas bloqueadoras resueltas, las 12 restantes con instrucción de cierre). **Pendiente: Fase 10 (Agente 17, integración final).**
 
 ## Contenido de esta carpeta
 
@@ -45,6 +45,8 @@ Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el pro
 | [`fase5b-pilar7-exportacion.md`](./fase5b-pilar7-exportacion.md) | Diseño del Pilar 7 (Exportación) |
 | [`fase5b-pilar14-integridad.md`](./fase5b-pilar14-integridad.md) | Diseño del Pilar 14 (Integridad) |
 | [`10-fase6b-integracion-pilares-faltantes.md`](./10-fase6b-integracion-pilares-faltantes.md) | Reconcilia los 5 pilares nuevos, cierra el vacío de diseño, paquete de traspaso al Red Team |
+| [`fase8-agente16-redteam.md`](./fase8-agente16-redteam.md) | 15 críticas independientes; veredicto: el proyecto no pasaba el Control 7 tal como estaba |
+| [`11-fase9-correccion-borrador.md`](./11-fase9-correccion-borrador.md) | Resuelve las 3 críticas bloqueadoras (adendum de presupuesto/cronograma, precondición PQ-I05, estándar de transparencia financiera) y fija instrucción de cierre para las 12 restantes |
 
 ## Hallazgos más relevantes de la línea base (resumen de una línea cada uno)
 
