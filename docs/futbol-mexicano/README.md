@@ -2,9 +2,11 @@
 
 Sistema multiagente de investigación, diagnóstico, diseño institucional y planeación para construir, en 20 años, un sistema futbolístico mexicano sostenible: más jugadores de élite, mejores entrenadores, más exportación, clubes más sólidos, selecciones juveniles consistentes y una Selección Mayor que compita regularmente por cuartos/semifinal y, con una generación excepcional, por una final.
 
-## Estado actual: Fase 9 completada (corrección del borrador) — listo para la integración final
+## Estado actual: Fase 10 completada (integración final) — pendiente Fase 11 (revisión final)
 
-Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto avanzó fase por fase: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración), Fase 4 (benchmark internacional), Fase 5 y 5b (diseño de los 13 pilares), Fase 6 y 6b (integración del diseño), Fase 7 (presupuesto e implementación), Fase 8 (Red Team — 15 críticas, veredicto: no pasaba el Control 7 tal como estaba) y Fase 9 (corrección del borrador — las 3 críticas bloqueadoras resueltas, las 12 restantes con instrucción de cierre). **Pendiente: Fase 10 (Agente 17, integración final).**
+Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el proyecto completo en una sola ejecución"), el proyecto recorrió las 10 fases previstas: Fase 1 (metodología), Fase 2 (línea base), Fase 3 (integración), Fase 4 (benchmark internacional, 20 países), Fase 5 y 5b (diseño de los 13 pilares), Fase 6 y 6b (integración del diseño), Fase 7 (presupuesto e implementación), Fase 8 (Red Team — 15 críticas), Fase 9 (corrección del borrador) y Fase 10 (integración final: documento ejecutivo, técnico, RACI, dashboard, riesgos, propuesta regulatoria). **Pendiente: Fase 11 (revisión final antes de publicación, Control 8).**
+
+**Para leer solo lo esencial:** empieza por [`12-fase10-documento-ejecutivo.md`](./12-fase10-documento-ejecutivo.md) — 16 secciones, incluye visión, principios, 10 reformas prioritarias, primeros 100 días, presupuesto resumido, hoja de ruta y la decisión más importante del proyecto.
 
 ## Contenido de esta carpeta
 
@@ -47,6 +49,8 @@ Siguiendo la instrucción de arranque del proyecto ("no intentes resolver el pro
 | [`10-fase6b-integracion-pilares-faltantes.md`](./10-fase6b-integracion-pilares-faltantes.md) | Reconcilia los 5 pilares nuevos, cierra el vacío de diseño, paquete de traspaso al Red Team |
 | [`fase8-agente16-redteam.md`](./fase8-agente16-redteam.md) | 15 críticas independientes; veredicto: el proyecto no pasaba el Control 7 tal como estaba |
 | [`11-fase9-correccion-borrador.md`](./11-fase9-correccion-borrador.md) | Resuelve las 3 críticas bloqueadoras (adendum de presupuesto/cronograma, precondición PQ-I05, estándar de transparencia financiera) y fija instrucción de cierre para las 12 restantes |
+| [`12-fase10-documento-ejecutivo.md`](./12-fase10-documento-ejecutivo.md) | **Documento ejecutivo** — visión, 10 principios, 10 reformas prioritarias, primeros 100 días, presupuesto resumido, hoja de ruta, manifiesto, decisión más importante |
+| [`13-fase10-tecnico-raci-dashboard-riesgos.md`](./13-fase10-tecnico-raci-dashboard-riesgos.md) | Documento técnico — RACI de 21 clústeres, dashboard de 15 indicadores, top 10 riesgos, propuesta regulatoria, índice de anexos |
 
 ## Hallazgos más relevantes de la línea base (resumen de una línea cada uno)
 
